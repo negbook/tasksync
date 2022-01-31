@@ -44,4 +44,3 @@ Tasksync.deleteloop = function(jobname)
 		end 
 	end 
 end 
-Tasksync.deletewhilesync = Tasksync.deleteloop

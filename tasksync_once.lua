@@ -40,7 +40,7 @@ Tasksync.addlooponce = function(jobname,durationgroup,fn) --jobname,duration,fun
 		end 
 	end 
 end 
-Tasksync.removelooponce = function(jobname)
+Tasksync.deletelooponce = function(jobname)
 	for durationgroup,v in pairs(Tasksync.tasksjob_once) do 
 		for i=1,#Tasksync.tasksjob_once[durationgroup] do 
 			if Tasksync.tasksjob_once[durationgroup][i] == jobname then 
@@ -53,4 +53,4 @@ Tasksync.removelooponce = function(jobname)
 		end 
 	end 
 end 
-Tasksync.deletelooponce = Tasksync.removelooponce
+

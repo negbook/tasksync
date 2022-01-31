@@ -31,7 +31,6 @@ Tasksync.addloopcustom = function(customgroup,defaultduration,fn) --jobname,dura
 	Tasksync.taskstodo_custom_newduration[customgroup] = defaultduration
 	Tasksync.__createbytemplate_custom(customgroup,defaultduration)
 end 
-Tasksync.removeloopcustom = function(customgroup)
+Tasksync.deleteloopcustom = function(customgroup)
 	Tasksync.taskstodo_custom[customgroup] = nil
 end 
-Tasksync.deleteloopcustom = Tasksync.removeloopcustom
