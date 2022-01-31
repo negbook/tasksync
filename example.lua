@@ -1,4 +1,3 @@
-Tasksync = {}
 load(LoadResourceFile("tasksync", 'tasksync.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_custom.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua'))()
