@@ -17,6 +17,8 @@ CreateThread(function()
 		run("SHOW_SHARD_WASTED_MP_MESSAGE","Big Text","Smaller Text",5)
 	end)
 	
+	Wait(8000)
+	Tasksync.ScaleformEnd("mp_big_message_freemode")
 end)
 --[=[
 local i = 1
