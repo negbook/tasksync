@@ -1,9 +1,10 @@
 --
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}
-Tasksync._scaleformInfo = {}
+Tasksync._scaleformReleaseDuration = {}
 
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local scaleformHandle = RequestScaleformMovie(scaleformName)
@@ -75,6 +76,25 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 		error("Duplicated Drawing Scaleform",2)
 	end 
 end 
+
+Tasksync.ScaleformDrawDuration = function (scaleformName,duration,...)
+local ops = {...}
+    local cb = ops[#ops]
+    table.remove(ops,#ops)
+    CreateThread(function()
+        Tasksync.ScaleformDraw(scaleformName,table.unpack(ops))
+        Tasksync._scaleformReleaseDuration[scaleformName] = GetGameTimer() + duration
+        Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
+            if Tasksync._scaleformReleaseDuration[scaleformName] and GetGameTimer() >= Tasksync._scaleformReleaseDuration[scaleformName] then 
+                Tasksync.ScaleformEnd(scaleformName);
+                if type(cb) == 'function' then 
+                    cb()
+                end 
+                Tasksync.deletelooponce("ScaleformDuration"..scaleformName,333);
+            end 
+        end)
+    end)
+end
 
 Tasksync.ScaleformCall = function(scaleformName,cb) 
 	if not cb then error("What is you want to call?",2) end 
