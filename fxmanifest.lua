@@ -1,5 +1,5 @@
 resource_type 'gametype' { name = 'nbc' }
-
+author 'negbook'
 
 
 client_scripts {
