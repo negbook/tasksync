@@ -49,6 +49,7 @@ end
 
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}
+Tasksync._scaleformInfo = {}
 
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local scaleformHandle = RequestScaleformMovie(scaleformName)
@@ -85,11 +86,7 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
 				if Tasksync._scaleformHandle[scaleformName] then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
-					if x then 
-						DrawScaleformMovie(Tasksync._scaleformHandle[scaleformName] ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
-					else 
-						DrawScaleformMovieFullscreen(Tasksync._scaleformHandle[scaleformName])
-					end 
+					DrawScaleformMovieFullscreen(Tasksync._scaleformHandle[scaleformName])
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
@@ -97,10 +94,31 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 				end 
 			end)
 		end 
+	else 
+		error("Duplicated Drawing Scaleform",2)
 	end 
 end 
 
-
+Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk, cb,layer) 
+	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
+		Tasksync._loadscaleform(scaleformName,cb)
+		if Tasksync._scaleformHandle[scaleformName] then 
+			Tasksync._scaleformHandleDrawing[scaleformName] = true  
+			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
+				if Tasksync._scaleformHandle[scaleformName] then 
+					if layer then SetScriptGfxDrawOrder(layer) end 
+					DrawScaleformMovie(Tasksync._scaleformHandle[scaleformName] ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
+					if layer then ResetScriptGfxAlign() end
+				else 
+					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
+					Tasksync._scaleformHandleDrawing[scaleformName] = false 
+				end 
+			end)
+		end
+	else 
+		error("Duplicated Drawing Scaleform",2)
+	end 
+end 
 
 Tasksync.ScaleformCall = function(scaleformName,cb) 
 	if not cb then error("What is you want to call?",2) end 
