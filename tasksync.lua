@@ -6,6 +6,7 @@ end
 Tasksync.tasksjob = {}
 Tasksync.taskstodo = {}
 Tasksync.__createbytemplate = function(durationgroup)
+	TriggerEvent("addlooplog",GetCurrentResourceName())
 	CreateThread(function()
 		local jobs = Tasksync.tasksjob
 		local todo = Tasksync.taskstodo
@@ -25,6 +26,7 @@ Tasksync.__createbytemplate = function(durationgroup)
 	end)
 end 	
 Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,function
+	
 	if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	Tasksync.taskstodo[jobname] = fn 
 	local creatable = false 
@@ -35,11 +37,13 @@ Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,functio
 	end 
 end 
 Tasksync.deleteloop = function(jobname)
+	
 	for durationgroup,v in pairs(Tasksync.tasksjob) do 
 		for i=1,#Tasksync.tasksjob[durationgroup] do 
 			if Tasksync.tasksjob[durationgroup][i] == jobname then 
 				Tasksync.taskstodo[jobname] = nil 
 				table.remove(Tasksync.tasksjob[durationgroup],i)
+				TriggerEvent("deletelooplog",GetCurrentResourceName())
 				if #Tasksync.tasksjob[durationgroup] == 0 then 
 					Tasksync.tasksjob[durationgroup] = nil
 				end 

@@ -5,6 +5,7 @@ end
 Tasksync.tasksjob_once = {}
 Tasksync.taskstodo_once = {}
 Tasksync.__createbytemplate_once = function(durationgroup)
+	TriggerEvent("addlooponcelog",GetCurrentResourceName())
 	CreateThread(function()
 		local jobs_once = Tasksync.tasksjob_once
 		local todo = Tasksync.taskstodo_once
@@ -24,6 +25,7 @@ Tasksync.__createbytemplate_once = function(durationgroup)
 	end)
 end 	
 Tasksync.addlooponce = function(jobname,durationgroup,fn) --jobname,duration,function
+	
 	--if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	local creatable = false 
 	local found = false 
@@ -44,11 +46,13 @@ Tasksync.addlooponce = function(jobname,durationgroup,fn) --jobname,duration,fun
 	end 
 end 
 Tasksync.deletelooponce = function(jobname)
+	
 	for durationgroup,v in pairs(Tasksync.tasksjob_once) do 
 		for i=1,#Tasksync.tasksjob_once[durationgroup] do 
 			if Tasksync.tasksjob_once[durationgroup][i] == jobname then 
 				Tasksync.taskstodo_once[jobname] = nil 
 				table.remove(Tasksync.tasksjob_once[durationgroup],i)
+				TriggerEvent("deletelooponcelog",GetCurrentResourceName())
 				if #Tasksync.tasksjob_once[durationgroup] == 0 then 
 					Tasksync.tasksjob_once[durationgroup] = nil
 				end 

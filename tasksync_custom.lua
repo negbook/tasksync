@@ -12,6 +12,7 @@ Tasksync.get_custom_duration = function(customgroup)
 	return Tasksync.taskstodo_custom_newduration[customgroup]
 end 
 Tasksync.__createbytemplate_custom = function(customgroup,defaultduration)
+	TriggerEvent("addloopcustomlog",GetCurrentResourceName())
 	CreateThread(function()
 		local todo = Tasksync.taskstodo_custom
 		local jobname = customgroup
@@ -32,5 +33,6 @@ Tasksync.addloopcustom = function(customgroup,defaultduration,fn) --jobname,dura
 	Tasksync.__createbytemplate_custom(customgroup,defaultduration)
 end 
 Tasksync.deleteloopcustom = function(customgroup)
+	TriggerEvent("deleteloopcustomlog",GetCurrentResourceName())
 	Tasksync.taskstodo_custom[customgroup] = nil
 end 
