@@ -1,6 +1,7 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_custom.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua'))()
+load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua'))()
 
 local i = 1
 Tasksync.addloop("test",1000,function()
