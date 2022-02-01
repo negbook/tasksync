@@ -1,6 +1,6 @@
-load(LoadResourceFile("tasksync", 'tasksync.lua'))()
-load(LoadResourceFile("tasksync", 'tasksync_custom.lua'))()
-load(LoadResourceFile("tasksync", 'tasksync_once.lua'))()
+load(LoadResourceFile("tasksync", 'tasksync.lua.code'))()
+load(LoadResourceFile("tasksync", 'tasksync_custom.lua.code'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.code'))()
 
 
 
