@@ -7,6 +7,7 @@ client_scripts {
 'tasksync_custom.lua',
 'tasksync_once.lua',
 'tasksync_with_scaleform.lua',
+'tasksync_with_draw.lua',
 'example.lua'
 }
 game 'gta5'

@@ -2,7 +2,10 @@ load(LoadResourceFile("tasksync", 'tasksync.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_custom.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua'))()
+load(LoadResourceFile("tasksync", 'tasksync_with_draw.lua'))()
+
 CreateThread(function()
+	TextDrawCreate(0.4,0.4,"test")
 	--[=[
 	Tasksync.ScaleformDraw("mp_big_message_freemode",function(initialise)
 		initialise("SHOW_SHARD_WASTED_MP_MESSAGE","Big Text","Smaller Text",5)
