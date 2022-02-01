@@ -11,9 +11,11 @@ Tasksync.__createbytemplate = function(durationgroup)
 			local jobs = Tasksync.tasksjob
 			local tasks = jobs[durationgroup]
 			local todo = Tasksync.taskstodo
-			for i=1,#tasks do 
-				local jobname = tasks[i]
-				if todo[jobname] then todo[jobname]() end 
+			if tasks then 
+				for i=1,#tasks do 
+					local jobname = tasks[i]
+					if todo[jobname] then todo[jobname]() end 
+				end 
 			end 
 			Wait(durationgroup)
 		until not tasks 
@@ -47,9 +49,7 @@ end
 
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}
--- Tasksync.ScaleformRequest("eng_to_chn",function(run)
---	run("TRANSLATE_TEXT","hello")	
--- end)
+
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local scaleformHandle = RequestScaleformMovie(scaleformName)
 	while not HasScaleformMovieLoaded(scaleformHandle) do
@@ -77,20 +77,20 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 	end 
 end
 
-Tasksync.ScaleformDraw = function(scaleformName,cb,draworder, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk) 
+Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk) 
 	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
 			Tasksync._scaleformHandleDrawing[scaleformName] = true  
 			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
 				if Tasksync._scaleformHandle[scaleformName] then 
-					if draworder then SetScriptGfxDrawOrder(draworder) end 
+					if layer then SetScriptGfxDrawOrder(layer) end 
 					if x then 
 						DrawScaleformMovie(Tasksync._scaleformHandle[scaleformName] ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
 					else 
 						DrawScaleformMovieFullscreen(Tasksync._scaleformHandle[scaleformName])
 					end 
-					if draworder then ResetScriptGfxAlign() end
+					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
 					Tasksync._scaleformHandleDrawing[scaleformName] = false 
@@ -108,5 +108,7 @@ Tasksync.ScaleformCall = function(scaleformName,cb)
 end 
 
 Tasksync.ScaleformEnd = function(scaleformName,cb) 
-	SetScaleformMovieAsNoLongerNeeded(scaleformHandle)
+	SetScaleformMovieAsNoLongerNeeded(Tasksync._scaleformHandle[scaleformName])
+	Tasksync._scaleformHandle[scaleformName] = nil 
 end 
+
