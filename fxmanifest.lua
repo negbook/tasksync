@@ -14,6 +14,7 @@ client_scripts {
 }
 
 server_scripts {
+'versionchecker.lua',
 'log.lua',
 'tasksync.lua',
 'tasksync_custom.lua',
