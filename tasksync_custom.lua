@@ -13,12 +13,12 @@ Tasksync.get_custom_duration = function(customgroup)
 end 
 Tasksync.__createbytemplate_custom = function(customgroup,defaultduration)
 	CreateThread(function()
+		local todo = Tasksync.taskstodo_custom
+		local jobname = customgroup
+		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.set_custom_duration(customgroup,newduration) end}),getter=function(t,newduration) return Tasksync.get_custom_duration(customgroup) end}
+		local fn = todo[jobname]
 		repeat
-			local todo = Tasksync.taskstodo_custom
-			local jobname = customgroup
-			local predelaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.set_custom_duration(customgroup,newduration) end}),getter=function(t,newduration) return Tasksync.get_custom_duration(customgroup) end}
-            local delaySetter = predelaySetter
-			if todo[jobname] then todo[jobname](delaySetter) end 
+			if fn then fn(delaySetter) end 
 			Wait(Tasksync.taskstodo_custom_newduration[customgroup])
 		until not todo[customgroup] 
 		--print('breaked2')

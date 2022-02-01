@@ -7,14 +7,15 @@ Tasksync.tasksjob = {}
 Tasksync.taskstodo = {}
 Tasksync.__createbytemplate = function(durationgroup)
 	CreateThread(function()
+		local jobs = Tasksync.tasksjob
+		local todo = Tasksync.taskstodo
+		local tasks = jobs[durationgroup]
 		repeat
-			local jobs = Tasksync.tasksjob
-			local tasks = jobs[durationgroup]
-			local todo = Tasksync.taskstodo
 			if tasks then 
 				for i=1,#tasks do 
 					local jobname = tasks[i]
-					if todo[jobname] then todo[jobname]() end 
+					local fn = todo[jobname]
+					if fn then fn() end 
 				end 
 			end 
 			Wait(durationgroup)
@@ -84,9 +85,10 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 		if Tasksync._scaleformHandle[scaleformName] then 
 			Tasksync._scaleformHandleDrawing[scaleformName] = true  
 			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
-				if Tasksync._scaleformHandle[scaleformName] then 
+				local handle = Tasksync._scaleformHandle[scaleformName]
+				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
-					DrawScaleformMovieFullscreen(Tasksync._scaleformHandle[scaleformName])
+					DrawScaleformMovieFullscreen(handle)
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
@@ -105,9 +107,10 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 		if Tasksync._scaleformHandle[scaleformName] then 
 			Tasksync._scaleformHandleDrawing[scaleformName] = true  
 			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
-				if Tasksync._scaleformHandle[scaleformName] then 
+				local handle = Tasksync._scaleformHandle[scaleformName]
+				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
-					DrawScaleformMovie(Tasksync._scaleformHandle[scaleformName] ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
+					DrawScaleformMovie(handle ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)

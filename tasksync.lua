@@ -7,13 +7,16 @@ Tasksync.tasksjob = {}
 Tasksync.taskstodo = {}
 Tasksync.__createbytemplate = function(durationgroup)
 	CreateThread(function()
+		local jobs = Tasksync.tasksjob
+		local todo = Tasksync.taskstodo
+		local tasks = jobs[durationgroup]
 		repeat
-			local jobs = Tasksync.tasksjob
-			local tasks = jobs[durationgroup]
-			local todo = Tasksync.taskstodo
-			for i=1,#tasks do 
-				local jobname = tasks[i]
-				if todo[jobname] then todo[jobname]() end 
+			if tasks then 
+				for i=1,#tasks do 
+					local jobname = tasks[i]
+					local fn = todo[jobname]
+					if fn then fn() end 
+				end 
 			end 
 			Wait(durationgroup)
 		until not tasks 
