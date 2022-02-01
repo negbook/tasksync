@@ -1,3 +1,13 @@
+local HexToRGBA = function (hex,skipkeys)
+	local r = hex >> 24
+	local offset = hex - (r << 24)
+	local g = offset >> 16
+	local offset = offset - (g << 16)
+	local b = offset >> 8
+	local offset = offset - (b << 8)
+	local a = offset
+	return (not skipkeys and {r=r,g=g,b=b,a=a}) or {r,g,b,a};
+end 
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end 
@@ -87,7 +97,7 @@ end
 		local height = GetRenderedCharacterHeight(0.5,0)
 		Draw3DTexts[handle] = {actionname =  actionname,attachentity = nil,drawdistance=drawdistance,coords=coords,textsizeX=0.5,textsizeY=0.5,width=width,height=height,text = text,font = 0,color={255,255,255,255},outline = 1,usebox = 1,boxcolor={255,255,255,255} }
 		if not Draw3DTexts[handle].show then 
-			Tasksync.createloop(Draw3DTexts[handle].actionname,0,function()
+			Tasksync.addloop(Draw3DTexts[handle].actionname,0,function()
 				local entity = Draw3DTexts[handle].attachentity
 				if entity and DoesEntityExist(entity) then 
 					Draw3DTexts[handle].coords = GetOffsetFromEntityInWorldCoords(entity ,offsetX ,offsetY ,offsetZ )
@@ -115,7 +125,7 @@ end
 		return handle
 	end 
 	Update3DTextLabelColor = function(handle,color) -- 0xff0000ff
-		Draw3DTexts[handle].color = NB.Utils.Colour.HexToRGBA(color,true) 
+		Draw3DTexts[handle].color = HexToRGBA(color,true) 
 	end 
 	Update3DTextLabelFont = function(handle,font)
 		Draw3DTexts[handle].font = font
@@ -137,7 +147,7 @@ end
 		Draw3DTexts[handle].height = GetRenderedCharacterHeight(textsizeY,0)
 	end 
 	Update3DTextLabelBoxColor = function(handle,boxcolor) -- 0xff0000ff
-		Draw3DTexts[handle].boxcolor = NB.Utils.Colour.HexToRGBA(boxcolor,true)
+		Draw3DTexts[handle].boxcolor = HexToRGBA(boxcolor,true)
 	end 
 	Update3DTextLabelSetString = function(handle,text)
 		Draw3DTexts[handle].text = text
@@ -200,7 +210,7 @@ end
 			TextDraws[handle].hide = nil
 		end 	
 		if not TextDraws[handle].show then 
-			Tasksync.createloop(TextDraws[handle].actionname,0,function()
+			Tasksync.addloop(TextDraws[handle].actionname,0,function()
 				if not TextDraws[handle].hide then 
 					TextDraws[handle].show = true 
 					DrawText2D(TextDraws[handle].text,TextDraws[handle].x,TextDraws[handle].y,TextDraws[handle].textsizeX,TextDraws[handle].textsizeY,TextDraws[handle].width,TextDraws[handle].height,TextDraws[handle].font,TextDraws[handle].color,TextDraws[handle].outline,TextDraws[handle].usebox,TextDraws[handle].boxcolor)
@@ -212,7 +222,7 @@ end
 		TextDraws[handle].hide = true
 	end 
 	TextDrawColor = function(handle,color) -- 0xff0000ff
-		TextDraws[handle].color = NB.Utils.Colour.HexToRGBA(color,true) 
+		TextDraws[handle].color = HexToRGBA(color,true) 
 	end 
 	TextDrawFont = function(handle,font)
 		TextDraws[handle].font = font
@@ -234,7 +244,7 @@ end
 		TextDraws[handle].height = GetRenderedCharacterHeight(textsizeY,0)
 	end 
 	TextDrawBoxColor = function(handle,boxcolor) -- 0xff0000ff
-		TextDraws[handle].boxcolor = NB.Utils.Colour.HexToRGBA(boxcolor,true)
+		TextDraws[handle].boxcolor = HexToRGBA(boxcolor,true)
 	end 
 	TextDrawSetString = function(handle,text)
 		TextDraws[handle].text = text
