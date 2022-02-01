@@ -3,6 +3,10 @@ game 'gta5'
 author 'negbook'
 
 lua54 'yes'
+escrow_ignore {
+	'example.lua',
+	'example-sv.lua'
+}
 
 files {
 	'tasksync.lua.sourcecode',

@@ -11,13 +11,14 @@ function performVersionCheck()
 	PerformHttpRequest(VersionAPIRequest, function(err, rText, headers)
 		local dtbl = json.decode(rText)
 		local decoded 
-		for i,v in pairs(dtbl) do 
-			if v.name ==GetCurrentResourceName() then 
-				decoded = v
-				
+		if dtbl then 
+			for i,v in pairs(dtbl) do 
+				if v.name ==GetCurrentResourceName() then 
+					decoded = v
+					
+				end 
 			end 
 		end 
-		
 		
 		if err == 200 then
 			if decoded and decoded.version and tonumber(decoded.version) > tonumber(_VERSION) then 
