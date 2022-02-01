@@ -1,5 +1,5 @@
 --
-load(LoadResourceFile("tasksync", 'tasksync.lua'))()
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}

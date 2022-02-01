@@ -1,4 +1,4 @@
-load(LoadResourceFile("tasksync", 'tasksync.lua'))()
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 	local HexToRGBA = function (hex,skipkeys)
 		local r = hex >> 24
 		local offset = hex - (r << 24)

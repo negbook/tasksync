@@ -5,21 +5,21 @@ author 'negbook'
 lua54 'yes'
 
 files {
-	'tasksync.lua.code',
-	'tasksync_custom.lua.code',
-	'tasksync_once.lua.code',
-	'tasksync_with_scaleform.lua.code',
-	'tasksync_with_drawtext.lua.code',
+	'tasksync.lua.sourcecode',
+	'tasksync_custom.lua.sourcecode',
+	'tasksync_once.lua.sourcecode',
+	'tasksync_with_scaleform.lua.sourcecode',
+	'tasksync_with_drawtext.lua.sourcecode',
 }
 client_scripts {
 'log.lua',
---'example.lua'
+'example.lua'
 }
 
 server_scripts {
 'versionchecker.lua',
 'log.lua',
---'example-sv.lua'
+'example-sv.lua'
 }
 
 

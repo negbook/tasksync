@@ -1,8 +1,8 @@
-load(LoadResourceFile("tasksync", 'tasksync.lua.code'))()
-load(LoadResourceFile("tasksync", 'tasksync_custom.lua.code'))()
-load(LoadResourceFile("tasksync", 'tasksync_once.lua.code'))()
-load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.code'))()
-load(LoadResourceFile("tasksync", 'tasksync_with_drawtext.lua.code'))()
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_custom.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_with_drawtext.lua.sourcecode'))()
 
 CreateThread(function()
 	local handle = TextDrawCreate(0.4,0.4,"test")
