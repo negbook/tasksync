@@ -37,6 +37,19 @@ AddEventHandler("deletelooponcelog",function(resourcename)
 	end 
 end)
 
+AddEventHandler('onResourceStop', function(resourcename)
+  if Logs[resourcename.."_".. "loop"] and Logs[resourcename.."_".. "loop"] > 0 then 
+	Logs[resourcename.."_".. "loop"] = 0
+  end 
+  if Logs[resourcename.."_".. "loopcustom"] and Logs[resourcename.."_".. "loopcustom"] > 0 then 
+	Logs[resourcename.."_".. "loopcustom"] = 0
+  end
+  if Logs[resourcename.."_".. "looponce"] and Logs[resourcename.."_".. "looponce"] > 0 then 
+	Logs[resourcename.."_".. "looponce"] = 0
+  end
+end)
+
+
 local function IsServer() return IsDuplicityVersion() end ;
 local function IsClient() return not IsDuplicityVersion() end ;
 local function IsShared() return true end ;
