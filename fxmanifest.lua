@@ -13,13 +13,13 @@ files {
 }
 client_scripts {
 'log.lua',
-'example.lua'
+--'example.lua'
 }
 
 server_scripts {
 'versionchecker.lua',
 'log.lua',
-'example-sv.lua'
+--'example-sv.lua'
 }
 
 
