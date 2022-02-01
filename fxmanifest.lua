@@ -1,4 +1,5 @@
-resource_type 'gametype' { name = 'nbc' }
+fx_version 'cerulean'
+game 'gta5'
 author 'negbook'
 
 
@@ -9,7 +10,7 @@ client_scripts {
 'tasksync_once.lua',
 'tasksync_with_scaleform.lua',
 'tasksync_with_drawtext.lua',
-'example.lua'
+--'example.lua'
 }
 
 server_scripts {
@@ -17,9 +18,8 @@ server_scripts {
 'tasksync.lua',
 'tasksync_custom.lua',
 'tasksync_once.lua',
-'example-sv.lua'
+--'example-sv.lua'
 }
-game 'gta5'
-fx_version 'cerulean'
+
 
 
