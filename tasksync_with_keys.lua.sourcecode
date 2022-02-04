@@ -24,14 +24,19 @@ Tasksync.IsKeyMappingGroupActive = function(group)
 end 
 Tasksync.RegisterKeyboardCallback = function(group,name,key,description) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) end 
 Tasksync.RegisterMouseWheelCallback = function(group,name,key,description) RegisterCommand(name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterKeyMapping(name, IsStringNullOrEmpty(description) and name or description , 'MOUSE_WHEEL', key) end 
-Tasksync.RegisterMouseButtonCallback = function(group,name,key,description) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_BUTTON', key) end 
+Tasksync.RegisterMouseButtonCallback = function(group,name,key,description) 
+	RegisterCommand(name, function() 
+	Tasksync.TriggerRegisterKeyEvent(group,name) end, false) 
+	RegisterKeyMapping(name, IsStringNullOrEmpty(description) and name or description , 'MOUSE_BUTTONANY', key) 
+end 
 Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,firststepdelay,stepduration) 
 	RegisterCommand("+"..name, function() 
 		Tasksync.TriggerRegisterKeyEvent(group,name) 
 		local delaytime = GetGameTimer() + (firststepdelay or 500)
+		
 		Tasksync.addlooponce("KEY_LOOP:"..group..name,stepduration or 300,function()
 			if GetGameTimer() > delaytime then 
-				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLDING") 
+				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLDING")
 			end 
 		end)
 	end, false) 
@@ -40,21 +45,4 @@ Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,firs
 		Tasksync.deletelooponce("KEY_LOOP:"..group..name)
 	end, false) 
 	RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) 
-end 
-Tasksync.RegisterMouseButtonCallbackLoop = function(group,name,key,description,delay) 
-	RegisterCommand("+"..name, function() 
-		Tasksync.TriggerRegisterKeyEvent(group,name) 
-		local delaytime = GetGameTimer() + (firststepdelay or 500)
-		Tasksync.addlooponce("KEY_LOOP:"..group..name,stepduration or 300,function()
-			if GetGameTimer() > delaytime then 
-				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLDING") 
-			end 
-		end)
-	end, false) 
-	RegisterCommand("-"..name, function() 
-		Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") 
-		Tasksync.deletelooponce("KEY_LOOP:"..group..name)
-	end, false) 
-	
-	RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_BUTTON', key) 
 end 
