@@ -28,7 +28,7 @@ Tasksync.RegisterMouseButtonCallback = function(group,name,key,description) Regi
 Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,delay) 
 	RegisterCommand("+"..name, function() 
 		Tasksync.TriggerRegisterKeyEvent(group,name) 
-		local delaytime = GetGameTimer() + (delay or 0)
+		local delaytime = GetGameTimer() + (delay or 300)
 		Tasksync.addlooponce("KEY_LOOP:"..group..name,300,function()
 			if GetGameTimer() > delaytime then 
 				Tasksync.TriggerRegisterKeyEvent(group,name) 
@@ -44,7 +44,7 @@ end
 Tasksync.RegisterMouseButtonCallbackLoop = function(group,name,key,description,delay) 
 	RegisterCommand("+"..name, function() 
 		Tasksync.TriggerRegisterKeyEvent(group,name) 
-		local delaytime = GetGameTimer() + (delay or 0)
+		local delaytime = GetGameTimer() + (delay or 300)
 		Tasksync.addlooponce("KEY_LOOP:"..group..name,300,function()
 			if GetGameTimer() > delaytime then 
 				Tasksync.TriggerRegisterKeyEvent(group,name) 
