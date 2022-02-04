@@ -20,7 +20,7 @@ AddEventHandler("addloopcustomlog",function(resourcename)
 end)
 
 AddEventHandler("deleteloopcustomlog",function(resourcename)
-	if Logs[resourcename.."_".. "loop"] > 0 then 
+	if Logs[resourcename.."_".. "loopcustom"] > 0 then 
 	Logs[resourcename.."_".. "loopcustom"] = Logs[resourcename.."_".. "loopcustom"] - 1
 	end 
 end)
@@ -32,7 +32,7 @@ AddEventHandler("addlooponcelog",function(resourcename)
 end)
 
 AddEventHandler("deletelooponcelog",function(resourcename)
-	if Logs[resourcename.."_".. "loop"] > 0 then 
+	if Logs[resourcename.."_".. "looponce"] > 0 then 
 	Logs[resourcename.."_".. "looponce"]  = Logs[resourcename.."_".. "looponce"]  - 1
 	end 
 end)
