@@ -31,7 +31,7 @@ Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,firs
 		local delaytime = GetGameTimer() + (firststepdelay or 500)
 		Tasksync.addlooponce("KEY_LOOP:"..group..name,stepduration or 300,function()
 			if GetGameTimer() > delaytime then 
-				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLD") 
+				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLDING") 
 			end 
 		end)
 	end, false) 
@@ -47,7 +47,7 @@ Tasksync.RegisterMouseButtonCallbackLoop = function(group,name,key,description,d
 		local delaytime = GetGameTimer() + (firststepdelay or 500)
 		Tasksync.addlooponce("KEY_LOOP:"..group..name,stepduration or 300,function()
 			if GetGameTimer() > delaytime then 
-				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLD") 
+				Tasksync.TriggerRegisterKeyEvent(group,name.."_HOLDING") 
 			end 
 		end)
 	end, false) 
