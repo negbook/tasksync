@@ -82,7 +82,23 @@ local ops = {...}
     local cb = ops[#ops]
     table.remove(ops,#ops)
     CreateThread(function()
-        Tasksync.ScaleformDraw(scaleformName,table.unpack(ops))
+        if not Tasksync._scaleformHandleDrawing[scaleformName] then 
+			Tasksync._loadscaleform(scaleformName,cb)
+			if Tasksync._scaleformHandle[scaleformName] then 
+				Tasksync._scaleformHandleDrawing[scaleformName] = true  
+				Tasksync.addloop('scaleforms:drawwithendduration:'..scaleformName,0,function()
+					local handle = Tasksync._scaleformHandle[scaleformName]
+					if handle then 
+						if layer then SetScriptGfxDrawOrder(layer) end 
+						DrawScaleformMovieFullscreen(handle)
+						if layer then ResetScriptGfxAlign() end
+					else 
+						Tasksync.deleteloop('scaleforms:drawwithendduration:'..scaleformName)
+						Tasksync._scaleformHandleDrawing[scaleformName] = false 
+					end 
+				end)
+			end 
+		end 
         Tasksync._scaleformReleaseDuration[scaleformName] = GetGameTimer() + duration
         Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
             if Tasksync._scaleformReleaseDuration[scaleformName] and GetGameTimer() >= Tasksync._scaleformReleaseDuration[scaleformName] then 

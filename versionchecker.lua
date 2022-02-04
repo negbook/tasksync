@@ -22,7 +22,7 @@ function performVersionCheck()
 		
 		if err == 200 then
 			if decoded and decoded.version and tonumber(decoded.version) > tonumber(_VERSION) then 
-			    print("Version Outdated.Please Contact / DM negbook on the forum to get newest version.")
+			    print("Version Outdated.Visit https://github.com/negbook/tasksync to get newest version.")
 			else 
 				print("Up-to-date.")
 			

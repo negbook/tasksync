@@ -1,0 +1,31 @@
+--
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
+local IsStringNullOrEmpty = function(str) return (str == nil or str == "") end 
+Tasksync._RegisteredKeyEvent = {}
+Tasksync._ActiveKeyMappingGroup = {}
+Tasksync.RegisterKeyEvent = function(group,name,cb)
+	Tasksync._RegisteredKeyEvent[group .. "_" ..name] = cb 
+end 
+Tasksync.UnRegisterKeyEvent = function(group,name)
+	if Tasksync._RegisteredKeyEvent[group .. "_" ..name] then Tasksync._RegisteredKeyEvent[group .. "_" ..name] = nil end 
+end 
+Tasksync.TriggerRegisterKeyEvent = function(group,name)
+	if Tasksync._RegisteredKeyEvent and Tasksync._ActiveKeyMappingGroup[group] then 
+		if Tasksync._RegisteredKeyEvent[group .. "_" ..name] then 
+			Tasksync._RegisteredKeyEvent[group .. "_" ..name]()  
+		end
+	end 
+end 
+Tasksync.SetKeyMappingGroupActive = function(group,bool) 
+	Tasksync._ActiveKeyMappingGroup[group] = bool 
+end 
+Tasksync.IsKeyMappingGroupActive = function(group)
+	return Tasksync._ActiveKeyMappingGroup[group]
+end 
+Tasksync.RegisterKeyboardCallback = function(group,name,key,description) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) end 
+Tasksync.RegisterMouseWheelCallback = function(group,name,key,description) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_WHEEL', key) end 
+Tasksync.RegisterMouseButtonCallback = function(group,name,key,description) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_BUTTON', key) end 
+Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,delay,fn) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) end 
+Tasksync.RegisterMouseWheelCallbackLoop = function(group,name,key,description,delay,fn) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_WHEEL', key) end 
+Tasksync.RegisterMouseButtonCallbackLoop = function(group,name,key,description,delay,fn) RegisterCommand("+"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name) end, false) RegisterCommand("-"..name, function() Tasksync.TriggerRegisterKeyEvent(group,name.."_RELEASED") end, false) RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'MOUSE_BUTTON', key) end 

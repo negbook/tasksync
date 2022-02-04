@@ -3,7 +3,7 @@ load(LoadResourceFile("tasksync", 'tasksync_custom.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_drawtext.lua.sourcecode'))()
-
+load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 CreateThread(function()
 	local handle = TextDrawCreate(0.4,0.4,"test")
 	TextDrawShow(handle)
