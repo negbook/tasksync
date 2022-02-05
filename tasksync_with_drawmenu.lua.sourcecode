@@ -105,8 +105,10 @@ end
 Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
 	if not Tasksync.ButtonOptions[menugroup] then Tasksync.ButtonOptions[menugroup] = {} end 
 	Tasksync.ButtonOptions[menugroup][slot] = {...}
-	if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} end 
-	Tasksync.MenuSlotValue[menugroup][slot] = 1
+	if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} 
+		Tasksync.MenuSlotValue[menugroup][slot] = 1
+	end 
+	
 end 
 Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
 	local bdo = Tasksync.ButtonOptions[menugroup]
@@ -161,12 +163,13 @@ end
 Tasksync.MenuDrawGetSelection = function(menugroup,needx)
 	return needx and Tasksync.Selection[menugroup] or Tasksync.Selection[menugroup].y
 end 
-Tasksync.MenuEnd = function(menugroup)
+Tasksync.MenuDrawEnd = function(menugroup)
 	if Tasksync.Special["PI"] and Tasksync.ScaleformEnd then 
 		Tasksync.ScaleformEnd("MP_MENU_GLARE")
 	end 
 	Tasksync.deleteloop("drawmenu:"..menugroup)
 end 
+Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckType = function(menutype)
 	local menutype = menutype or "default"
 	if menutype == "PI" or menutype == "PersonalInteraction" then 

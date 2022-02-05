@@ -227,7 +227,7 @@ end)
 
 CreateThread(function()
 	Wait(60000)
-	Tasksync.MenuEnd("testmenu")
+	Tasksync.MenuDrawEnd("testmenu")
 end)
 
 --[=[
