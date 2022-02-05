@@ -11,8 +11,8 @@ local HexToRGBA = function (hex,skipkeys)
 	local a = offset
 	return (not skipkeys and {r=r,g=g,b=b,a=a}) or {r,g,b,a};
 end 
-local menuWidth = 0.256
-local titleHeight = 0.09
+local menuWidth = 0.258
+local titleHeight = 0.091
 local buttonHeight = 0.038
 local buttonRectHeight = 0
 local buttonFont = 0
@@ -21,7 +21,7 @@ local buttonTextXOffset = 0.005
 local buttonTextYOffset = 0.005
 local basicx = 0.0525
 local basicdrawingx = basicx + menuWidth / 2
-local basicy = 0.088
+local basicy = 0.085
 local basicbuttony = basicy + titleHeight + buttonTextYOffset
 local basicfont = 0
 local buttonTransparent = 140
@@ -69,10 +69,22 @@ local function drawMenuRect(height, color, offsetY, alpha)
 	lastY = y + height 
 	return lastY
 end
+local function drawMenuSprite(sprite, height, color, offsetY, alpha)
+	local y = lastY + (offsetY or 0.0)
+	local r,g,b,a = GetHudColour(color)
+    DrawSprite("CommonMenu", sprite ,basicdrawingx,y + height / 2,menuWidth, height,0, r, g, b, (alpha or a))
+	lastY = y + height 
+	return lastY
+end
 local function drawMenuRectFocus(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
 end
+local function drawMenuSpriteFocus(y, height, color, offsetY, alpha)
+	local r,g,b,a = GetHudColour(color)
+	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
+end
+Tasksync.Special = {}
 Tasksync.Buttons = {}
 Tasksync.ButtonDescriptions = {}
 Tasksync.Selection = {y=1,x=1}
@@ -105,10 +117,28 @@ Tasksync.GetSelection = function(menugroup,needx)
 	return needx and Tasksync.Selection[menugroup] or Tasksync.Selection[menugroup].y
 end 
 Tasksync.MenuEnd = function(menugroup)
+	if Tasksync.Special["PI"] and Tasksync.ScaleformEnd then 
+		Tasksync.ScaleformEnd("MP_MENU_GLARE")
+	end 
 	Tasksync.deleteloop("drawmenu:"..menugroup)
 end 
-Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot)
+Tasksync.MenuCheckType = function(menutype)
+	local menutype = menutype or "default"
+	if menutype == "PI" or menutype == "PersonalInteraction" then 
+		if not Tasksync.Special["PI"] then 
+			Tasksync.Special["PI"] = true 
+			CreateThread(function()
+				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
+				Tasksync.ScaleformDrawMini("MP_MENU_GLARE",0.5,0.5,1.0,1.0,255,255,255,255,0,function(initialise)
+					initialise("SET_DATA_SLOT",0.5,true)
+				end,5)
+			end)
+		end 
+	end 
+end 
+Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 	local maxslot = maxslot or 7
+	Tasksync.MenuCheckType(menutype)
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
 	Tasksync.SetSelection(menugroup,1)
@@ -117,18 +147,19 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
 		ResetRects(basicy)
-		drawMenuRect(titleHeight, 9)
-		drawMenuRect(buttonHeight, 2, 0.0, 220)
-		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
+		--drawMenuRect(titleHeight, 178)
+		drawMenuSprite("interaction_bgd",titleHeight, 0, 0.0, 255)
+		local subtitley = drawMenuRect(buttonHeight, 140, 0.0, 220)
+		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5, true)
 		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
 		local bts = Tasksync.GetButtons(menugroup)
 		local btsT = #bts
 		if btsT > 0 then 
 			if (btsT > maxslot) then 
 				drawMenuText_Right(Tasksync.GetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
-				drawMenuRect(buttonHeight * maxslot, 2, 0.0, 160)
+				drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
 			else 
-				drawMenuRect(buttonHeight * btsT, 2, 0.0, 160)
+				drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
 			end 
 			local selection = Tasksync.GetSelection(menugroup,false)
 			if btsT > maxslot and selection > maxslot then 
@@ -136,7 +167,7 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot)
 				for i=selection-(maxslot-1),selection,1 do 
 					n = n + 1
 					if selection == i then 
-						drawMenuRectFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
+						drawMenuSpriteFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
@@ -147,24 +178,24 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot)
 				for i=1,maxslot do  
 					n = n + 1
 					if selection == i then 
-						drawMenuRectFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
+						drawMenuSpriteFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
 					end 
 				end 
 			end 
-			
 			if btsT > maxslot then 
-				drawMenuRect(buttonHeight, 2, 0.002, 220)
+				drawMenuRect(buttonHeight, 140, 0.002, 220)
 				local w = GetTextureResolution("CommonMenu", "shop_arrows_upANDdown")
 				DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, lastY - buttonHeight / 2, 0.033, buttonHeight, 0, GetHudColour(0));
-				
 			end 
 			local desc = Tasksync.GetButtonDescription(menugroup,Tasksync.GetSelection(menugroup,false))
 			if desc then 
-				local y = drawMenuRect(buttonHeight, 2, 0.005, 160)
-				drawMenuText(desc,basicx,y-buttonHeight,buttonFont,0,buttonScale)
+				drawMenuRect(0.0015, 2, 0.0020, 255)
+				local y = drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)
+				--y = drawMenuRect(buttonHeight, 140, 0.005, 160)
+				drawMenuText(desc,basicx,y-buttonHeight + 0.0025,buttonFont,0,buttonScale)
 			end 
 		end 
 		ResetScriptGfxAlign();

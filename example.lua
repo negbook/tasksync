@@ -31,6 +31,25 @@ CreateThread(function()
 	Wait(8000)
 	Tasksync.ScaleformEnd("mp_big_message_freemode")
 end)
+
+
+load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
+
+Tasksync.MenuDraw("testmenu","title","subtitle",7)
+Tasksync.SetButtons("testmenu","apple","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana")
+Tasksync.SetButtonDescription("testmenu",1,"this is a apple")
+
+CreateThread(function()
+	while true do Wait(1000)
+		Tasksync.SetSelection("testmenu",GetRandomIntInRange(-11,33))
+	end 
+
+end)
+CreateThread(function()
+	Wait(20000)
+	Tasksync.MenuEnd("testmenu")
+end)
+
 --[=[
 local i = 1
 Tasksync.addloop("test",1000,function()
