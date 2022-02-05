@@ -243,22 +243,33 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						if righttextarray then 
-							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
-						end 
 						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if icon then 
+						if righttextarray and icon then 
+							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+						else 
+							if righttextarray then 
+								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
+							end 
+							
+							if icon then 
+								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+							end 
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
 						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						if righttextarray then 
-							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
-						end 
 						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if icon then 
-							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+						if righttextarray and icon then 
+							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
+							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)	
+						else 
+							if righttextarray then 
+								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
+							end 
+							if icon then 
+								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+							end 
 						end 
 					end 
 				end 
@@ -270,22 +281,32 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						if righttextarray then 
-							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
-						end 
 						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if icon then 
+						if righttextarray and icon then 
+							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+						else 
+							if righttextarray then 
+								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
+							end 
+							if icon then 
+								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+							end 
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
 						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						if righttextarray then 
-							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
-						end 
 						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if icon then 
+						if righttextarray and icon then 
+							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+						else 
+							if righttextarray then 
+								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
+							end 
+							if icon then 
+								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
+							end 
 						end 
 					end 
 				end 
