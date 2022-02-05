@@ -108,12 +108,11 @@ Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
 	if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} 
 		Tasksync.MenuSlotValue[menugroup][slot] = 1
 	end 
-	
 end 
 Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
 	local bdo = Tasksync.ButtonOptions[menugroup]
 	local bdov = Tasksync.MenuSlotValue[menugroup]
-	return bdo and bdo[slot],bdov and bdov[slot]
+	return bdo and bdo[slot],bdov and bdov[slot] or 1
 end 
 Tasksync.MenuDrawGetButtonDescription = function(menugroup,slot)
 	local bds = Tasksync.ButtonDescriptions[menugroup]
@@ -254,7 +253,6 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 							if righttextarray then 
 								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
 							end 
-							
 							if icon then 
 								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
 							end 
