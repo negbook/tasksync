@@ -35,7 +35,7 @@ end)
 
 
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
-
+CreateThread(function()
 Tasksync.MenuDraw("testmenu","negbook","Select your fruit",7,"PI")
 Tasksync.SetButtons("testmenu","apple",GetLabelText("DFLT_MNU_OPT"),"banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana")
 Tasksync.SetButtonDescription("testmenu",1,"this is a apple")
@@ -44,7 +44,7 @@ Tasksync.SetButtonOptions("testmenu",1,"option1","option2","option3")
 Tasksync.SetButtonOptions("testmenu",3,"a","b","d")
 Tasksync.SetButtonIcon("testmenu",1,Tasksync.MenuGetIcon(12)) -- fresh icon
 Tasksync.SetButtonIcon("testmenu",2,Tasksync.MenuGetIcon(12,true)) -- bought icon
-
+end)
 CreateThread(function()
 	while true do Wait(555)
 		Tasksync.SetSelection("testmenu",GetRandomIntInRange(2,4),GetRandomIntInRange(-55,55))
