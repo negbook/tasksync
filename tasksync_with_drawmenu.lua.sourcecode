@@ -1,4 +1,7 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+if not Tasksync._tasksync_with_drawmenu then 
+Tasksync._tasksync_with_drawmenu = true 
+
 local HexToRGBA = function (hex,skipkeys)
 	local r = hex >> 24
 	local offset = hex - (r << 24)
@@ -94,7 +97,7 @@ Tasksync.DrawMenuInit = function(title,subtitle)
 		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
 		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
 		drawMenuText_Right('1 / 2', basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale)
-		local bts = GetButtons()
+		local bts = Tasksync.GetButtons()
 		local btsT = #bts
 		drawMenuRect(buttonHeight * btsT, 2, 0.0, 160)
 		local n
@@ -114,4 +117,5 @@ Tasksync.DrawMenuInit = function(title,subtitle)
 		ResetScriptGfxAlign();
 	end)
 	
+end 
 end 

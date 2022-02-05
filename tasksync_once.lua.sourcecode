@@ -2,7 +2,8 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end
-if not Tasksync.tasksjob_once then 
+if not Tasksync._tasksync_once then 
+Tasksync._tasksync_once = true 
 Tasksync.tasksjob_once = {}
 Tasksync.taskstodo_once = {}
 

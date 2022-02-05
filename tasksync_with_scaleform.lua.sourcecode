@@ -1,6 +1,7 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
-
+if not Tasksync._tasksync_with_scaleform then 
+Tasksync._tasksync_with_scaleform = true 
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}
 Tasksync._scaleformReleaseDuration = {}
@@ -121,3 +122,4 @@ Tasksync.ScaleformEnd = function(scaleformName,cb)
 	Tasksync._scaleformHandle[scaleformName] = nil 
 end 
 
+end 

@@ -1,4 +1,6 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+if not Tasksync._tasksync_with_drawtext then 
+Tasksync._tasksync_with_drawtext = true 
 	local HexToRGBA = function (hex,skipkeys)
 		local r = hex >> 24
 		local offset = hex - (r << 24)
@@ -209,3 +211,4 @@ load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 		TextDraws[handle].width = width
 		TextDraws[handle].height = GetRenderedCharacterHeight(TextDraws[handle].textsizeY,0)
 	end 
+end 

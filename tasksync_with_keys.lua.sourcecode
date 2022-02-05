@@ -1,5 +1,7 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
+if not Tasksync._tasksync_with_keys then 
+Tasksync._tasksync_with_keys = true 
 local IsStringNullOrEmpty = function(str) return (str == nil or str == "") end 
 Tasksync._RegisteredKeyEvent = {}
 Tasksync._ActiveKeyMappingGroup = {}
@@ -45,4 +47,5 @@ Tasksync.RegisterKeyboardCallbackLoop = function(group,name,key,description,firs
 		Tasksync.deletelooponce("KEY_LOOP:"..group..name)
 	end, false) 
 	RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) 
+end 
 end 
