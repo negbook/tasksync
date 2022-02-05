@@ -91,42 +91,42 @@ Tasksync.ButtonIcons = {}
 Tasksync.ButtonOptions = {}
 Tasksync.MenuSlotValue = {}
 Tasksync.Selection = {y=1,x=1}
-Tasksync.MenuSetButtons = function(menugroup,...)
+Tasksync.MenuDrawSetButtons = function(menugroup,...)
 	if not Tasksync.Buttons[menugroup] then Tasksync.Buttons[menugroup] = {} end 
 	Tasksync.Buttons[menugroup] = {...}
 end 
-Tasksync.MenuGetButtons = function(menugroup)
+Tasksync.MenuDrawGetButtons = function(menugroup)
 	return Tasksync.Buttons[menugroup] or {}
 end 
-Tasksync.MenuSetButtonDescription = function(menugroup,slot,description)
+Tasksync.MenuDrawSetButtonDescription = function(menugroup,slot,description)
 	if not Tasksync.ButtonDescriptions[menugroup] then Tasksync.ButtonDescriptions[menugroup] = {} end 
 	Tasksync.ButtonDescriptions[menugroup][slot] = description
 end 
-Tasksync.MenuSetButtonOptions = function(menugroup,slot,...)
+Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
 	if not Tasksync.ButtonOptions[menugroup] then Tasksync.ButtonOptions[menugroup] = {} end 
 	Tasksync.ButtonOptions[menugroup][slot] = {...}
 	if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} end 
 	Tasksync.MenuSlotValue[menugroup][slot] = 1
 end 
-Tasksync.MenuGetButtonOptions = function(menugroup,slot)
+Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
 	local bdo = Tasksync.ButtonOptions[menugroup]
 	local bdov = Tasksync.MenuSlotValue[menugroup]
 	return bdo and bdo[slot],bdov and bdov[slot]
 end 
-Tasksync.MenuGetButtonDescription = function(menugroup,slot)
+Tasksync.MenuDrawGetButtonDescription = function(menugroup,slot)
 	local bds = Tasksync.ButtonDescriptions[menugroup]
 	return bds and bds[slot]
 end 
-Tasksync.MenuSetButtonIcon = function(menugroup,slot,iconName)
+Tasksync.MenuDrawSetButtonIcon = function(menugroup,slot,iconName)
 	if not Tasksync.ButtonIcons[menugroup] then Tasksync.ButtonIcons[menugroup] = {} end 
 	Tasksync.ButtonIcons[menugroup][slot] = iconName
 end 
-Tasksync.MenuGetButtonIcon = function(menugroup,slot)
+Tasksync.MenuDrawGetButtonIcon = function(menugroup,slot)
 	local bdicon = Tasksync.ButtonIcons[menugroup]
 	return bdicon and bdicon[slot]
 end 
-Tasksync.MenuSetSelection = function(menugroup,y,x)
-	local buttons = Tasksync.MenuGetButtons(menugroup)
+Tasksync.MenuDrawSetSelection = function(menugroup,y,x)
+	local buttons = Tasksync.MenuDrawGetButtons(menugroup)
 	if not x then x = 1 end  
 	if not y then y = 1 end 
 	if buttons and #buttons >= 1 then  
@@ -139,7 +139,7 @@ Tasksync.MenuSetSelection = function(menugroup,y,x)
 			end 
 		end 
 	end 
-	local options = Tasksync.MenuGetButtonOptions(menugroup,y)
+	local options = Tasksync.MenuDrawGetButtonOptions(menugroup,y)
 	if options then 
 		if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} end 
 		if options and #options >= 1 then 
@@ -158,7 +158,7 @@ Tasksync.MenuSetSelection = function(menugroup,y,x)
 	end 
 	Tasksync.Selection[menugroup] = {y=y,x=x}
 end 
-Tasksync.MenuGetSelection = function(menugroup,needx)
+Tasksync.MenuDrawGetSelection = function(menugroup,needx)
 	return needx and Tasksync.Selection[menugroup] or Tasksync.Selection[menugroup].y
 end 
 Tasksync.MenuEnd = function(menugroup)
@@ -209,12 +209,12 @@ local function drawMenuIcon_Right(y,iconName)
 		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
 	end 
 end 
-Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
+Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 	local maxslot = maxslot or 7
 	Tasksync.MenuCheckType(menutype)
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
-	Tasksync.MenuSetSelection(menugroup,1)
+	Tasksync.MenuDrawSetSelection(menugroup,1)
 	Tasksync.addloop("drawmenu:"..menugroup,0,function()
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
@@ -225,16 +225,16 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 		local subtitley = drawMenuRect(buttonHeight, 140, 0.0, 220)
 		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5, true)
 		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
-		local bts = Tasksync.MenuGetButtons(menugroup)
+		local bts = Tasksync.MenuDrawGetButtons(menugroup)
 		local btsT = #bts
 		if btsT > 0 then 
 			if (btsT > maxslot) then 
-				drawMenuText_Right(Tasksync.MenuGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
+				drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
 				drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
 			else 
 				drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
 			end 
-			local selection = Tasksync.MenuGetSelection(menugroup,false)
+			local selection = Tasksync.MenuDrawGetSelection(menugroup,false)
 			if btsT > maxslot and selection > maxslot then 
 				local n = 0
 				for i=selection-(maxslot-1),selection,1 do 
@@ -242,21 +242,21 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 					if selection == i then 
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuGetButtonOptions(menugroup,i)
+						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 						if righttextarray then 
 							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
 						end 
-						local icon = Tasksync.MenuGetButtonIcon(menugroup,i)
+						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
 						if icon then 
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuGetButtonOptions(menugroup,i)
+						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 						if righttextarray then 
 							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
 						end 
-						local icon = Tasksync.MenuGetButtonIcon(menugroup,i)
+						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
 						if icon then 
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
 						end 
@@ -269,21 +269,21 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 					if selection == i then 
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuGetButtonOptions(menugroup,i)
+						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 						if righttextarray then 
 							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
 						end 
-						local icon = Tasksync.MenuGetButtonIcon(menugroup,i)
+						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
 						if icon then 
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuGetButtonOptions(menugroup,i)
+						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 						if righttextarray then 
 							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
 						end 
-						local icon = Tasksync.MenuGetButtonIcon(menugroup,i)
+						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
 						if icon then 
 							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
 						end 
@@ -294,7 +294,7 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 				drawMenuRect(buttonHeight, 140, 0.002, 220)
 				DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, lastY - buttonHeight / 2, 0.032, buttonHeight, 0, GetHudColour(0));
 			end 
-			local desc = Tasksync.MenuGetButtonDescription(menugroup,Tasksync.MenuGetSelection(menugroup,false))
+			local desc = Tasksync.MenuDrawGetButtonDescription(menugroup,Tasksync.MenuDrawGetSelection(menugroup,false))
 			if desc then 
 				drawMenuRect(0.0015, 2, 0.0020, 255)
 				local y = drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)
@@ -306,7 +306,7 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 	end)
 end 
 local switch = setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)end})end})
-Tasksync.MenuGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
+Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
 	local icons = {}
 	switch (icontype)(
 		case(3)(function()
