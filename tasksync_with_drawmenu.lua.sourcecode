@@ -89,8 +89,8 @@ Tasksync.Buttons = {}
 Tasksync.ButtonDescriptions = {}
 Tasksync.ButtonIcons = {}
 Tasksync.ButtonOptions = {}
+Tasksync.MenuSlotValue = {}
 Tasksync.Selection = {y=1,x=1}
-
 Tasksync.SetButtons = function(menugroup,...)
 	if not Tasksync.Buttons[menugroup] then Tasksync.Buttons[menugroup] = {} end 
 	Tasksync.Buttons[menugroup] = {...}
@@ -105,13 +105,13 @@ end
 Tasksync.SetButtonOptions = function(menugroup,slot,...)
 	if not Tasksync.ButtonOptions[menugroup] then Tasksync.ButtonOptions[menugroup] = {} end 
 	Tasksync.ButtonOptions[menugroup][slot] = {...}
+	if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} end 
+	Tasksync.MenuSlotValue[menugroup][slot] = 1
 end 
-Tasksync.GetButtonOptions = function(menugroup)
-	return Tasksync.ButtonOptions[menugroup]
-end 
-Tasksync.GetButtonOption = function(menugroup,slot)
+Tasksync.GetButtonOptions = function(menugroup,slot)
 	local bdo = Tasksync.ButtonOptions[menugroup]
-	return bdo and bdo[slot]
+	local bdov = Tasksync.MenuSlotValue[menugroup]
+	return bdo and bdo[slot],bdov and bdov[slot]
 end 
 Tasksync.GetButtonDescription = function(menugroup,slot)
 	local bds = Tasksync.ButtonDescriptions[menugroup]
@@ -127,9 +127,35 @@ Tasksync.GetButtonIcon = function(menugroup,slot)
 end 
 Tasksync.SetSelection = function(menugroup,y,x)
 	local buttons = Tasksync.GetButtons(menugroup)
-	if not x or x <= 0 then x = 1 end  
-	if not y or y <= 0 then y = 1 end 
-	if buttons and #buttons >= 1 and y > #buttons  then y = #buttons end 
+	if not x then x = 1 end  
+	if not y then y = 1 end 
+	if buttons and #buttons >= 1 then  
+		if y <= 0 then 
+			y = (y-1)%#buttons+1
+		elseif y > #buttons then 
+			y = y%#buttons
+			if y <= 0 then 
+				y = (y-1)%#buttons+1
+			end 
+		end 
+	end 
+	local options = Tasksync.GetButtonOptions(menugroup,y)
+	if options then 
+		if not Tasksync.MenuSlotValue[menugroup] then Tasksync.MenuSlotValue[menugroup] = {} end 
+		if options and #options >= 1 then 
+			if x <= 0 then 
+				x = (x-1)%#options+1
+			elseif x > #options then 
+				x = x%#options
+				if x <= 0 then 
+					x = (x-1)%#options+1
+				end 
+			end 
+		end 
+		Tasksync.MenuSlotValue[menugroup][y] = x
+	else 
+		x = 1 
+	end 
 	Tasksync.Selection[menugroup] = {y=y,x=x}
 end 
 Tasksync.GetSelection = function(menugroup,needx)
@@ -155,247 +181,11 @@ Tasksync.MenuCheckType = function(menutype)
 		end 
 	end 
 end 
-local switch = setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)end})end})
-Tasksync.MenuGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
-	local icons = {}
-	switch (icontype)(
-		case(3)(function()
-			icons[0] = "MP_hostCrown";
-			icons[1] = "MP_hostCrown";
-		end),
-		
-		case(21)(function()
-			icons[0] = "MP_SpecItem_Coke";
-			icons[1] = "MP_SpecItem_Coke";
-		end),
-		
-		case(22)(function()
-			icons[0] = "MP_SpecItem_Heroin";
-			icons[1] = "MP_SpecItem_Heroin";
-		end),
-		
-		case(23)(function()
-			icons[0] = "MP_SpecItem_Weed";
-			icons[1] = "MP_SpecItem_Weed";
-		end),
-		
-		case(24)(function()
-			icons[0] = "MP_SpecItem_Meth";
-			icons[1] = "MP_SpecItem_Meth";
-		end),
-		
-		case(25)(function()
-			icons[0] = "MP_SpecItem_Cash";
-			icons[1] = "MP_SpecItem_Cash";
-		end),
-		
-		case(1)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		
-		case(2)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		
-		case(4)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		
-		case(6)(function()
-			icons[0] = "Shop_Box_CrossB";
-			icons[1] = "Shop_Box_Cross";
-		end),
-		
-		case(7)(function()
-			icons[0] = "Shop_Box_BlankB";
-			icons[1] = "Shop_Box_Blank";
-		end),
-		
-		case(5)(function()
-			icons[0] = "Shop_Box_TickB";
-			icons[1] = "Shop_Box_Tick";
-		end),
-		
-		case(8)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		
-		case(9)(function()
-			icons[0] = "Shop_Clothing_Icon_B";
-			icons[1] = "Shop_Clothing_Icon_A";
-		end),
-		
-		case(10)(function()
-			icons[0] = "Shop_GunClub_Icon_B";
-			icons[1] = "Shop_GunClub_Icon_A";
-		end),
-		
-		case(17)(function()
-			icons[0] = "Shop_Ammo_Icon_B";
-			icons[1] = "Shop_Ammo_Icon_A";
-		end),
-		
-		case(18)(function()
-			icons[0] = "Shop_Armour_Icon_B";
-			icons[1] = "Shop_Armour_Icon_A";
-		end),
-		
-		case(19)(function()
-			icons[0] = "Shop_Health_Icon_B";
-			icons[1] = "Shop_Health_Icon_A";
-		end),
-		
-		case(20)(function()
-			icons[0] = "Shop_MakeUp_Icon_B";
-			icons[1] = "Shop_MakeUp_Icon_A";
-		end),
-		
-		case(11)(function()
-			icons[0] = "Shop_Tattoos_Icon_B";
-			icons[1] = "Shop_Tattoos_Icon_A";
-		end),
-		
-		case(12)(function()
-			icons[0] = "Shop_Garage_Icon_B";
-			icons[1] = "Shop_Garage_Icon_A";
-		end),
-		
-		case(13)(function()
-			icons[0] = "Shop_Garage_Bike_Icon_B";
-			icons[1] = "Shop_Garage_Bike_Icon_A";
-		end),
-		
-		case(14)(function()
-			icons[0] = "Shop_Barber_Icon_B";
-			icons[1] = "Shop_Barber_Icon_A";
-		end),
-		
-		case(15)(function()
-			icons[0] = "shop_Lock";
-			icons[1] = "shop_Lock";
-		end),
-		
-		case(16)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		
-		case(26)(function()
-			icons[0] = "arrowleft";
-			icons[1] = "arrowleft";
-		end),
-		
-		case(27)(function()
-			icons[0] = "arrowright";
-			icons[1] = "arrowright";
-		end),
-		
-		case(28)(function()
-			icons[0] = "MP_AlertTriangle";
-			icons[1] = "MP_AlertTriangle";
-		end),
-		
-		case(29)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		
-		case(31)(function()
-			icons[0] = "Shop_Michael_Icon_B";
-			icons[1] = "Shop_Michael_Icon_A";
-		end),
-		
-		case(32)(function()
-			icons[0] = "Shop_Franklin_Icon_B";
-			icons[1] = "Shop_Franklin_Icon_A";
-		end),
-		
-		case(33)(function()
-			icons[0] = "Shop_Trevor_Icon_B";
-			icons[1] = "Shop_Trevor_Icon_A";
-		end),
-		
-		case(51)(function()
-			icons[0] = "SaleIcon";
-			icons[1] = "SaleIcon";
-		end),
-		
-		case(52)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		
-		case(54)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		
-		case(55)(function()
-			icons[0] = "Shop_Lock_Arena";
-			icons[1] = "Shop_Lock_Arena";
-		end),
-		
-		case(56)(function()
-			icons[0] = "Card_Suit_Clubs";
-			icons[1] = "Card_Suit_Clubs";
-		end),
-		
-		case(57)(function()
-			icons[0] = "Card_Suit_Hearts";
-			icons[1] = "Card_Suit_Hearts";
-		end),
-		
-		case(58)(function()
-			icons[0] = "Card_Suit_Spades";
-			icons[1] = "Card_Suit_Spades";
-		end),
-		
-		case(59)(function()
-			icons[0] = "Card_Suit_Diamonds";
-			icons[1] = "Card_Suit_Diamonds";
-		end),
-		
-		case(60)(function()
-			icons[0] = "Shop_Art_Icon_B";
-			icons[1] = "Shop_Art_Icon_A";
-		end),
-		
-		case(62)(function()
-			icons[0] = "Shop_Art_Icon_B";
-			icons[1] = "Shop_Art_Icon_A";
-		end),
-		
-		case(61)(function()
-			icons[0] = "Shop_Chips_A";
-			icons[1] = "Shop_Chips_B";
-		end),
-		
-		case(0)(function()
-			icons[0] = "";
-			icons[1] = "";
-		end)
-	)
-	if ed then
-	
-		return icons[0];
-	end
-	return icons[1];
-end
 local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 	SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
-	
 	local offsetx = 0.016
-    SetTextWrap(basicx, basicx + menuWidth - buttonTextXOffset - 0.016)
-	SetTextRightJustify(true)
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayText(x, y)
 	BeginTextCommandGetWidth("STRING")
 	AddTextComponentSubstringPlayerName(text)
 	local width = EndTextCommandGetWidth(true)
@@ -403,16 +193,20 @@ local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 		local iconRight = "arrowright"
 		local iconLeft = "arrowleft"
 		local height = 0.032 
-		DrawSprite("CommonMenu", iconRight ,basicx + menuWidth - buttonTextXOffset - offsetx/2,y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
-		DrawSprite("CommonMenu", iconLeft ,basicx + menuWidth - buttonTextXOffset  - width/2,y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+		DrawSprite("CommonMenu", iconLeft ,x + menuWidth - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+		BeginTextCommandDisplayText("STRING")
+		AddTextComponentSubstringPlayerName(text)
+		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
+		DrawSprite("CommonMenu", iconRight ,x + menuWidth - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+	else 
+		BeginTextCommandDisplayText("STRING")
+		AddTextComponentSubstringPlayerName(text)
+		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
 	end 
 end 
 local function drawMenuIcon_Right(y,iconName)
-	local offsetx = 0.008
 	if iconName then 
-		local w = GetTextureResolution("CommonMenu", iconName)
-		offsetx = offsetx + w.x / 2 / 1000 / 2
-		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - buttonTextXOffset - offsetx,y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
+		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
 	end 
 end 
 Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
@@ -448,9 +242,9 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 					if selection == i then 
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray = Tasksync.GetButtonOption(menugroup,i)
+						local righttextarray,optionselection = Tasksync.GetButtonOptions(menugroup,i)
 						if righttextarray then 
-							drawMenuTextArray(righttextarray[1],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
+							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
 						end 
 						local icon = Tasksync.GetButtonIcon(menugroup,i)
 						if icon then 
@@ -458,9 +252,9 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray = Tasksync.GetButtonOption(menugroup,i)
+						local righttextarray,optionselection = Tasksync.GetButtonOptions(menugroup,i)
 						if righttextarray then 
-							drawMenuTextArray(righttextarray[1],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
+							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
 						end 
 						local icon = Tasksync.GetButtonIcon(menugroup,i)
 						if icon then 
@@ -475,9 +269,9 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 					if selection == i then 
 						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray = Tasksync.GetButtonOption(menugroup,i)
+						local righttextarray,optionselection = Tasksync.GetButtonOptions(menugroup,i)
 						if righttextarray then 
-							drawMenuTextArray(righttextarray[1],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
+							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,true)
 						end 
 						local icon = Tasksync.GetButtonIcon(menugroup,i)
 						if icon then 
@@ -485,9 +279,9 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 						end 
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray = Tasksync.GetButtonOption(menugroup,i)
+						local righttextarray,optionselection = Tasksync.GetButtonOptions(menugroup,i)
 						if righttextarray then 
-							drawMenuTextArray(righttextarray[1],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
+							drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,true)
 						end 
 						local icon = Tasksync.GetButtonIcon(menugroup,i)
 						if icon then 
@@ -511,4 +305,190 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 		ResetScriptGfxAlign();
 	end)
 end 
+local switch = setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)end})end})
+Tasksync.MenuGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
+	local icons = {}
+	switch (icontype)(
+		case(3)(function()
+			icons[0] = "MP_hostCrown";
+			icons[1] = "MP_hostCrown";
+		end),
+		case(21)(function()
+			icons[0] = "MP_SpecItem_Coke";
+			icons[1] = "MP_SpecItem_Coke";
+		end),
+		case(22)(function()
+			icons[0] = "MP_SpecItem_Heroin";
+			icons[1] = "MP_SpecItem_Heroin";
+		end),
+		case(23)(function()
+			icons[0] = "MP_SpecItem_Weed";
+			icons[1] = "MP_SpecItem_Weed";
+		end),
+		case(24)(function()
+			icons[0] = "MP_SpecItem_Meth";
+			icons[1] = "MP_SpecItem_Meth";
+		end),
+		case(25)(function()
+			icons[0] = "MP_SpecItem_Cash";
+			icons[1] = "MP_SpecItem_Cash";
+		end),
+		case(1)(function()
+			icons[0] = "shop_NEW_Star";
+			icons[1] = "shop_NEW_Star";
+		end),
+		case(2)(function()
+			icons[0] = "shop_NEW_Star";
+			icons[1] = "shop_NEW_Star";
+		end),
+		case(4)(function()
+			icons[0] = "Shop_Tick_Icon";
+			icons[1] = "Shop_Tick_Icon";
+		end),
+		case(6)(function()
+			icons[0] = "Shop_Box_CrossB";
+			icons[1] = "Shop_Box_Cross";
+		end),
+		case(7)(function()
+			icons[0] = "Shop_Box_BlankB";
+			icons[1] = "Shop_Box_Blank";
+		end),
+		case(5)(function()
+			icons[0] = "Shop_Box_TickB";
+			icons[1] = "Shop_Box_Tick";
+		end),
+		case(8)(function()
+			icons[0] = "shop_NEW_Star";
+			icons[1] = "shop_NEW_Star";
+		end),
+		case(9)(function()
+			icons[0] = "Shop_Clothing_Icon_B";
+			icons[1] = "Shop_Clothing_Icon_A";
+		end),
+		case(10)(function()
+			icons[0] = "Shop_GunClub_Icon_B";
+			icons[1] = "Shop_GunClub_Icon_A";
+		end),
+		case(17)(function()
+			icons[0] = "Shop_Ammo_Icon_B";
+			icons[1] = "Shop_Ammo_Icon_A";
+		end),
+		case(18)(function()
+			icons[0] = "Shop_Armour_Icon_B";
+			icons[1] = "Shop_Armour_Icon_A";
+		end),
+		case(19)(function()
+			icons[0] = "Shop_Health_Icon_B";
+			icons[1] = "Shop_Health_Icon_A";
+		end),
+		case(20)(function()
+			icons[0] = "Shop_MakeUp_Icon_B";
+			icons[1] = "Shop_MakeUp_Icon_A";
+		end),
+		case(11)(function()
+			icons[0] = "Shop_Tattoos_Icon_B";
+			icons[1] = "Shop_Tattoos_Icon_A";
+		end),
+		case(12)(function()
+			icons[0] = "Shop_Garage_Icon_B";
+			icons[1] = "Shop_Garage_Icon_A";
+		end),
+		case(13)(function()
+			icons[0] = "Shop_Garage_Bike_Icon_B";
+			icons[1] = "Shop_Garage_Bike_Icon_A";
+		end),
+		case(14)(function()
+			icons[0] = "Shop_Barber_Icon_B";
+			icons[1] = "Shop_Barber_Icon_A";
+		end),
+		case(15)(function()
+			icons[0] = "shop_Lock";
+			icons[1] = "shop_Lock";
+		end),
+		case(16)(function()
+			icons[0] = "Shop_Tick_Icon";
+			icons[1] = "Shop_Tick_Icon";
+		end),
+		case(26)(function()
+			icons[0] = "arrowleft";
+			icons[1] = "arrowleft";
+		end),
+		case(27)(function()
+			icons[0] = "arrowright";
+			icons[1] = "arrowright";
+		end),
+		case(28)(function()
+			icons[0] = "MP_AlertTriangle";
+			icons[1] = "MP_AlertTriangle";
+		end),
+		case(29)(function()
+			icons[0] = "shop_NEW_Star";
+			icons[1] = "shop_NEW_Star";
+		end),
+		case(31)(function()
+			icons[0] = "Shop_Michael_Icon_B";
+			icons[1] = "Shop_Michael_Icon_A";
+		end),
+		case(32)(function()
+			icons[0] = "Shop_Franklin_Icon_B";
+			icons[1] = "Shop_Franklin_Icon_A";
+		end),
+		case(33)(function()
+			icons[0] = "Shop_Trevor_Icon_B";
+			icons[1] = "Shop_Trevor_Icon_A";
+		end),
+		case(51)(function()
+			icons[0] = "SaleIcon";
+			icons[1] = "SaleIcon";
+		end),
+		case(52)(function()
+			icons[0] = "Shop_Tick_Icon";
+			icons[1] = "Shop_Tick_Icon";
+		end),
+		case(54)(function()
+			icons[0] = "shop_NEW_Star";
+			icons[1] = "shop_NEW_Star";
+		end),
+		case(55)(function()
+			icons[0] = "Shop_Lock_Arena";
+			icons[1] = "Shop_Lock_Arena";
+		end),
+		case(56)(function()
+			icons[0] = "Card_Suit_Clubs";
+			icons[1] = "Card_Suit_Clubs";
+		end),
+		case(57)(function()
+			icons[0] = "Card_Suit_Hearts";
+			icons[1] = "Card_Suit_Hearts";
+		end),
+		case(58)(function()
+			icons[0] = "Card_Suit_Spades";
+			icons[1] = "Card_Suit_Spades";
+		end),
+		case(59)(function()
+			icons[0] = "Card_Suit_Diamonds";
+			icons[1] = "Card_Suit_Diamonds";
+		end),
+		case(60)(function()
+			icons[0] = "Shop_Art_Icon_B";
+			icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(62)(function()
+			icons[0] = "Shop_Art_Icon_B";
+			icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(61)(function()
+			icons[0] = "Shop_Chips_A";
+			icons[1] = "Shop_Chips_B";
+		end),
+		case(0)(function()
+			icons[0] = "";
+			icons[1] = "";
+		end)
+	)
+	if ed then
+		return icons[0];
+	end
+	return icons[1];
+end
 end 
