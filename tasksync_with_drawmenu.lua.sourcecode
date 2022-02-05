@@ -76,11 +76,11 @@ local function drawMenuSprite(sprite, height, color, offsetY, alpha)
 	lastY = y + height 
 	return lastY
 end
-local function drawMenuRectFocus(y, height, color, offsetY, alpha)
+local function drawMenuRectHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
 end
-local function drawMenuSpriteFocus(y, height, color, offsetY, alpha)
+local function drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
 end
@@ -167,7 +167,7 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 				for i=selection-(maxslot-1),selection,1 do 
 					n = n + 1
 					if selection == i then 
-						drawMenuSpriteFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
+						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
@@ -178,7 +178,7 @@ Tasksync.MenuDraw = function(menugroup,title,subtitle,maxslot,menutype)
 				for i=1,maxslot do  
 					n = n + 1
 					if selection == i then 
-						drawMenuSpriteFocus(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
+						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
 					else 
 						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)

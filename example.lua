@@ -35,9 +35,10 @@ end)
 
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
 
-Tasksync.MenuDraw("testmenu","title","subtitle",7)
-Tasksync.SetButtons("testmenu","apple","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana")
+Tasksync.MenuDraw("testmenu","negbook","Select your fruit",7,"PI")
+Tasksync.SetButtons("testmenu","apple",GetLabelText("DFLT_MNU_OPT"),"banana","banana","banana","banana","banana","banana","banana","banana","banana","banana","banana")
 Tasksync.SetButtonDescription("testmenu",1,"this is a apple")
+Tasksync.SetButtonDescription("testmenu",2,"this is a banana")
 
 CreateThread(function()
 	while true do Wait(1000)
