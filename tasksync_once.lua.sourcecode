@@ -2,14 +2,17 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end
+if not Tasksync.tasksjob_once then 
 Tasksync.tasksjob_once = {}
 Tasksync.taskstodo_once = {}
+
 Tasksync.__createbytemplate_once = function(durationgroup)
 	TriggerEvent("addlooponcelog",GetCurrentResourceName())
 	CreateThread(function()
 		local jobs_once = Tasksync.tasksjob_once
 		local todo = Tasksync.taskstodo_once
 		local tasks_once = jobs_once[durationgroup]
+		local duration = tonumber(durationgroup)
 		repeat 
 			if tasks_once then 
 				for i=1,#tasks_once do 
@@ -18,14 +21,14 @@ Tasksync.__createbytemplate_once = function(durationgroup)
 					if fn then fn() end 
 				end 
 			end 
-			Wait(durationgroup)
+			Wait(duration)
 		until not tasks_once 
 		--print('breaked2')
 		return 
 	end)
 end 	
 Tasksync.addlooponce = function(jobname,durationgroup,fn) --jobname,duration,function
-	
+	local durationgroup = tostring(durationgroup)
 	--if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	local creatable = false 
 	local found = false 
@@ -61,3 +64,5 @@ Tasksync.deletelooponce = function(jobname)
 	end 
 end 
 
+
+end 

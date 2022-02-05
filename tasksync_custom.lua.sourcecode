@@ -2,9 +2,11 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end 
+if not Tasksync.tasksjob_custom then 
 Tasksync.tasksjob_custom = {}
 Tasksync.taskstodo_custom = {}
 Tasksync.taskstodo_custom_newduration = {}
+
 Tasksync.set_custom_duration = function(customgroup,newduration)
 	Tasksync.taskstodo_custom_newduration[customgroup] = newduration
 end 
@@ -36,3 +38,6 @@ Tasksync.deleteloopcustom = function(customgroup)
 	TriggerEvent("deleteloopcustomlog",GetCurrentResourceName())
 	Tasksync.taskstodo_custom[customgroup] = nil
 end 
+
+end 
+

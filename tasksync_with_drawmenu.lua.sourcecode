@@ -1,0 +1,117 @@
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+local HexToRGBA = function (hex,skipkeys)
+	local r = hex >> 24
+	local offset = hex - (r << 24)
+	local g = offset >> 16
+	local offset = offset - (g << 16)
+	local b = offset >> 8
+	local offset = offset - (b << 8)
+	local a = offset
+	return (not skipkeys and {r=r,g=g,b=b,a=a}) or {r,g,b,a};
+end 
+
+
+local menuWidth = 0.256
+local titleHeight = 0.09
+local buttonHeight = 0.038
+local buttonRectHeight = 0
+local buttonFont = 0
+local buttonScale = 0.365
+local buttonTextXOffset = 0.005
+local buttonTextYOffset = 0.005
+local basicx = 0.0525
+local basicdrawingx = basicx + menuWidth / 2
+local basicy = 0.088
+local basicbuttony = basicy + titleHeight + buttonTextYOffset
+local basicfont = 0
+local buttonTransparent = 140
+local lastY
+
+
+local function drawMenuText(text, x, y, font, color, scale, shadow)
+    SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+    if shadow then
+        SetTextDropShadow(2, 2, 0, 0, 0)
+    end
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x + buttonTextXOffset, y)
+end
+
+local function drawMenuText_Right(text, x, y, font, color, scale)
+    SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+    SetTextWrap(basicx, basicx + menuWidth - buttonTextXOffset)
+    SetTextRightJustify(true)
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x, y)
+end
+local function drawTextCenter(text, x, y, font, color, scale, shadow, alignRight)
+    SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+    if shadow then
+        SetTextDropShadow(2, 2, 0, 0, 0)
+    end
+    SetTextCentre(center)
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x, y)
+end
+
+
+local function ResetRects(y)
+	lastY = y
+end 
+
+local function drawMenuRect(height, color, offsetY, alpha)
+	local y = lastY + (offsetY or 0.0)
+	local r,g,b,a = GetHudColour(color)
+    DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
+	lastY = y + height 
+end
+Tasksync.Buttons = {}
+Tasksync.SetButtons = function(...)
+	Tasksync.Buttons = {...}
+end 
+Tasksync.GetButtons = function()
+	return Tasksync.Buttons
+end 
+
+Tasksync.DrawMenuInit = function(title,subtitle)
+	RequestStreamedTextureDict( "commonmenu" )
+	Tasksync.addloop(title,0,function()
+		SetScriptGfxDrawOrder(0)
+		SetScriptGfxAlign(76, 84);
+		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
+		ResetRects(basicy)
+		drawMenuRect(titleHeight, 9)
+		drawMenuRect(buttonHeight, 2, 0.0, 220)
+		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
+		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
+		drawMenuText_Right('1 / 2', basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale)
+		local bts = GetButtons()
+		local btsT = #bts
+		drawMenuRect(buttonHeight * btsT, 2, 0.0, 160)
+		local n
+		for i=1,btsT do 
+			if i <= 7 then 
+				drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * i,buttonFont,0,buttonScale)
+			n = i + 1
+			end 
+		end 
+		
+		
+		drawMenuRect(buttonHeight, 2, 0.002, 220)
+		local w = GetTextureResolution("CommonMenu", "shop_arrows_upANDdown")
+		DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, lastY - buttonHeight / 2, 0.033, buttonHeight, 0, GetHudColour(0));
+		
+		drawMenuRect(buttonHeight, 2, 0.005, 160)
+		ResetScriptGfxAlign();
+	end)
+	
+end 

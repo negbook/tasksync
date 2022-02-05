@@ -2,7 +2,7 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end 
-
+if not Tasksync.tasksjob then 
 Tasksync.tasksjob = {}
 Tasksync.taskstodo = {}
 Tasksync.__createbytemplate = function(durationgroup)
@@ -11,6 +11,7 @@ Tasksync.__createbytemplate = function(durationgroup)
 		local jobs = Tasksync.tasksjob
 		local todo = Tasksync.taskstodo
 		local tasks = jobs[durationgroup]
+		local duration = tonumber(durationgroup)
 		repeat
 			if tasks then 
 				for i=1,#tasks do 
@@ -19,16 +20,18 @@ Tasksync.__createbytemplate = function(durationgroup)
 					if fn then fn() end 
 				end 
 			end 
-			Wait(durationgroup)
+			Wait(duration)
 		until not tasks 
 		--print('breaked2')
 		return 
 	end)
 end 	
 Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,function
+	local durationgroup = tostring(durationgroup)
 	
 	if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	Tasksync.taskstodo[jobname] = fn 
+	
 	local creatable = false 
 	if Tasksync.tasksjob[durationgroup] == nil then creatable = true; Tasksync.tasksjob[durationgroup] = {}; end 
 	table.insert(Tasksync.tasksjob[durationgroup],jobname)
@@ -37,7 +40,6 @@ Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,functio
 	end 
 end 
 Tasksync.deleteloop = function(jobname)
-	
 	for durationgroup,v in pairs(Tasksync.tasksjob) do 
 		for i=1,#Tasksync.tasksjob[durationgroup] do 
 			if Tasksync.tasksjob[durationgroup][i] == jobname then 
@@ -50,4 +52,6 @@ Tasksync.deleteloop = function(jobname)
 			end 
 		end 
 	end 
+end 
+
 end 
