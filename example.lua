@@ -33,11 +33,12 @@ CreateThread(function()
 end)
 
 Menu = {}
-
+Menus = {} 
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
 
+
 Menu.new = function()
-	return {
+	local menu = {
 		items = {},
 		options = {},
 		selected = {y=1,x=1},
@@ -70,6 +71,7 @@ Menu.new = function()
 					else
 						self.selected.x = #self.items[self.selected.y].options
 					end
+					self.items[self.selected.y].selected = self.selected.x
 				end 
 			elseif key == 'right' then
 				if self.items[self.selected.y] and self.items[self.selected.y].options then 
@@ -78,42 +80,61 @@ Menu.new = function()
 					else
 						self.selected.x = 1
 					end
+					self.items[self.selected.y].selected = self.selected.x
 				end 
-			elseif key == 'return' then
+			elseif key == 'back' then
+				if Menus and #Menus > 0 then 
+					Menus[#Menus]:drawend()
+					table.remove(Menus,#Menus)
+					if Menus[#Menus] then 
+						Menus[#Menus]:draw()
+
+					end 
+				else 
+					self:drawend(self)
+				end 
+			end 
+			self:update(self)
+			if key == 'return' then
 				if self.items[self.selected.y].action then
 					self.items[self.selected.y]:action(self.selected.x)
 				end
 				
 				
 			end
-			self:update(self)
+			
 		end,
 		draw = function(self)
-			Tasksync.MenuDrawInit("testmenu",self.title,self.subtitle,7)
+			Tasksync.MenuDrawInit("menu:"..self.title,self.title,self.subtitle,7)
 			local buttons = {} 
 			for i=1,#self.items do 
 				local v = self.items[i]
 				table.insert(buttons,v.name)
 				if v.description then 
-					Tasksync.MenuDrawSetButtonDescription("testmenu",i,v.name)
+					Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.name)
 				end 
 				if v.options then 
-					Tasksync.MenuDrawSetButtonOptions("testmenu",i,table.unpack(v.options))
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
+					if v.selected then Tasksync.MenuDrawSetSlotValue("menu:"..self.title,i,v.selected) end
 				end 
 				if v.price and v.icon then
-					Tasksync.MenuDrawSetButtonIcon("testmenu",i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
-					Tasksync.MenuDrawSetButtonOptions("testmenu",i,"$"..v.price)
+					Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,"$"..v.price)
 				else 
 					if v.icon then 
-						Tasksync.MenuDrawSetButtonIcon("testmenu",i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
+						Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
 					end 
 					if v.righttext then 
-						Tasksync.MenuDrawSetButtonOptions("testmenu",i,v.righttext)
+						Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
 					end 
 				end 
 			end 
-			Tasksync.MenuDrawSetButtons("testmenu",table.unpack(buttons))
-			Tasksync.MenuDrawSetSelection("testmenu",1,1)
+			Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
+			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
+			
+		end,
+		drawend = function(self)
+			Tasksync.MenuDrawEnd("menu:"..self.title)
 		end,
 		update = function(self)
 			local buttons = {} 
@@ -121,28 +142,31 @@ Menu.new = function()
 				local v = self.items[i]
 				table.insert(buttons,v.name)
 				if v.description then 
-					Tasksync.MenuDrawSetButtonDescription("testmenu",i,v.name)
+					Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.name)
 				end 
 				if v.options then 
-					Tasksync.MenuDrawSetButtonOptions("testmenu",i,table.unpack(v.options))
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
+					if v.selected then Tasksync.MenuDrawSetSlotValue("menu:"..self.title,i,v.selected) end 
 				end 
 				if v.price and v.icon then
-					Tasksync.MenuDrawSetButtonIcon("testmenu",i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
-					Tasksync.MenuDrawSetButtonOptions("testmenu",i,"$"..v.price)
+					Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,"$"..v.price)
 				else 
 					if v.icon then 
-						Tasksync.MenuDrawSetButtonIcon("testmenu",i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
+						Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
 					end 
 					if v.righttext then 
-						Tasksync.MenuDrawSetButtonOptions("testmenu",i,v.righttext)
+						Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
 					end 
 				end 
 			end 
-			Tasksync.MenuDrawSetButtons("testmenu",table.unpack(buttons))
-			Tasksync.MenuDrawSetSelection("testmenu",self.selected.y,self.selected.x)
+			Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
+			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
 
 		end 
 	}
+	table.insert(Menus,menu)
+	return menu
 end
 
 CreateThread(function() 
@@ -175,16 +199,58 @@ CreateThread(function()
 		icon = 13
 		
 	}
-		testmenu:addItem{
+	testmenu:addItem{
 		name = "apple",
 		price = 4000,
 		icon = 13
 		
 	}
+	testmenu:addItem{
+		name = "Draw new menu",
+		action = function(self)
+			local 	testmenu2 = Menu.new()
+			testmenu2:setTitle("negbook2")
+			testmenu2:setSubtitle("subtitle2")
+			testmenu2:addItem{
+				name = "appl2e",
+				options = {"a","b","c"},
+				action = function(self,optionselection) 
+					print(self.options[optionselection])
+				end
+			}
+			testmenu2:addItem{
+				name = "app3le",
+				icon = 12,
+				action = function(self,optionselection) 
+					self.tuneicon = not self.tuneicon
+				end,
+				price = 300
+			}
+			testmenu2:addItem{
+				name = "ap2ple",
+				righttext = "asdasd"
+				
+			}
+			testmenu2:addItem{
+				name = "apple",
+				righttext = "asdasd",
+				icon = 13
+				
+			}
+			testmenu2:addItem{
+				name = "apple",
+				price = 4000,
+				icon = 13
+				
+			}
+			testmenu:drawend()
+			testmenu2:draw()
+		end 
+	}
 	testmenu:draw()
 	
 	load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
-	local group = "MENU_EXAMPLE_GROUP"
+	local group = "MENU_LIB_GROUP"
 	Tasksync.RegisterKeyboardCallback(group,"SELECT2","SPACE","THIS IS MENU SELECT")
 	Tasksync.RegisterKeyboardCallback(group,"SHIFT2","TAB","")
 	Tasksync.RegisterKeyboardCallback(group,"BACK2","BACK","")
@@ -195,33 +261,51 @@ CreateThread(function()
 	Tasksync.RegisterKeyboardCallbackLoop(group,"LEFT2","LEFT","",500,50)
 	Tasksync.RegisterKeyboardCallbackLoop(group,"RIGHT2","RIGHT","",500,50)
 
-	Tasksync.SetKeyMappingGroupActive("MENU_EXAMPLE_GROUP",true)
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","BACK2",function()
-		testmenu:keyPressed("back") 
+	Tasksync.SetKeyMappingGroupActive("MENU_LIB_GROUP",true)
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","BACK2",function()
+		if Menus and Menus[#Menus] then 
+			Menus[#Menus]:keyPressed("back") 
+		end 
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","UP2",function()
-		testmenu:keyPressed("up") 
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","UP2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("up") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","DOWN2",function()
-		testmenu:keyPressed("down") 
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","DOWN2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("down") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","LEFT2",function()
-		testmenu:keyPressed("left") 
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","LEFT2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("left") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","LEFT2_HOLDING",function()
-		testmenu:keyPressed("left")
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","LEFT2_HOLDING",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("left") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","RIGHT2",function()
-		testmenu:keyPressed("right")
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","RIGHT2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("right") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","RIGHT2_HOLDING",function()
-		testmenu:keyPressed("right")
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","RIGHT2_HOLDING",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("right") 
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","SELECT2",function()
-		testmenu:keyPressed("return") 
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","SELECT2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("return")
+		end
 	end )
-	Tasksync.RegisterKeyEvent("MENU_EXAMPLE_GROUP","ENTER2",function()
-		testmenu:keyPressed("return") 
+	Tasksync.RegisterKeyEvent("MENU_LIB_GROUP","ENTER2",function()
+		if Menus and Menus[#Menus] then 
+		Menus[#Menus]:keyPressed("return") 
+		end 
 	end )
 end) 
 
