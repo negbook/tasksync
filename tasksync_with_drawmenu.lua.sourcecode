@@ -646,13 +646,12 @@ Tasksync.NativeMenu.New = function()
 				else 
 					self:drawend(self)
 				end 
-			end 
-			self:update(self)
-			if key == 'return' then
+			elseif key == 'return' then
 				if self.items[self.selected.y].action then
 					self.items[self.selected.y]:action(self.selected.x)
 				end
 			end
+			self:update(self)
 		end,
 		draw = function(self,isUpdate)
 			if Tasksync._Menus and #Tasksync._Menus > 1 then 

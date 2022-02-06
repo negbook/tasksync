@@ -35,7 +35,7 @@ load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
 
 CreateThread(function() 
 	testmenu = Tasksync.NativeMenu.New()
-	testmenu:setHeader("negbook","subtitle",4,"PI")
+	testmenu:setHeader("negbook","subtitle",6,"PI")
 	testmenu:addItem{
 		name = "apple",
 		options = {"a","b","c"},
@@ -60,6 +60,13 @@ CreateThread(function()
 		name = "apple",
 		righttext = "asdasd",
 		icon = 13
+	}
+	testmenu:addItem{
+		name = "check",
+		action = function(self,optionselection) 
+			self.tuneicon = not self.tuneicon
+		end,
+		icon = 17
 	}
 	testmenu:addItem{
 		name = "apple",
