@@ -41,7 +41,8 @@ CreateThread(function()
 		options = {"a","b","c"},
 		action = function(self,optionselection) 
 			print(self.options[optionselection])
-		end
+		end,
+		description = "select your apple color"
 	}
 	testmenu:addItem{
 		name = "apple",
