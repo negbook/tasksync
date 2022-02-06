@@ -169,6 +169,7 @@ end
 Tasksync.MenuDrawEnd = function(menugroup)
 	if Tasksync._MenuDrawSpecial["PI"] and Tasksync.ScaleformEnd then 
 		Tasksync.ScaleformEnd("MP_MENU_GLARE")
+		Tasksync._MenuDrawSpecial["PI"] = false 
 	end 
 	Tasksync.deletelooponce("drawmenu:"..menugroup)
 end 
@@ -592,11 +593,11 @@ Tasksync.NativeMenu.New = function()
 		items = {},
 		options = {},
 		selected = {y=1,x=1},
-		setTitle = function(self, title)
+		setHeader = function(self, title, subtitle, maxslot, menutype)
 			self.title = title
-		end,
-		setSubtitle = function(self, subtitle)
 			self.subtitle = subtitle
+			self.maxslot = maxslot
+			self.menutype = menutype
 		end,
 		addItem = function(self, item)
 			table.insert(self.items, item)
@@ -658,7 +659,7 @@ Tasksync.NativeMenu.New = function()
 				Tasksync._Menus[#Tasksync._Menus-1]:drawend()
 			end 
 			if not isUpdate then 
-				Tasksync.MenuDrawInit("menu:"..self.title,self.title,self.subtitle,7)
+				Tasksync.MenuDrawInit("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7,self.menutype)
 			end 
 			local buttons = {} 
 			for i=1,#self.items do 
