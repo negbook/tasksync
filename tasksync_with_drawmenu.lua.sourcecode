@@ -522,4 +522,182 @@ Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/d
 	end
 	return icons[1];
 end
+Tasksync._Menus = {} 
+Tasksync._Keyhook = nil 
+Tasksync.NativeMenu = {}
+Tasksync.NativeMenu.New = function()
+	if not Tasksync._Keyhook then 
+		if Tasksync._Keyhook == nil then 
+			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
+			local group = "MENU_GROUP_NATIVE"
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_SELECT","SPACE","THIS IS MENU SELECT")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_SHIFT","TAB","")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_BACK","BACK","")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_ESCAPE","ESCAPE","")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_ENTER","RETURN","")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_UP","UP","")
+			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_DOWN","DOWN","")
+			Tasksync.RegisterKeyboardCallbackLoop(group,"MENU_NATIVE_LEFT","LEFT","",500,50)
+			Tasksync.RegisterKeyboardCallbackLoop(group,"MENU_NATIVE_RIGHT","RIGHT","",500,50)
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_BACK",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+					Tasksync._Menus[#Tasksync._Menus]:keyPressed("back") 
+				end 
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_UP",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("up") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_DOWN",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("down") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_LEFT",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_LEFT_HOLDING",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_RIGHT",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_RIGHT_HOLDING",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_SELECT",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return")
+				end
+			end )
+			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_ENTER",function()
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return") 
+				end 
+			end )
+		end 
+		Tasksync.SetKeyMappingGroupActive("MENU_GROUP_NATIVE",true)
+		Tasksync._Keyhook = true 
+	end 
+	local menu = {
+		items = {},
+		options = {},
+		selected = {y=1,x=1},
+		setTitle = function(self, title)
+			self.title = title
+		end,
+		setSubtitle = function(self, subtitle)
+			self.subtitle = subtitle
+		end,
+		addItem = function(self, item)
+			table.insert(self.items, item)
+		end,
+		keyPressed = function(self, key)
+			if key == 'up' then
+				if self.selected.y > 1 then
+					self.selected.y = self.selected.y - 1
+				else
+					self.selected.y = #self.items
+				end
+			elseif key == 'down' then
+				if self.selected.y < #self.items then
+					self.selected.y = self.selected.y + 1
+				else
+					self.selected.y = 1
+				end
+			elseif key == 'left' then
+				if self.items[self.selected.y] and self.items[self.selected.y].options then 
+					if self.selected.x > 1 then
+						self.selected.x = self.selected.x - 1
+					else
+						self.selected.x = #self.items[self.selected.y].options
+					end
+					self.items[self.selected.y].selected = self.selected.x
+				end 
+			elseif key == 'right' then
+				if self.items[self.selected.y] and self.items[self.selected.y].options then 
+					if self.selected.x < #self.items[self.selected.y].options then
+						self.selected.x = self.selected.x + 1
+					else
+						self.selected.x = 1
+					end
+					self.items[self.selected.y].selected = self.selected.x
+				end 
+			elseif key == 'back' then
+				if Tasksync._Menus and #Tasksync._Menus > 0 then 
+					Tasksync._Menus[#Tasksync._Menus]:drawend()
+					table.remove(Tasksync._Menus,#Tasksync._Menus)
+					if #Tasksync._Menus > 0 and Tasksync._Menus[#Tasksync._Menus] then 
+						Tasksync._Menus[#Tasksync._Menus]:draw()
+					else 
+						Tasksync.SetKeyMappingGroupActive("MENU_GROUP_NATIVE",false)
+						Tasksync._Keyhook = false 
+					end 
+				else 
+					self:drawend(self)
+				end 
+			end 
+			self:update(self)
+			if key == 'return' then
+				if self.items[self.selected.y].action then
+					self.items[self.selected.y]:action(self.selected.x)
+				end
+			end
+		end,
+		draw = function(self,isUpdate)
+			if Tasksync._Menus and #Tasksync._Menus > 1 then 
+				Tasksync._Menus[#Tasksync._Menus-1]:drawend()
+			end 
+			if not isUpdate then 
+				Tasksync.MenuDrawInit("menu:"..self.title,self.title,self.subtitle,7)
+			end 
+			local buttons = {} 
+			for i=1,#self.items do 
+				local v = self.items[i]
+				if not isUpdate then 
+					table.insert(buttons,v.name)
+				end 
+				if v.description then 
+					Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.name)
+				end 
+				if v.options then 
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
+					if v.selected then Tasksync.MenuDrawSetSlotValue("menu:"..self.title,i,v.selected) end
+				end 
+				if v.price and v.icon then
+					Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
+					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,"$"..v.price)
+				else 
+					if v.icon then 
+						Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
+					end 
+					if v.righttext then 
+						Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
+					end 
+				end 
+			end 
+			if not isUpdate then 
+				Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
+			end 
+			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
+		end,
+		drawend = function(self)
+			Tasksync.MenuDrawEnd("menu:"..self.title)
+		end,
+		update = function(self)
+			self:draw(true)
+		end 
+	}
+	table.insert(Tasksync._Menus,menu)
+	return menu
+end
 end 
