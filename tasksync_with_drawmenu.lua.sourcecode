@@ -668,7 +668,7 @@ Tasksync.NativeMenu.New = function()
 					table.insert(buttons,v.name)
 				end 
 				if v.description then 
-					Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.name)
+					Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.description)
 				end 
 				if v.options then 
 					Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
