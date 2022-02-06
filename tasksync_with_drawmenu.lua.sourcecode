@@ -1,4 +1,4 @@
-load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._MenuDrawtasksync_with_drawmenu then 
 Tasksync._MenuDrawtasksync_with_drawmenu = true 
 local HexToRGBA = function (hex,skipkeys)
@@ -170,7 +170,7 @@ Tasksync.MenuDrawEnd = function(menugroup)
 	if Tasksync._MenuDrawSpecial["PI"] and Tasksync.ScaleformEnd then 
 		Tasksync.ScaleformEnd("MP_MENU_GLARE")
 	end 
-	Tasksync.deleteloop("drawmenu:"..menugroup)
+	Tasksync.deletelooponce("drawmenu:"..menugroup)
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckType = function(menutype)
@@ -221,7 +221,7 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
 	Tasksync.MenuDrawSetSelection(menugroup,1)
-	Tasksync.addloop("drawmenu:"..menugroup,0,function()
+	Tasksync.addlooponce("drawmenu:"..menugroup,0,function()
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
