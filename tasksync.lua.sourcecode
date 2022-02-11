@@ -57,8 +57,8 @@ Tasksync.__createbytemplate = function(durationgroup)
 				end 
 			end 
 			Wait(duration)
-		until not tasks 
-		--print('breaked2')
+		until not tasks or tasks[1]
+		--if true then  print('breaked'..durationgroup) end
 		return 
 	end)
 end 	
@@ -84,6 +84,7 @@ Tasksync.deleteloop = function(jobname)
 				TriggerEvent("deletelooplog",GetCurrentResourceName())
 				if #Tasksync.tasksjob[durationgroup] == 0 then 
 					Tasksync.tasksjob[durationgroup] = nil
+					
 				end 
 			end 
 		end 

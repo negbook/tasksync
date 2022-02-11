@@ -5,6 +5,7 @@ load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_drawtext.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 CreateThread(function()
+	--[[
 	local handle = TextDrawCreate(0.4,0.4,"test")
 	TextDrawShow(handle)
 	local x,y,z = table.unpack(GetEntityCoords(PlayerPedId()))
@@ -30,6 +31,7 @@ CreateThread(function()
 	
 	Wait(8000)
 	Tasksync.ScaleformEnd("mp_big_message_freemode")
+	--]]
 end)
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
 
@@ -140,3 +142,20 @@ Tasksync.addloopcustom("test",1000,function(delay)
 end)
 
 --]=]
+
+local function IsServer() return IsDuplicityVersion() end ;
+local function IsClient() return not IsDuplicityVersion() end ;
+local function IsShared() return true end ;
+if IsClient() then 
+Command = setmetatable({},{__newindex=function(t,k,fn) RegisterCommand(k,function(source, args, raw) fn(table.unpack(args)) end) return end })
+	Command["tasksync_debug"] = function()
+		TriggerEvent("Tasksync:ShowDebug")
+	end 
+else 
+ClientCommand = setmetatable({},{__newindex=function(t,k,fn) RegisterCommand(k,function(source, args, raw) if source>0 then fn(source,table.unpack(args)) end end) return end })
+ServerCommand = setmetatable({},{__newindex=function(t,k,fn) RegisterCommand(k,function(source, args, raw) if source>0 then else fn(table.unpack(args)) end end) return end })
+SharedCommand = setmetatable({},{__newindex=function(t,k,fn) RegisterCommand(k,function(source, args, raw) fn(source,table.unpack(args)) end) return end })
+	ServerCommand["tasksync_log"] = function(a)
+		TriggerEvent("Tasksync:ShowDebug")
+	end 
+end 

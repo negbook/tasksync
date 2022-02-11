@@ -51,7 +51,7 @@ Tasksync.__createbytemplate_custom = function(customgroup,defaultduration)
 			if fn then fn(delaySetter) end 
 			Wait(Tasksync.taskstodo_custom_newduration[customgroup])
 		until not todo[customgroup] 
-		--print('breaked2')
+		--if true then  print('breaked'..customgroup) end
 		return 
 	end)
 end 	
@@ -64,6 +64,7 @@ end
 Tasksync.deleteloopcustom = function(customgroup)
 	TriggerEvent("deleteloopcustomlog",GetCurrentResourceName())
 	Tasksync.taskstodo_custom[customgroup] = nil
+	
 end 
 
 end 
