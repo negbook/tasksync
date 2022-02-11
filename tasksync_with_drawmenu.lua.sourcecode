@@ -530,6 +530,11 @@ Tasksync.NativeMenu.New = function()
 	if not Tasksync._Keyhook then 
 		if Tasksync._Keyhook == nil then 
 			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
+			local shared_cb = function(input)
+				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
+					Tasksync._Menus[#Tasksync._Menus]:keyPressed(input) 
+				end 
+			end
 			Tasksync.RegisterKeyboardCallbacks{
 				group = "GROUP_TASKSYNC_DRAWMENU",
 				keys = {
@@ -542,53 +547,19 @@ Tasksync.NativeMenu.New = function()
 					{"DOWN","THIS IS MENU DOWN"},
 					{"LEFT","THIS IS MENU LEFT",500,50},
 					{"RIGHT","THIS IS MENU RIGHT",500,50}
+				},
+				cbs = {
+					{"BACK","JUST_PRESSED",shared_cb,"back"},
+					{"UP","JUST_PRESSED",shared_cb,"up"},
+					{"DOWN","JUST_PRESSED",shared_cb,"down"},
+					{"LEFT","JUST_PRESSED",shared_cb,"left"},
+					{"LEFT","PRESSED",shared_cb,"left"},
+					{"RIGHT","JUST_PRESSED",shared_cb,"right"},
+					{"RIGHT","PRESSED",shared_cb,"right"},
+					{"SPACE","JUST_PRESSED",shared_cb,"return"},
+					{"RETURN","JUST_PRESSED",shared_cb,"return"}
 				}
 			}
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","BACK",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-					Tasksync._Menus[#Tasksync._Menus]:keyPressed("back") 
-				end 
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","UP",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("up") 
-				end
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","DOWN",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("down") 
-				end
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","LEFT",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
-				end
-			end )
-			Tasksync.RegisterKeyEventPressed("GROUP_TASKSYNC_DRAWMENU","LEFT",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
-				end
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","RIGHT",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
-				end
-			end )
-			Tasksync.RegisterKeyEventPressed("GROUP_TASKSYNC_DRAWMENU","RIGHT",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
-				end
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","SPACE",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return")
-				end
-			end )
-			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","RETURN",function()
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return") 
-				end 
-			end )
 		end 
 		Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
 		Tasksync._Keyhook = true 

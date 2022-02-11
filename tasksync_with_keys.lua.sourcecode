@@ -90,6 +90,50 @@ Tasksync.RegisterKeyboardCallbacks = function(regtable)
 			Tasksync._RegisterKeyboardCallback(v[1],group,v[2])
 		end 
 	end 
+	local cbs = regtable.cbs 
+	for i,v in pairs(cbs) do 
+		local style = v[2]
+		if style == "JUST_PRESSED" then 
+			if v[4] then 
+				local _cb = function()
+					local _atbl = {}
+					for i=4,#v do 
+						table.insert(_atbl,v[i])
+					end 
+					return v[3](table.unpack(_atbl))
+				end 
+				Tasksync.RegisterKeyEventJustPressed(group,v[1],_cb)
+			else 
+				Tasksync.RegisterKeyEventJustPressed(group,v[1],v[3])
+			end
+		elseif style == "PRESSED" then
+			if v[4] then 
+				local _cb = function()
+					local _atbl = {}
+					for i=4,#v do 
+						table.insert(_atbl,v[i])
+					end 
+					return v[3](table.unpack(_atbl))
+				end 
+				Tasksync.RegisterKeyEventPressed(group,v[1],_cb)
+			else 
+				Tasksync.RegisterKeyEventPressed(group,v[1],v[3])
+			end
+		elseif style == "JUST_RELEASED" then 
+			if v[4] then 
+				local _cb = function()
+					local _atbl = {}
+					for i=4,#v do 
+						table.insert(_atbl,v[i])
+					end 
+					return v[3](table.unpack(_atbl))
+				end 
+				Tasksync.RegisterKeyEventJustReleased(group,v[1],_cb)
+			else 
+				Tasksync.RegisterKeyEventJustReleased(group,v[1],v[3])
+			end
+		end 
+	end 
 end 
 Tasksync.RegisterMouseWheelCallback = function(key,group,description) 
 	local name = group .. "_" .. key 
