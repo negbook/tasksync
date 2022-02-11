@@ -267,7 +267,7 @@ local function _drawMenuIcon_Right(y,iconName)
 		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
 	end 
 end 
-local _drawButton = function(menugroup,y,text,righttext,optionselected,icon,ishighlight)
+local _drawButton = function(y,text,righttext,optionselected,icon,ishighlight)
 	if ishighlight then 
 		_drawMenuText(text,basicx,y,buttonFont,2,buttonScale, true)
 		if righttext and icon then 
@@ -440,7 +440,7 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 					n = n + 1
 					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-					_drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
+					_drawButton(basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			else 
 				local n = 0
@@ -448,7 +448,7 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 					n = n + 1
 					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-					_drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
+					_drawButton(basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			end 
 			if btsT > maxslot then 
@@ -464,8 +464,7 @@ end
 
 Tasksync._Menus = {} 
 Tasksync._KeyHookInitialed = nil 
-Tasksync.NativeMenu = {}
-Tasksync.NativeMenu.New = function()
+Tasksync.NativeMenuGen = function()
 	if not Tasksync._KeyHookInitialed then 
 		if Tasksync._KeyHookInitialed == nil then 
 			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()

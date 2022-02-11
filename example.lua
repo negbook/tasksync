@@ -36,7 +36,7 @@ end)
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
 
 CreateThread(function() 
-	testmenu = Tasksync.NativeMenu.New()
+	testmenu = Tasksync.NativeMenuGen()
 	testmenu:setHeader("negbook","subtitle",6,"PI")
 	testmenu:addItem{
 		name = "apple",
@@ -78,7 +78,7 @@ CreateThread(function()
 	testmenu:addItem{
 		name = "Draw new menu",
 		action = function(self)
-			local 	testmenu2 = Tasksync.NativeMenu.New()
+			local 	testmenu2 = Tasksync.NativeMenuGen()
 			testmenu2:setHeader("negbook2","subtitle2",7)
 			testmenu2:addItem{
 				name = "appl2e",
