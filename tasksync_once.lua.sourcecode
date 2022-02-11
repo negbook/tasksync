@@ -6,7 +6,27 @@ if not Tasksync._tasksync_once then
 Tasksync._tasksync_once = true 
 Tasksync.tasksjob_once = {}
 Tasksync.taskstodo_once = {}
-
+Tasksync._debug = false
+local resourceName = GetCurrentResourceName()
+local GetAmountOfLoops = function(style)
+		local nowTable
+		if style == "loop" then 
+			nowTable = (Tasksync.tasksjob)
+		elseif style == "loopcustom" then  
+			nowTable = (Tasksync.tasksjob_custom)
+		elseif style == "looponce" then  
+			nowTable = (Tasksync.tasksjob_once)
+		end 
+		local total = 0 
+		for i,v in pairs(nowTable) do 
+			local n = #v
+			total = total + n
+		end
+		return total 
+end 
+AddEventHandler("Tasksync:ShowDebug",function(resourcename)
+	Tasksync._debug = not Tasksync._debug 
+end)
 Tasksync.__createbytemplate_once = function(durationgroup)
 	TriggerEvent("addlooponcelog",GetCurrentResourceName())
 	CreateThread(function()
@@ -16,10 +36,21 @@ Tasksync.__createbytemplate_once = function(durationgroup)
 		local duration = tonumber(durationgroup)
 		repeat 
 			if tasks_once then 
+				local debugtext = {}
 				for i=1,#tasks_once do 
 					local jobname = tasks_once[i]
 					local fn = todo[jobname]
+					if Tasksync._debug and jobname then 
+						table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..durationgroup) 
+					end
 					if fn then fn() end 
+				end 
+				if Tasksync._debug then 
+					for i,v in pairs(debugtext) do 
+						print(v)
+					end 
+					print("Once Loop Total",GetAmountOfLoops("looponce"))
+					print("Spaming after 3 seconds") Wait(3000)
 				end 
 			end 
 			Wait(duration)

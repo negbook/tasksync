@@ -7,7 +7,27 @@ Tasksync._tasksync_custom = true
 Tasksync.tasksjob_custom = {}
 Tasksync.taskstodo_custom = {}
 Tasksync.taskstodo_custom_newduration = {}
-
+Tasksync._debug = false
+local resourceName = GetCurrentResourceName()
+local GetAmountOfLoops = function(style)
+		local nowTable
+		if style == "loop" then 
+			nowTable = (Tasksync.tasksjob)
+		elseif style == "loopcustom" then  
+			nowTable = (Tasksync.tasksjob_custom)
+		elseif style == "looponce" then  
+			nowTable = (Tasksync.tasksjob_once)
+		end 
+		local total = 0 
+		for i,v in pairs(nowTable) do 
+			local n = #v
+			total = total + n
+		end
+		return total 
+end 
+AddEventHandler("Tasksync:ShowDebug",function(resourcename)
+	Tasksync._debug = not Tasksync._debug 
+end)
 Tasksync.set_custom_duration = function(customgroup,newduration)
 	Tasksync.taskstodo_custom_newduration[customgroup] = newduration
 end 
@@ -21,7 +41,13 @@ Tasksync.__createbytemplate_custom = function(customgroup,defaultduration)
 		local jobname = customgroup
 		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.set_custom_duration(customgroup,newduration) end}),getter=function(t,newduration) return Tasksync.get_custom_duration(customgroup) end}
 		local fn = todo[jobname]
+		
 		repeat
+			if Tasksync._debug then 
+				print(resourceName.." (loopcustom) "..customgroup)
+				print("Custom Loop Total",GetAmountOfLoops("loopcustom"))
+				print("Spaming after 3 seconds") Wait(3000)
+			end 
 			if fn then fn(delaySetter) end 
 			Wait(Tasksync.taskstodo_custom_newduration[customgroup])
 		until not todo[customgroup] 

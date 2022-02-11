@@ -18,13 +18,11 @@ files {
 	'tasksync_with_keys.lua.sourcecode',
 }
 client_scripts {
-'log.lua',
---'example.lua'
+'example.lua'
 }
 
 server_scripts {
 'versionchecker.lua',
-'log.lua',
 --'example-sv.lua'
 }
 
