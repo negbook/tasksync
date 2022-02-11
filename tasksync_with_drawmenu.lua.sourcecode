@@ -530,63 +530,67 @@ Tasksync.NativeMenu.New = function()
 	if not Tasksync._Keyhook then 
 		if Tasksync._Keyhook == nil then 
 			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
-			local group = "MENU_GROUP_NATIVE"
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_SELECT","SPACE","THIS IS MENU SELECT")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_SHIFT","TAB","")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_BACK","BACK","")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_ESCAPE","ESCAPE","")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_ENTER","RETURN","")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_UP","UP","")
-			Tasksync.RegisterKeyboardCallback(group,"MENU_NATIVE_DOWN","DOWN","")
-			Tasksync.RegisterKeyboardCallbackLoop(group,"MENU_NATIVE_LEFT","LEFT","",500,50)
-			Tasksync.RegisterKeyboardCallbackLoop(group,"MENU_NATIVE_RIGHT","RIGHT","",500,50)
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_BACK",function()
+			Tasksync.RegisterKeyboardCallbacks{
+				group = "GROUP_TASKSYNC_DRAWMENU",
+				keys = {
+					{"TAB","THIS IS MENU TAB"},
+					{"BACK","THIS IS MENU BACK"},
+					{"SPACE","THIS IS MENU SPACE"},
+					{"ESCAPE","THIS IS MENU ESCAPE"},
+					{"RETURN","THIS IS MENU RETURN"},
+					{"UP","THIS IS MENU UP"},
+					{"DOWN","THIS IS MENU DOWN"},
+					{"LEFT","THIS IS MENU LEFT",500,50},
+					{"RIGHT","THIS IS MENU RIGHT",500,50}
+				}
+			}
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","BACK",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 					Tasksync._Menus[#Tasksync._Menus]:keyPressed("back") 
 				end 
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_UP",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","UP",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("up") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_DOWN",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","DOWN",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("down") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_LEFT",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","LEFT",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_LEFT_HOLDING",function()
+			Tasksync.RegisterKeyEventPressed("GROUP_TASKSYNC_DRAWMENU","LEFT",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("left") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_RIGHT",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","RIGHT",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_RIGHT_HOLDING",function()
+			Tasksync.RegisterKeyEventPressed("GROUP_TASKSYNC_DRAWMENU","RIGHT",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("right") 
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_SELECT",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","SPACE",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return")
 				end
 			end )
-			Tasksync.RegisterKeyEvent("MENU_GROUP_NATIVE","MENU_NATIVE_ENTER",function()
+			Tasksync.RegisterKeyEventJustPressed("GROUP_TASKSYNC_DRAWMENU","RETURN",function()
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
 				Tasksync._Menus[#Tasksync._Menus]:keyPressed("return") 
 				end 
 			end )
 		end 
-		Tasksync.SetKeyMappingGroupActive("MENU_GROUP_NATIVE",true)
+		Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
 		Tasksync._Keyhook = true 
 	end 
 	local menu = {
@@ -640,7 +644,7 @@ Tasksync.NativeMenu.New = function()
 					if #Tasksync._Menus > 0 and Tasksync._Menus[#Tasksync._Menus] then 
 						Tasksync._Menus[#Tasksync._Menus]:draw()
 					else 
-						Tasksync.SetKeyMappingGroupActive("MENU_GROUP_NATIVE",false)
+						Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 						Tasksync._Keyhook = false 
 					end 
 				else 

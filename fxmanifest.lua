@@ -18,7 +18,7 @@ files {
 	'tasksync_with_keys.lua.sourcecode',
 }
 client_scripts {
---'example.lua'
+'example.lua'
 }
 
 server_scripts {
