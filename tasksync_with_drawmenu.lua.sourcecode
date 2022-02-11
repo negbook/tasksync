@@ -1,3 +1,4 @@
+local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})return g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then return b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)local i={...}for j=1,#i do local k=i[j]if k~=nil then return k end end;return nil end})end})
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._MenuDrawtasksync_with_drawmenu then 
 Tasksync._MenuDrawtasksync_with_drawmenu = true 
@@ -26,35 +27,176 @@ local basicbuttony = basicy + titleHeight + buttonTextYOffset
 local basicfont = 0
 local buttonTransparent = 140
 local lastY
-local function ResetRects(y)
+
+Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
+	local icons = {}
+	switch (icontype)(
+		case(3)(function()
+			icons[0] = "MP_hostCrown";icons[1] = "MP_hostCrown";
+		end),
+		case(21)(function()
+			icons[0] = "MP_SpecItem_Coke";icons[1] = "MP_SpecItem_Coke";
+		end),
+		case(22)(function()
+			icons[0] = "MP_SpecItem_Heroin";icons[1] = "MP_SpecItem_Heroin";
+		end),
+		case(23)(function()
+			icons[0] = "MP_SpecItem_Weed";icons[1] = "MP_SpecItem_Weed";
+		end),
+		case(24)(function()
+			icons[0] = "MP_SpecItem_Meth";icons[1] = "MP_SpecItem_Meth";
+		end),
+		case(25)(function()
+			icons[0] = "MP_SpecItem_Cash";icons[1] = "MP_SpecItem_Cash";
+		end),
+		case(1)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(2)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(4)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(6)(function()
+			icons[0] = "Shop_Box_CrossB";icons[1] = "Shop_Box_Cross";
+		end),
+		case(7)(function()
+			icons[0] = "Shop_Box_BlankB";icons[1] = "Shop_Box_Blank";
+		end),
+		case(5)(function()
+			icons[0] = "Shop_Box_TickB";icons[1] = "Shop_Box_Tick";
+		end),
+		case(8)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(9)(function()
+			icons[0] = "Shop_Clothing_Icon_B";icons[1] = "Shop_Clothing_Icon_A";
+		end),
+		case(10)(function()
+			icons[0] = "Shop_GunClub_Icon_B";icons[1] = "Shop_GunClub_Icon_A";
+		end),
+		case(17)(function()
+			icons[0] = "Shop_Ammo_Icon_B";icons[1] = "Shop_Ammo_Icon_A";
+		end),
+		case(18)(function()
+			icons[0] = "Shop_Armour_Icon_B";icons[1] = "Shop_Armour_Icon_A";
+		end),
+		case(19)(function()
+			icons[0] = "Shop_Health_Icon_B";icons[1] = "Shop_Health_Icon_A";
+		end),
+		case(20)(function()
+			icons[0] = "Shop_MakeUp_Icon_B";icons[1] = "Shop_MakeUp_Icon_A";
+		end),
+		case(11)(function()
+			icons[0] = "Shop_Tattoos_Icon_B";icons[1] = "Shop_Tattoos_Icon_A";
+		end),
+		case(12)(function()
+			icons[0] = "Shop_Garage_Icon_B";icons[1] = "Shop_Garage_Icon_A";
+		end),
+		case(13)(function()
+			icons[0] = "Shop_Garage_Bike_Icon_B";icons[1] = "Shop_Garage_Bike_Icon_A";
+		end),
+		case(14)(function()
+			icons[0] = "Shop_Barber_Icon_B";icons[1] = "Shop_Barber_Icon_A";
+		end),
+		case(15)(function()
+			icons[0] = "shop_Lock";icons[1] = "shop_Lock";
+		end),
+		case(16)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(26)(function()
+			icons[0] = "arrowleft";icons[1] = "arrowleft";
+		end),
+		case(27)(function()
+			icons[0] = "arrowright";icons[1] = "arrowright";
+		end),
+		case(28)(function()
+			icons[0] = "MP_AlertTriangle";icons[1] = "MP_AlertTriangle";
+		end),
+		case(29)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(31)(function()
+			icons[0] = "Shop_Michael_Icon_B";icons[1] = "Shop_Michael_Icon_A";
+		end),
+		case(32)(function()
+			icons[0] = "Shop_Franklin_Icon_B";icons[1] = "Shop_Franklin_Icon_A";
+		end),
+		case(33)(function()
+			icons[0] = "Shop_Trevor_Icon_B";icons[1] = "Shop_Trevor_Icon_A";
+		end),
+		case(51)(function()
+			icons[0] = "SaleIcon";icons[1] = "SaleIcon";
+		end),
+		case(52)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(54)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(55)(function()
+			icons[0] = "Shop_Lock_Arena";icons[1] = "Shop_Lock_Arena";
+		end),
+		case(56)(function()
+			icons[0] = "Card_Suit_Clubs";icons[1] = "Card_Suit_Clubs";
+		end),
+		case(57)(function()
+			icons[0] = "Card_Suit_Hearts";icons[1] = "Card_Suit_Hearts";
+		end),
+		case(58)(function()
+			icons[0] = "Card_Suit_Spades";icons[1] = "Card_Suit_Spades";
+		end),
+		case(59)(function()
+			icons[0] = "Card_Suit_Diamonds";icons[1] = "Card_Suit_Diamonds";
+		end),
+		case(60)(function()
+			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(62)(function()
+			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(61)(function()
+			icons[0] = "Shop_Chips_A";icons[1] = "Shop_Chips_B";
+		end),
+		case(0)(function()
+			icons[0] = "";icons[1] = "";
+		end)
+	)
+	if ed then
+		return icons[0];
+	end
+	return icons[1];
+end
+local function _ResetRects(y)
 	lastY = y
 end 
-
-local function drawMenuRect(height, color, offsetY, alpha)
+local function _drawMenuRect(height, color, offsetY, alpha)
 	local y = lastY + (offsetY or 0.0)
 	local r,g,b,a = GetHudColour(color)
     DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
 	lastY = y + height 
 	return lastY
 end
-local function drawMenuSprite(sprite, height, color, offsetY, alpha)
+local function _drawMenuSprite(sprite, height, color, offsetY, alpha)
 	local y = lastY + (offsetY or 0.0)
 	local r,g,b,a = GetHudColour(color)
     DrawSprite("CommonMenu", sprite ,basicdrawingx,y + height / 2,menuWidth, height,0, r, g, b, (alpha or a))
 	lastY = y + height 
 	return lastY
 end
-local function drawMenuRectHighLight(y, height, color, offsetY, alpha)
+local function _drawMenuRectHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
 end
-local function drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
+local function _drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
 end
-local function drawMenuText(text, x, y, font, color, scale, ishighlight)
+local function _drawMenuText(text, x, y, font, color, scale, ishighlight)
 	if ishighlight then 
-		drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
+		_drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
 	end 
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
@@ -63,9 +205,9 @@ local function drawMenuText(text, x, y, font, color, scale, ishighlight)
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x + buttonTextXOffset, y)
 end
-local function drawMenuTextShadow(text, x, y, font, color, scale, ishighlight)
+local function _drawMenuTextShadow(text, x, y, font, color, scale, ishighlight)
 	if ishighlight then 
-		drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
+		_drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
 	end 
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
@@ -75,7 +217,7 @@ local function drawMenuTextShadow(text, x, y, font, color, scale, ishighlight)
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x + buttonTextXOffset, y)
 end
-local function drawMenuText_Right(text, x, y, font, color, scale)
+local function _drawMenuText_Right(text, x, y, font, color, scale)
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
@@ -85,7 +227,7 @@ local function drawMenuText_Right(text, x, y, font, color, scale)
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x, y)
 end
-local function drawTextCenter(text, x, y, font, color, scale, shadow, alignRight)
+local function _drawTextCenter(text, x, y, font, color, scale, shadow, alignRight)
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
@@ -97,7 +239,7 @@ local function drawTextCenter(text, x, y, font, color, scale, shadow, alignRight
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x, y)
 end
-local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
+local function _drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 	SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
@@ -120,38 +262,47 @@ local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
 	end 
 end 
-local function drawMenuIcon_Right(y,iconName)
+local function _drawMenuIcon_Right(y,iconName)
 	if iconName then 
 		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
 	end 
 end 
-local drawButton = function(menugroup,y,text,righttext,optionselected,icon,ishighlight)
+local _drawButton = function(menugroup,y,text,righttext,optionselected,icon,ishighlight)
 	if ishighlight then 
-		drawMenuText(text,basicx,y,buttonFont,2,buttonScale, true)
+		_drawMenuText(text,basicx,y,buttonFont,2,buttonScale, true)
 		if righttext and icon then 
-			drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
-			drawMenuIcon_Right(y,icon)
+			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+			_drawMenuIcon_Right(y,icon)
 		else 
 			if righttext then 
-				drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
 			end 
 			if icon then 
-				drawMenuIcon_Right(y,icon)
+				_drawMenuIcon_Right(y,icon)
 			end 
 		end 
 	else 
-		drawMenuText(text,basicx,y,buttonFont,0,buttonScale, false)
+		_drawMenuText(text,basicx,y,buttonFont,0,buttonScale, false)
 		if righttext and icon then 
-			drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
-			drawMenuIcon_Right(y,icon)
+			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+			_drawMenuIcon_Right(y,icon)
 		else 
 			if righttext then 
-				drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
 			end 
 			if icon then 
-				drawMenuIcon_Right(y,icon)
+				_drawMenuIcon_Right(y,icon)
 			end 
 		end 
+	end 
+end 
+local _initMenuScroll = function()
+	DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, _drawMenuRect(buttonHeight, 140, 0.002, 220) - buttonHeight / 2, 0.032, buttonHeight, 0, GetHudColour(0));
+end 
+local _setMenuDescription = function(desc)
+	if desc then 
+		_drawMenuRect(0.0015, 2, 0.0020, 255)
+		_drawMenuText(desc,basicx,_drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)-buttonHeight + 0.0025,buttonFont,0,buttonScale)
 	end 
 end 
 Tasksync._MenuDrawSpecial = {}
@@ -257,7 +408,6 @@ Tasksync.MenuCheckType = function(menutype)
 		end 
 	end 
 end 
-
 Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 	local maxslot = maxslot or 7
 	Tasksync.MenuCheckType(menutype)
@@ -268,21 +418,20 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
-		ResetRects(basicy)
-		--drawMenuRect(titleHeight, 178)
-		drawMenuSprite("interaction_bgd",titleHeight, 0, 0.0, 255)
-		local subtitley = drawMenuRect(buttonHeight, 140, 0.0, 220)
-		drawMenuTextShadow(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
-		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
+		_ResetRects(basicy)
+		--_drawMenuRect(titleHeight, 178)
+		_drawMenuSprite("interaction_bgd",titleHeight, 0, 0.0, 255)
+		local subtitley = _drawMenuRect(buttonHeight, 140, 0.0, 220)
+		_drawMenuTextShadow(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
+		_drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
 		local bts = Tasksync.MenuDrawGetButtons(menugroup)
 		local btsT = #bts
-
 		if btsT > 0 then 
 			if (btsT > maxslot) then 
-				drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
-				drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
+				_drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
+				_drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
 			else 
-				drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
+				_drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
 			end 
 			local selection = Tasksync.MenuDrawGetSelection(menugroup,false)
 			if btsT > maxslot and selection > maxslot then 
@@ -291,8 +440,7 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 					n = n + 1
 					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-					
-					drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
+					_drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			else 
 				local n = 0
@@ -300,211 +448,20 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 					n = n + 1
 					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
 					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-					
-					drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
+					_drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			end 
 			if btsT > maxslot then 
-				drawMenuRect(buttonHeight, 140, 0.002, 220)
-				DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, lastY - buttonHeight / 2, 0.032, buttonHeight, 0, GetHudColour(0));
+				_initMenuScroll()
 			end 
-			local desc = Tasksync.MenuDrawGetButtonDescription(menugroup,Tasksync.MenuDrawGetSelection(menugroup,false))
-			if desc then 
-				drawMenuRect(0.0015, 2, 0.0020, 255)
-				local y = drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)
-				--y = drawMenuRect(buttonHeight, 140, 0.005, 160)
-				drawMenuText(desc,basicx,y-buttonHeight + 0.0025,buttonFont,0,buttonScale)
-			end 
+			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(menugroup,Tasksync.MenuDrawGetSelection(menugroup,false)))
+			
+			
 		end 
 		ResetScriptGfxAlign();
 	end)
 end 
-local switch = setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)end})end})
-Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
-	local icons = {}
-	switch (icontype)(
-		case(3)(function()
-			icons[0] = "MP_hostCrown";
-			icons[1] = "MP_hostCrown";
-		end),
-		case(21)(function()
-			icons[0] = "MP_SpecItem_Coke";
-			icons[1] = "MP_SpecItem_Coke";
-		end),
-		case(22)(function()
-			icons[0] = "MP_SpecItem_Heroin";
-			icons[1] = "MP_SpecItem_Heroin";
-		end),
-		case(23)(function()
-			icons[0] = "MP_SpecItem_Weed";
-			icons[1] = "MP_SpecItem_Weed";
-		end),
-		case(24)(function()
-			icons[0] = "MP_SpecItem_Meth";
-			icons[1] = "MP_SpecItem_Meth";
-		end),
-		case(25)(function()
-			icons[0] = "MP_SpecItem_Cash";
-			icons[1] = "MP_SpecItem_Cash";
-		end),
-		case(1)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		case(2)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		case(4)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		case(6)(function()
-			icons[0] = "Shop_Box_CrossB";
-			icons[1] = "Shop_Box_Cross";
-		end),
-		case(7)(function()
-			icons[0] = "Shop_Box_BlankB";
-			icons[1] = "Shop_Box_Blank";
-		end),
-		case(5)(function()
-			icons[0] = "Shop_Box_TickB";
-			icons[1] = "Shop_Box_Tick";
-		end),
-		case(8)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		case(9)(function()
-			icons[0] = "Shop_Clothing_Icon_B";
-			icons[1] = "Shop_Clothing_Icon_A";
-		end),
-		case(10)(function()
-			icons[0] = "Shop_GunClub_Icon_B";
-			icons[1] = "Shop_GunClub_Icon_A";
-		end),
-		case(17)(function()
-			icons[0] = "Shop_Ammo_Icon_B";
-			icons[1] = "Shop_Ammo_Icon_A";
-		end),
-		case(18)(function()
-			icons[0] = "Shop_Armour_Icon_B";
-			icons[1] = "Shop_Armour_Icon_A";
-		end),
-		case(19)(function()
-			icons[0] = "Shop_Health_Icon_B";
-			icons[1] = "Shop_Health_Icon_A";
-		end),
-		case(20)(function()
-			icons[0] = "Shop_MakeUp_Icon_B";
-			icons[1] = "Shop_MakeUp_Icon_A";
-		end),
-		case(11)(function()
-			icons[0] = "Shop_Tattoos_Icon_B";
-			icons[1] = "Shop_Tattoos_Icon_A";
-		end),
-		case(12)(function()
-			icons[0] = "Shop_Garage_Icon_B";
-			icons[1] = "Shop_Garage_Icon_A";
-		end),
-		case(13)(function()
-			icons[0] = "Shop_Garage_Bike_Icon_B";
-			icons[1] = "Shop_Garage_Bike_Icon_A";
-		end),
-		case(14)(function()
-			icons[0] = "Shop_Barber_Icon_B";
-			icons[1] = "Shop_Barber_Icon_A";
-		end),
-		case(15)(function()
-			icons[0] = "shop_Lock";
-			icons[1] = "shop_Lock";
-		end),
-		case(16)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		case(26)(function()
-			icons[0] = "arrowleft";
-			icons[1] = "arrowleft";
-		end),
-		case(27)(function()
-			icons[0] = "arrowright";
-			icons[1] = "arrowright";
-		end),
-		case(28)(function()
-			icons[0] = "MP_AlertTriangle";
-			icons[1] = "MP_AlertTriangle";
-		end),
-		case(29)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		case(31)(function()
-			icons[0] = "Shop_Michael_Icon_B";
-			icons[1] = "Shop_Michael_Icon_A";
-		end),
-		case(32)(function()
-			icons[0] = "Shop_Franklin_Icon_B";
-			icons[1] = "Shop_Franklin_Icon_A";
-		end),
-		case(33)(function()
-			icons[0] = "Shop_Trevor_Icon_B";
-			icons[1] = "Shop_Trevor_Icon_A";
-		end),
-		case(51)(function()
-			icons[0] = "SaleIcon";
-			icons[1] = "SaleIcon";
-		end),
-		case(52)(function()
-			icons[0] = "Shop_Tick_Icon";
-			icons[1] = "Shop_Tick_Icon";
-		end),
-		case(54)(function()
-			icons[0] = "shop_NEW_Star";
-			icons[1] = "shop_NEW_Star";
-		end),
-		case(55)(function()
-			icons[0] = "Shop_Lock_Arena";
-			icons[1] = "Shop_Lock_Arena";
-		end),
-		case(56)(function()
-			icons[0] = "Card_Suit_Clubs";
-			icons[1] = "Card_Suit_Clubs";
-		end),
-		case(57)(function()
-			icons[0] = "Card_Suit_Hearts";
-			icons[1] = "Card_Suit_Hearts";
-		end),
-		case(58)(function()
-			icons[0] = "Card_Suit_Spades";
-			icons[1] = "Card_Suit_Spades";
-		end),
-		case(59)(function()
-			icons[0] = "Card_Suit_Diamonds";
-			icons[1] = "Card_Suit_Diamonds";
-		end),
-		case(60)(function()
-			icons[0] = "Shop_Art_Icon_B";
-			icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(62)(function()
-			icons[0] = "Shop_Art_Icon_B";
-			icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(61)(function()
-			icons[0] = "Shop_Chips_A";
-			icons[1] = "Shop_Chips_B";
-		end),
-		case(0)(function()
-			icons[0] = "";
-			icons[1] = "";
-		end)
-	)
-	if ed then
-		return icons[0];
-	end
-	return icons[1];
-end
+
 Tasksync._Menus = {} 
 Tasksync._KeyHookInitialed = nil 
 Tasksync.NativeMenu = {}
