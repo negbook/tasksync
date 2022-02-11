@@ -26,13 +26,51 @@ local basicbuttony = basicy + titleHeight + buttonTextYOffset
 local basicfont = 0
 local buttonTransparent = 140
 local lastY
-local function drawMenuText(text, x, y, font, color, scale, shadow)
+local function ResetRects(y)
+	lastY = y
+end 
+
+local function drawMenuRect(height, color, offsetY, alpha)
+	local y = lastY + (offsetY or 0.0)
+	local r,g,b,a = GetHudColour(color)
+    DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
+	lastY = y + height 
+	return lastY
+end
+local function drawMenuSprite(sprite, height, color, offsetY, alpha)
+	local y = lastY + (offsetY or 0.0)
+	local r,g,b,a = GetHudColour(color)
+    DrawSprite("CommonMenu", sprite ,basicdrawingx,y + height / 2,menuWidth, height,0, r, g, b, (alpha or a))
+	lastY = y + height 
+	return lastY
+end
+local function drawMenuRectHighLight(y, height, color, offsetY, alpha)
+	local r,g,b,a = GetHudColour(color)
+	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
+end
+local function drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
+	local r,g,b,a = GetHudColour(color)
+	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
+end
+local function drawMenuText(text, x, y, font, color, scale, ishighlight)
+	if ishighlight then 
+		drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
+	end 
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
-    if shadow then
-        SetTextDropShadow(2, 2, 0, 0, 0)
-    end
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x + buttonTextXOffset, y)
+end
+local function drawMenuTextShadow(text, x, y, font, color, scale, ishighlight)
+	if ishighlight then 
+		drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
+	end 
+    SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+    SetTextDropShadow(2, 2, 0, 0, 0)
     BeginTextCommandDisplayText("STRING")
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x + buttonTextXOffset, y)
@@ -59,31 +97,63 @@ local function drawTextCenter(text, x, y, font, color, scale, shadow, alignRight
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayText(x, y)
 end
-local function ResetRects(y)
-	lastY = y
+local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
+	SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+	local offsetx = 0.016
+	BeginTextCommandGetWidth("STRING")
+	AddTextComponentSubstringPlayerName(text)
+	local width = EndTextCommandGetWidth(true)
+	if showArrow then 
+		local iconRight = "arrowright"
+		local iconLeft = "arrowleft"
+		local height = 0.032 
+		DrawSprite("CommonMenu", iconLeft ,x + menuWidth - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+		BeginTextCommandDisplayText("STRING")
+		AddTextComponentSubstringPlayerName(text)
+		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
+		DrawSprite("CommonMenu", iconRight ,x + menuWidth - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+	else 
+		BeginTextCommandDisplayText("STRING")
+		AddTextComponentSubstringPlayerName(text)
+		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
+	end 
 end 
-local function drawMenuRect(height, color, offsetY, alpha)
-	local y = lastY + (offsetY or 0.0)
-	local r,g,b,a = GetHudColour(color)
-    DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
-	lastY = y + height 
-	return lastY
-end
-local function drawMenuSprite(sprite, height, color, offsetY, alpha)
-	local y = lastY + (offsetY or 0.0)
-	local r,g,b,a = GetHudColour(color)
-    DrawSprite("CommonMenu", sprite ,basicdrawingx,y + height / 2,menuWidth, height,0, r, g, b, (alpha or a))
-	lastY = y + height 
-	return lastY
-end
-local function drawMenuRectHighLight(y, height, color, offsetY, alpha)
-	local r,g,b,a = GetHudColour(color)
-	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
-end
-local function drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
-	local r,g,b,a = GetHudColour(color)
-	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
-end
+local function drawMenuIcon_Right(y,iconName)
+	if iconName then 
+		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
+	end 
+end 
+local drawButton = function(menugroup,y,text,righttext,optionselected,icon,ishighlight)
+	if ishighlight then 
+		drawMenuText(text,basicx,y,buttonFont,2,buttonScale, true)
+		if righttext and icon then 
+			drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+			drawMenuIcon_Right(y,icon)
+		else 
+			if righttext then 
+				drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+			end 
+			if icon then 
+				drawMenuIcon_Right(y,icon)
+			end 
+		end 
+	else 
+		drawMenuText(text,basicx,y,buttonFont,0,buttonScale, false)
+		if righttext and icon then 
+			drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+			drawMenuIcon_Right(y,icon)
+		else 
+			if righttext then 
+				drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+			end 
+			if icon then 
+				drawMenuIcon_Right(y,icon)
+			end 
+		end 
+	end 
+end 
 Tasksync._MenuDrawSpecial = {}
 Tasksync._MenuDrawButtons = {}
 Tasksync._MenuDrawButtonDescriptions = {}
@@ -108,7 +178,6 @@ Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
 	if not Tasksync._MenuDrawMenuSlotValue[menugroup] then Tasksync._MenuDrawMenuSlotValue[menugroup] = {} 
 		Tasksync._MenuDrawMenuSlotValue[menugroup][slot] = 1
 	end 
-	
 end 
 Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
 	local bdo = Tasksync._MenuDrawButtonOptions[menugroup]
@@ -188,34 +257,7 @@ Tasksync.MenuCheckType = function(menutype)
 		end 
 	end 
 end 
-local function drawMenuTextArray(text, x, y, font, color, scale,showArrow)
-	SetTextColour(GetHudColour(color))
-    SetTextFont(font)
-    SetTextScale(scale, scale)
-	local offsetx = 0.016
-	BeginTextCommandGetWidth("STRING")
-	AddTextComponentSubstringPlayerName(text)
-	local width = EndTextCommandGetWidth(true)
-	if showArrow then 
-		local iconRight = "arrowright"
-		local iconLeft = "arrowleft"
-		local height = 0.032 
-		DrawSprite("CommonMenu", iconLeft ,x + menuWidth - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
-		BeginTextCommandDisplayText("STRING")
-		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
-		DrawSprite("CommonMenu", iconRight ,x + menuWidth - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
-	else 
-		BeginTextCommandDisplayText("STRING")
-		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
-	end 
-end 
-local function drawMenuIcon_Right(y,iconName)
-	if iconName then 
-		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
-	end 
-end 
+
 Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 	local maxslot = maxslot or 7
 	Tasksync.MenuCheckType(menutype)
@@ -230,10 +272,11 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 		--drawMenuRect(titleHeight, 178)
 		drawMenuSprite("interaction_bgd",titleHeight, 0, 0.0, 255)
 		local subtitley = drawMenuRect(buttonHeight, 140, 0.0, 220)
-		drawMenuText(title, basicx, basicy + 0.03 , basicfont,0, 0.5, true)
+		drawMenuTextShadow(title, basicx, basicy + 0.03 , basicfont,0, 0.5)
 		drawMenuText(subtitle, basicx, basicbuttony, buttonFont, 9, buttonScale)
 		local bts = Tasksync.MenuDrawGetButtons(menugroup)
 		local btsT = #bts
+
 		if btsT > 0 then 
 			if (btsT > maxslot) then 
 				drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
@@ -246,80 +289,19 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 				local n = 0
 				for i=selection-(maxslot-1),selection,1 do 
 					n = n + 1
-					if selection == i then 
-						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
-						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if righttextarray and icon then 
-							
-							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
-							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-						else 
-							if righttextarray then 
-								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
-							end 
-							
-							if icon then 
-								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-							end 
-						end 
-					else 
-						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if righttextarray and icon then 
-							
-							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
-							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)	
-						else 
-							if righttextarray then 
-								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
-							end 
-							if icon then 
-								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-							end 
-						end 
-					end 
+					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
+					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
+					
+					drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			else 
 				local n = 0
 				for i=1,maxslot do  
 					n = n + 1
-					if selection == i then 
-						drawMenuSpriteHighLight(basicbuttony + buttonHeight * n ,buttonHeight, 0, 0.0, 255)
-						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if righttextarray and icon then 
-							
-							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
-							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-						else 
-							if righttextarray then 
-								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,2,buttonScale,#righttextarray > 1 and true or false)
-							end 
-							if icon then 
-								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-							end 
-						end 
-					else 
-						drawMenuText(bts[i],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale)
-						local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-						local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
-						if righttextarray and icon then 
-							
-							drawMenuTextArray(righttextarray[optionselection],basicx - buttonTextXOffset*4,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
-							drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-						else 
-							if righttextarray then 
-								drawMenuTextArray(righttextarray[optionselection],basicx,basicbuttony + buttonHeight * n,buttonFont,0,buttonScale,#righttextarray > 1 and true or false)
-							end 
-							if icon then 
-								drawMenuIcon_Right(basicbuttony + buttonHeight * n,icon)
-							end 
-						end 
-					end 
+					local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
+					local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
+					
+					drawButton(menugroup,basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 				end 
 			end 
 			if btsT > maxslot then 
@@ -524,11 +506,11 @@ Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/d
 	return icons[1];
 end
 Tasksync._Menus = {} 
-Tasksync._Keyhook = nil 
+Tasksync._KeyHookInitialed = nil 
 Tasksync.NativeMenu = {}
 Tasksync.NativeMenu.New = function()
-	if not Tasksync._Keyhook then 
-		if Tasksync._Keyhook == nil then 
+	if not Tasksync._KeyHookInitialed then 
+		if Tasksync._KeyHookInitialed == nil then 
 			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 			local shared_cb = function(input)
 				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
@@ -562,7 +544,7 @@ Tasksync.NativeMenu.New = function()
 			}
 		end 
 		Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
-		Tasksync._Keyhook = true 
+		Tasksync._KeyHookInitialed = true 
 	end 
 	local menu = {
 		items = {},
