@@ -38,7 +38,7 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
 			Tasksync._scaleformHandleDrawing[scaleformName] = true  
-			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
+			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
@@ -60,7 +60,7 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
 			Tasksync._scaleformHandleDrawing[scaleformName] = true  
-			Tasksync.addloop('scaleforms:draw:'..scaleformName,0,function()
+			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
@@ -86,7 +86,7 @@ local ops = {...}
 			Tasksync._loadscaleform(scaleformName,cb)
 			if Tasksync._scaleformHandle[scaleformName] then 
 				Tasksync._scaleformHandleDrawing[scaleformName] = true  
-				Tasksync.addloop('scaleforms:drawwithendduration:'..scaleformName,0,function()
+				Tasksync.addlooponce('scaleforms:drawwithendduration:'..scaleformName,0,function()
 					local handle = Tasksync._scaleformHandle[scaleformName]
 					if handle then 
 						if layer then SetScriptGfxDrawOrder(layer) end 

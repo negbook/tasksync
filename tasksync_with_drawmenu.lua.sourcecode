@@ -406,7 +406,6 @@ end
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckType = function(menutype)
 	local menutype = menutype or "default"
-	
 	if menutype == "PI" or menutype == "PersonalInteraction" then 
 		if not Tasksync._MenuDrawSpecial["PI"] then 
 			Tasksync._MenuDrawSpecial["PI"] = true 
@@ -420,12 +419,20 @@ Tasksync.MenuCheckType = function(menutype)
 				
 			end)
 		end 
+	else 
+		if Tasksync._MenuDrawSpecial["PI"] then 
+			if Tasksync._MenuDrawSpecial["PI"] and Tasksync.ScaleformEnd then 
+				Tasksync.ScaleformEnd("MP_MENU_GLARE")
+				Tasksync._MenuDrawSpecial["PI"] = false 
+			end 
+			
+		end 
 	end 
 end 
 Tasksync._CurrentMenuGroups = {}
-Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot,menutype)
+Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 	local maxslot = maxslot or 7
-	Tasksync.MenuCheckType(menutype)
+	
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
 	Tasksync.MenuDrawSetSelection(menugroup,1)
@@ -439,8 +446,8 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot,menutype)
 		table.insert(Tasksync._CurrentMenuGroups,menugroup)
 	end 
 	Tasksync.addlooponce("tasksync_drawmenu",0,function()
-		
 		local menugroup = Tasksync._CurrentMenuGroups[#Tasksync._CurrentMenuGroups]
+
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);

@@ -148,7 +148,8 @@ Tasksync.NativeMenuGen = function()
 			end 
 			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
 			if not isUpdate then 
-				Tasksync.MenuDrawRender("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7,self.menutype)
+				Tasksync.MenuCheckType(self.menutype)
+				Tasksync.MenuDrawRender("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7)
 			end 
 		end,
 		drawend = function(self)
