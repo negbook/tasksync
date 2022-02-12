@@ -88,7 +88,10 @@ Tasksync.NativeMenuGen = function()
 				end 
 			elseif key == 'back' then
 				if Tasksync._Menus and #Tasksync._Menus > 0 then 
-					Tasksync._Menus[#Tasksync._Menus]:drawend()
+					
+					
+						Tasksync._Menus[#Tasksync._Menus]:drawend()
+					 
 					table.remove(Tasksync._Menus,#Tasksync._Menus)
 					if #Tasksync._Menus > 0 and Tasksync._Menus[#Tasksync._Menus] then 
 						Tasksync._Menus[#Tasksync._Menus]:draw()
@@ -107,9 +110,13 @@ Tasksync.NativeMenuGen = function()
 			self:update(self)
 		end,
 		draw = function(self,isUpdate)
-			if Tasksync._Menus and #Tasksync._Menus > 1 then 
+			--[[
+			if Tasksync._Menus and #Tasksync._Menus > 1 then
+				
 				Tasksync._Menus[#Tasksync._Menus-1]:drawend()
+				 
 			end 
+			--]]
 			
 			local buttons = {} 
 			for i=1,#self.items do 

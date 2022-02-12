@@ -36,6 +36,7 @@ Tasksync.__createbytemplate_once = function(durationgroup)
 		local duration = tonumber(durationgroup)
 		repeat 
 			if tasks_once then 
+				
 				local debugtext = {}
 				for i=1,#tasks_once do 
 					local jobname = tasks_once[i]

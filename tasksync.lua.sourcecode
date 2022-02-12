@@ -57,7 +57,7 @@ Tasksync.__createbytemplate = function(durationgroup)
 				end 
 			end 
 			Wait(duration)
-		until not tasks or tasks[1]
+		until not tasks or not tasks[1]
 		--if true then  print('breaked'..durationgroup) end
 		return 
 	end)
