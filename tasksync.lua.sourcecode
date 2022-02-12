@@ -1,4 +1,3 @@
-
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end 
@@ -34,12 +33,9 @@ Tasksync.__createbytemplate = function(durationgroup)
 		local todo = Tasksync.taskstodo
 		local tasks = jobs[durationgroup]
 		local duration = tonumber(durationgroup)
-		
 		repeat
 			if tasks then 
-				
 				local debugtext = {}
-				
 				for i=1,#tasks do 
 					local jobname = tasks[i]
 					local fn = todo[jobname]
@@ -56,7 +52,6 @@ Tasksync.__createbytemplate = function(durationgroup)
 					print("Spaming after 3 seconds") Wait(3000)
 				end 
 			end 
-			
 			Wait(duration)
 		until not tasks or not tasks[1]
 		--if true then  print('breaked'..durationgroup) end
@@ -65,10 +60,8 @@ Tasksync.__createbytemplate = function(durationgroup)
 end 	
 Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,function
 	local durationgroup = tostring(durationgroup)
-	
 	if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	Tasksync.taskstodo[jobname] = fn 
-	
 	local creatable = false 
 	if Tasksync.tasksjob[durationgroup] == nil then creatable = true; Tasksync.tasksjob[durationgroup] = {}; end 
 	table.insert(Tasksync.tasksjob[durationgroup],jobname)
@@ -85,11 +78,9 @@ Tasksync.deleteloop = function(jobname)
 				TriggerEvent("deletelooplog",GetCurrentResourceName())
 				if #Tasksync.tasksjob[durationgroup] == 0 then 
 					Tasksync.tasksjob[durationgroup] = nil
-					
 				end 
 			end 
 		end 
 	end 
 end 
-
 end 

@@ -5,7 +5,6 @@ Tasksync._tasksync_with_scaleform = true
 Tasksync._scaleformHandle = {}
 Tasksync._scaleformHandleDrawing = {}
 Tasksync._scaleformReleaseDuration = {}
-
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local scaleformHandle = RequestScaleformMovie(scaleformName)
 	while not HasScaleformMovieLoaded(scaleformHandle) do
@@ -32,7 +31,6 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 		cb(Tasksync._sendscaleformvalues)
 	end 
 end
-
 Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk) 
 	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
@@ -54,7 +52,6 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 		error("Duplicated Drawing Scaleform",2)
 	end 
 end 
-
 Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk, cb,layer) 
 	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
@@ -76,7 +73,6 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 		error("Duplicated Drawing Scaleform",2)
 	end 
 end 
-
 Tasksync.ScaleformDrawDuration = function (scaleformName,duration,...)
 local ops = {...}
     local cb = ops[#ops]
@@ -111,16 +107,12 @@ local ops = {...}
         end)
     end)
 end
-
 Tasksync.ScaleformCall = function(scaleformName,cb) 
 	if not cb then error("What is you want to call?",2) end 
 	Tasksync._loadscaleform(scaleformName,cb)
 end 
-
 Tasksync.ScaleformEnd = function(scaleformName,cb) 
-	
 	SetScaleformMovieAsNoLongerNeeded(Tasksync._scaleformHandle[scaleformName])
 	Tasksync._scaleformHandle[scaleformName] = nil 
 end 
-
 end 

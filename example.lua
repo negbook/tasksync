@@ -110,6 +110,43 @@ CreateThread(function()
 				price = 4000,
 				icon = 13
 			}
+			testmenu2:addItem{
+			name = "Draw new menu",
+			action = function(self)
+				local 	testmenu3 = Tasksync.NativeMenuGen()
+				testmenu3:setHeader("negbook3","subtitle3",7)
+				testmenu3:addItem{
+					name = "appl2e",
+					options = {"a","b","c"},
+					action = function(self,optionselection) 
+						print(self.options[optionselection])
+					end
+				}
+				testmenu3:addItem{
+					name = "app3le",
+					icon = 12,
+					action = function(self,optionselection) 
+						self.tuneicon = not self.tuneicon
+					end,
+					price = 300
+				}
+				testmenu3:addItem{
+					name = "ap2ple",
+					righttext = "asdasd"
+				}
+				testmenu3:addItem{
+					name = "apple",
+					righttext = "asdasd",
+					icon = 13
+				}
+				testmenu3:addItem{
+					name = "apple",
+					price = 4000,
+					icon = 13
+				}
+				testmenu3:draw()
+			end 
+		}
 			testmenu2:draw()
 		end 
 	}

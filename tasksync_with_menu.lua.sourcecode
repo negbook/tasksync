@@ -3,14 +3,15 @@ if not Tasksync then
 end
 if not Tasksync._Menus then 
 Tasksync._Menus = {} 
+Tasksync._MenuFocus = 0
 Tasksync._KeyHookInitialed = nil 
 Tasksync.NativeMenuGen = function()
 	if not Tasksync._KeyHookInitialed then 
 		if Tasksync._KeyHookInitialed == nil then 
 			load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 			local shared_cb = function(input)
-				if Tasksync._Menus and Tasksync._Menus[#Tasksync._Menus] then 
-					Tasksync._Menus[#Tasksync._Menus]:keyPressed(input) 
+				if Tasksync._MenuFocus > 0 then 
+					Tasksync._Menus[Tasksync._MenuFocus]:keyPressed(input) 
 				end 
 			end
 			Tasksync.RegisterKeyboardCallbacks{
@@ -87,14 +88,12 @@ Tasksync.NativeMenuGen = function()
 					self.items[self.selected.y].selected = self.selected.x
 				end 
 			elseif key == 'back' then
-				if Tasksync._Menus and #Tasksync._Menus > 0 then 
-					
-					
-						Tasksync._Menus[#Tasksync._Menus]:drawend()
-					 
-					table.remove(Tasksync._Menus,#Tasksync._Menus)
-					if #Tasksync._Menus > 0 and Tasksync._Menus[#Tasksync._Menus] then 
-						Tasksync._Menus[#Tasksync._Menus]:draw()
+				if Tasksync._MenuFocus > 0 then 
+						Tasksync._Menus[Tasksync._MenuFocus]:drawend()
+						Tasksync._MenuFocus = Tasksync._MenuFocus - 1
+					--table.remove(Tasksync._Menus,#Tasksync._Menus)
+					if Tasksync._MenuFocus > 0 and Tasksync._Menus[Tasksync._MenuFocus] then 
+						Tasksync._Menus[Tasksync._MenuFocus]:draw()
 					else 
 						Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 						Tasksync._Keyhook = false 
@@ -112,12 +111,13 @@ Tasksync.NativeMenuGen = function()
 		draw = function(self,isUpdate)
 			--[[
 			if Tasksync._Menus and #Tasksync._Menus > 1 then
-				
 				Tasksync._Menus[#Tasksync._Menus-1]:drawend()
-				 
 			end 
 			--]]
-			
+			if not isUpdate then 
+				Tasksync.MenuCheckGlareType(self.menutype)
+				Tasksync.MenuDrawRender("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7)
+			end 
 			local buttons = {} 
 			for i=1,#self.items do 
 				local v = self.items[i]
@@ -147,21 +147,17 @@ Tasksync.NativeMenuGen = function()
 				Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
 			end 
 			
-			if not isUpdate then 
-				Tasksync.MenuCheckGlareType(self.menutype)
-				Tasksync.MenuDrawRender("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7)
-			end 
 			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
 		end,
 		drawend = function(self)
 			Tasksync.MenuDrawEnd("menu:"..self.title)
-			
 		end,
 		update = function(self)
 			self:draw(true)
 		end 
 	}
 	table.insert(Tasksync._Menus,menu)
+	Tasksync._MenuFocus = #Tasksync._Menus
 	return menu
 end
 end
