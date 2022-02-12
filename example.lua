@@ -75,6 +75,7 @@ CreateThread(function()
 		price = 4000,
 		icon = 13
 	}
+	
 	testmenu:addItem{
 		name = "Draw new menu",
 		action = function(self)

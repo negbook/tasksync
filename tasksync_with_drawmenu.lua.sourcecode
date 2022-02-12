@@ -27,7 +27,6 @@ local basicbuttony = basicy + titleHeight + buttonTextYOffset
 local basicfont = 0
 local buttonTransparent = 140
 local lastY
-
 Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
 	local icons = {}
 	switch (icontype)(
@@ -455,13 +454,10 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot,menutype)
 				_initMenuScroll()
 			end 
 			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(menugroup,Tasksync.MenuDrawGetSelection(menugroup,false)))
-			
-			
 		end 
 		ResetScriptGfxAlign();
 	end)
 end 
-
 Tasksync._Menus = {} 
 Tasksync._KeyHookInitialed = nil 
 Tasksync.NativeMenuGen = function()
