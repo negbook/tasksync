@@ -404,7 +404,7 @@ Tasksync.MenuDrawEnd = function(menugroup)
 	
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
-Tasksync.MenuCheckType = function(menutype)
+Tasksync.MenuCheckGlareType = function(menutype)
 	local menutype = menutype or "default"
 	if menutype == "PI" or menutype == "PersonalInteraction" then 
 		if not Tasksync._MenuDrawSpecial["PI"] then 

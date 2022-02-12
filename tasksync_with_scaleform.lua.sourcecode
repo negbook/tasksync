@@ -45,7 +45,7 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 					DrawScaleformMovieFullscreen(handle)
 					if layer then ResetScriptGfxAlign() end
 				else 
-					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
+					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
 					Tasksync._scaleformHandleDrawing[scaleformName] = false 
 				end 
 			end)
@@ -67,7 +67,7 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 					DrawScaleformMovie(handle ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
 					if layer then ResetScriptGfxAlign() end
 				else 
-					Tasksync.deleteloop('scaleforms:draw:'..scaleformName)
+					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
 					Tasksync._scaleformHandleDrawing[scaleformName] = false 
 				end 
 			end)
@@ -93,7 +93,7 @@ local ops = {...}
 						DrawScaleformMovieFullscreen(handle)
 						if layer then ResetScriptGfxAlign() end
 					else 
-						Tasksync.deleteloop('scaleforms:drawwithendduration:'..scaleformName)
+						Tasksync.deletelooponce('scaleforms:drawwithendduration:'..scaleformName)
 						Tasksync._scaleformHandleDrawing[scaleformName] = false 
 					end 
 				end)
@@ -106,7 +106,7 @@ local ops = {...}
                 if type(cb) == 'function' then 
                     cb()
                 end 
-                Tasksync.deletelooponce("ScaleformDuration"..scaleformName,333);
+                Tasksync.deletelooponceonce("ScaleformDuration"..scaleformName,333);
             end 
         end)
     end)
@@ -118,6 +118,7 @@ Tasksync.ScaleformCall = function(scaleformName,cb)
 end 
 
 Tasksync.ScaleformEnd = function(scaleformName,cb) 
+	
 	SetScaleformMovieAsNoLongerNeeded(Tasksync._scaleformHandle[scaleformName])
 	Tasksync._scaleformHandle[scaleformName] = nil 
 end 

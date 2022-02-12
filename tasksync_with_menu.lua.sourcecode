@@ -148,12 +148,13 @@ Tasksync.NativeMenuGen = function()
 			end 
 			Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
 			if not isUpdate then 
-				Tasksync.MenuCheckType(self.menutype)
+				Tasksync.MenuCheckGlareType(self.menutype)
 				Tasksync.MenuDrawRender("menu:"..self.title,self.title,self.subtitle,self.maxslot or 7)
 			end 
 		end,
 		drawend = function(self)
 			Tasksync.MenuDrawEnd("menu:"..self.title)
+			
 		end,
 		update = function(self)
 			self:draw(true)
