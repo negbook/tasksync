@@ -15,10 +15,11 @@ files {
 	'tasksync_with_scaleform.lua.sourcecode',
 	'tasksync_with_drawtext.lua.sourcecode',
 	'tasksync_with_drawmenu.lua.sourcecode',
+	'tasksync_with_menu.lua.sourcecode',
 	'tasksync_with_keys.lua.sourcecode',
 }
 client_scripts {
---'example.lua'
+'example.lua'
 }
 
 server_scripts {

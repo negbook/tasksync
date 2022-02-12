@@ -34,7 +34,7 @@ CreateThread(function()
 	--]]
 end)
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
-
+load(LoadResourceFile("tasksync", 'tasksync_with_menu.lua.sourcecode'))()
 CreateThread(function() 
 	testmenu = Tasksync.NativeMenuGen()
 	testmenu:setHeader("negbook","subtitle",6,"PI")
