@@ -2,7 +2,6 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
-
 local menuWidth = 0.258
 local titleHeight = 0.091
 local buttonHeight = 0.038
@@ -17,12 +16,10 @@ local getmenuWidth = function()
 	return menuWidth 
 end 
 local basicRectDrawingX = (basicx + getmenuWidth() / 2)
-
 local basicbuttony = (basicy + titleHeight + buttonTextYOffset)
 local basicfont = 0
 local buttonTransparent = 140
 local lastY
-
 local function _ResetRects(y)
 	lastY = y
 end 
@@ -48,53 +45,41 @@ local function _drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
 	DrawSprite("CommonMenu", "Gradient_Nav",basicRectDrawingX,y + height / 2,getmenuWidth(),height,0, r,g,b,(alpha or a))
 end
+local function _drawTextXY(text,x,y,color,font,scale)
+	SetTextColour(GetHudColour(color))
+    SetTextFont(font)
+    SetTextScale(scale, scale)
+	BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    return EndTextCommandDisplayText(x, y)
+end 
 local function _drawMenuText(text, x, y, font, color, scale, ishighlight)
 	if ishighlight then 
 		_drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
 	end 
-    SetTextColour(GetHudColour(color))
-    SetTextFont(font)
-    SetTextScale(scale, scale)
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayText(x + buttonTextXOffset, y)
+    _drawTextXY(text, x + buttonTextXOffset, y, color,font,scale)
 end
 local function _drawMenuTextShadow(text, x, y, font, color, scale, ishighlight)
 	if ishighlight then 
 		_drawMenuSpriteHighLight(y ,buttonHeight, 0, 0.0, 255)
 	end 
-    SetTextColour(GetHudColour(color))
-    SetTextFont(font)
-    SetTextScale(scale, scale)
     SetTextDropShadow(2, 2, 0, 0, 0)
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayText(x + buttonTextXOffset, y)
+    _drawTextXY(text, x + buttonTextXOffset, y, color,font,scale)
 end
 local function _drawMenuText_Right(text, x, y, font, color, scale)
-    SetTextColour(GetHudColour(color))
-    SetTextFont(font)
-    SetTextScale(scale, scale)
     SetTextWrap(basicx, basicx + getmenuWidth() - buttonTextXOffset)
     SetTextRightJustify(true)
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayText(x, y)
+    _drawTextXY(text, x, y, color,font,scale)
 end
 local function _drawTextCenter(text, x, y, font, color, scale, shadow, alignRight)
-    SetTextColour(GetHudColour(color))
-    SetTextFont(font)
-    SetTextScale(scale, scale)
     if shadow then
         SetTextDropShadow(2, 2, 0, 0, 0)
     end
     SetTextCentre(center)
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayText(x, y)
+    _drawTextXY(text, x, y, color,font,scale)
 end
 local function _drawMenuTextArray(text, x, y, font, color, scale,showArrow)
-	SetTextColour(GetHudColour(color))
+	--SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
 	local offsetx = 0.016
@@ -106,14 +91,10 @@ local function _drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 		local iconLeft = "arrowleft"
 		local height = 0.032 
 		DrawSprite("CommonMenu", iconLeft ,x + getmenuWidth() - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
-		BeginTextCommandDisplayText("STRING")
-		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + getmenuWidth() - width - (buttonTextXOffset * 3), y)
+		_drawTextXY(text, x + getmenuWidth() - width - (buttonTextXOffset * 3), y, color, font, scale)
 		DrawSprite("CommonMenu", iconRight ,x + getmenuWidth() - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
 	else 
-		BeginTextCommandDisplayText("STRING")
-		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + getmenuWidth() - width - (buttonTextXOffset * 3), y)
+		_drawTextXY(text, x + getmenuWidth() - width - (buttonTextXOffset * 3), y, color, font, scale)
 	end 
 end 
 local function _drawMenuIcon_Right(y,iconName)
@@ -339,7 +320,6 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 		ResetScriptGfxAlign();
 	end)
 end 
-
 Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
 	local icons = {}
 	switch (icontype)(
