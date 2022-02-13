@@ -1,29 +1,33 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_keys then 
+local upper = string.upper
 Tasksync._initialized_tasksync_with_keys = true 
 local IsStringNullOrEmpty = function(str) return (str == nil or str == "" or type(str)~='string') end 
 Tasksync._GroupedKeyCallBacks = {}
 Tasksync._KeyGroupEnable = {}
+local returnGroupedKeyName = function(group,key)
+	return upper(group .. "_" .. key)
+end 
 local _setGroupedKeyCallback = function(group,key,value)
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	local groupedkeycallback = _getGroupedKeyCallback(group,key)
 	if groupedkeycallback then 
 		Tasksync._GroupedKeyCallBacks[name] = value
 	end 
 end 
 local _getGroupedKeyCallback = function(group,key)
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	return Tasksync._GroupedKeyCallBacks and Tasksync._GroupedKeyCallBacks[name]
 end 
 
 Tasksync._RegisterGroupedKeyCallback = function(group,key,cb)
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	if not Tasksync._GroupedKeyCallBacks[name] then Tasksync._GroupedKeyCallBacks[name] = {} end 
 	table.insert(Tasksync._GroupedKeyCallBacks[name] , cb )
 end 
 Tasksync._TriggerGroupedKeyCallback = function(group,key)
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	if Tasksync.IsKeyGroupActive(group) then 
 		local groupedkeycallback = _getGroupedKeyCallback(group,key)
 		if groupedkeycallback then 
@@ -58,7 +62,7 @@ Tasksync.RemoveKeyGroup = function(group)
 end 
 Tasksync.DeleteKeyGroup = Tasksync.RemoveKeyGroup
 Tasksync.RegisterKeyGroupKeyboard = function(key,group,description) 
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	RegisterCommand("+"..name, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") 
 	end, false) 
@@ -68,11 +72,11 @@ Tasksync.RegisterKeyGroupKeyboard = function(key,group,description)
 	RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) 
 end 
 Tasksync.RegisterKeyGroupKeyboardFull = function(key,group,description,presseddelay,delayperpressed) 
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	RegisterCommand("+"..name, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
 		local delaytime = GetGameTimer() + (presseddelay or 500)
-		Tasksync.addlooponce("KEY_LOOP:"..group..key,delayperpressed or 300,function()
+		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),delayperpressed or 300,function()
 			if GetGameTimer() > delaytime then 
 				Tasksync._TriggerGroupedKeyCallback(group,key.."_PRESSED")
 			end 
@@ -80,7 +84,7 @@ Tasksync.RegisterKeyGroupKeyboardFull = function(key,group,description,pressedde
 	end, false) 
 	RegisterCommand("-"..name, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
-		Tasksync.deletelooponce("KEY_LOOP:"..group..key)
+		Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
 	end, false) 
 	RegisterKeyMapping("+"..name, IsStringNullOrEmpty(description) and "+"..name or description , 'keyboard', key) 
 	 
@@ -145,14 +149,14 @@ Tasksync.RegisterKeyTable = function(regtable)
 	end 
 end 
 Tasksync.RegisterMouseWheelCallback = function(key,group,description) 
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	RegisterCommand(name, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key) 
 	end, false) 
 	RegisterKeyMapping(name, IsStringNullOrEmpty(description) and name or description , 'MOUSE_WHEEL', key) 
 end 
 Tasksync.RegisterMouseButtonCallback = function(key,group,description) 
-	local name = group .. "_" .. key 
+	local name = returnGroupedKeyName(group,key)
 	RegisterCommand(name, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key) 
 	end, false) 
