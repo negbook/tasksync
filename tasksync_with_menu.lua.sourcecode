@@ -15,7 +15,7 @@ Tasksync.NativeMenuGen = function()
 					Tasksync._Menus[Tasksync._MenuFocus]:keyPressed(input) 
 				end 
 			end
-			Tasksync.RegisterKeyboardCallbacks{
+			Tasksync.RegisterKeyTable{
 				group = "GROUP_TASKSYNC_DRAWMENU",
 				keys = {
 					{"TAB","THIS IS MENU TAB"},
@@ -41,7 +41,7 @@ Tasksync.NativeMenuGen = function()
 				}
 			}
 		end 
-		Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
+		Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
 		Tasksync._KeyHookInitialed = true 
 	end 
 	local menu = {
@@ -96,7 +96,7 @@ Tasksync.NativeMenuGen = function()
 					if Tasksync._MenuFocus > 0 and Tasksync._Menus[Tasksync._MenuFocus] then 
 						Tasksync._Menus[Tasksync._MenuFocus]:draw()
 					else 
-						Tasksync.SetKeyMappingGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
+						Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 						Tasksync._Keyhook = false 
 					end 
 				else 
