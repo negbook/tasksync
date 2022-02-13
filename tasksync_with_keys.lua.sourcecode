@@ -34,13 +34,13 @@ Tasksync._TriggerGroupedKeyCallback = function(group,key)
 	end 
 end 
 
-Tasksync.RegisterKeyEventJustPressed = function(group,key,cb)
+Tasksync.RegisterGroupedKeyCallbackJustPressed = function(group,key,cb)
 	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_PRESSED",cb)
 end 
-Tasksync.RegisterKeyEventPressed = function(group,key,cb)
+Tasksync.RegisterGroupedKeyCallbackPressed = function(group,key,cb)
 	return Tasksync._RegisterGroupedKeyCallback(group,key.."_PRESSED",cb)
 end 
-Tasksync.RegisterKeyEventJustReleased = function(group,key,cb)
+Tasksync.RegisterGroupedKeyCallbackJustReleased = function(group,key,cb)
 	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_RELEASED",cb)
 end 
 Tasksync.UnRegisterKeyEvent = function(group,key)
@@ -110,9 +110,9 @@ Tasksync.RegisterKeyTable = function(regtable)
 						end 
 						return v[3](table.unpack(_atbl))
 					end 
-					Tasksync.RegisterKeyEventJustPressed(group,v[1],_cb)
+					Tasksync.RegisterGroupedKeyCallbackJustPressed(group,v[1],_cb)
 				else 
-					Tasksync.RegisterKeyEventJustPressed(group,v[1],v[3])
+					Tasksync.RegisterGroupedKeyCallbackJustPressed(group,v[1],v[3])
 				end
 			elseif style == "PRESSED" then
 				if v[4] then 
@@ -123,9 +123,9 @@ Tasksync.RegisterKeyTable = function(regtable)
 						end 
 						return v[3](table.unpack(_atbl))
 					end 
-					Tasksync.RegisterKeyEventPressed(group,v[1],_cb)
+					Tasksync.RegisterGroupedKeyCallbackPressed(group,v[1],_cb)
 				else 
-					Tasksync.RegisterKeyEventPressed(group,v[1],v[3])
+					Tasksync.RegisterGroupedKeyCallbackPressed(group,v[1],v[3])
 				end
 			elseif style == "JUST_RELEASED" then 
 				if v[4] then 
@@ -136,9 +136,9 @@ Tasksync.RegisterKeyTable = function(regtable)
 						end 
 						return v[3](table.unpack(_atbl))
 					end 
-					Tasksync.RegisterKeyEventJustReleased(group,v[1],_cb)
+					Tasksync.RegisterGroupedKeyCallbackJustReleased(group,v[1],_cb)
 				else 
-					Tasksync.RegisterKeyEventJustReleased(group,v[1],v[3])
+					Tasksync.RegisterGroupedKeyCallbackJustReleased(group,v[1],v[3])
 				end
 			end 
 		end 
