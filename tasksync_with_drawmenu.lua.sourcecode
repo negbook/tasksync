@@ -2,16 +2,7 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
-local HexToRGBA = function (hex,skipkeys)
-	local r = hex >> 24
-	local offset = hex - (r << 24)
-	local g = offset >> 16
-	local offset = offset - (g << 16)
-	local b = offset >> 8
-	local offset = offset - (b << 8)
-	local a = offset
-	return (not skipkeys and {r=r,g=g,b=b,a=a}) or {r,g,b,a};
-end 
+
 local menuWidth = 0.258
 local titleHeight = 0.091
 local buttonHeight = 0.038
@@ -21,177 +12,41 @@ local buttonScale = 0.365
 local buttonTextXOffset = 0.005
 local buttonTextYOffset = 0.005
 local basicx = 0.0525
-local basicdrawingx = basicx + menuWidth / 2
 local basicy = 0.085
-local basicbuttony = basicy + titleHeight + buttonTextYOffset
+local getmenuWidth = function() 
+	return menuWidth 
+end 
+local basicRectDrawingX = (basicx + getmenuWidth() / 2)
+
+local basicbuttony = (basicy + titleHeight + buttonTextYOffset)
 local basicfont = 0
 local buttonTransparent = 140
 local lastY
-Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
-	local icons = {}
-	switch (icontype)(
-		case(3)(function()
-			icons[0] = "MP_hostCrown";icons[1] = "MP_hostCrown";
-		end),
-		case(21)(function()
-			icons[0] = "MP_SpecItem_Coke";icons[1] = "MP_SpecItem_Coke";
-		end),
-		case(22)(function()
-			icons[0] = "MP_SpecItem_Heroin";icons[1] = "MP_SpecItem_Heroin";
-		end),
-		case(23)(function()
-			icons[0] = "MP_SpecItem_Weed";icons[1] = "MP_SpecItem_Weed";
-		end),
-		case(24)(function()
-			icons[0] = "MP_SpecItem_Meth";icons[1] = "MP_SpecItem_Meth";
-		end),
-		case(25)(function()
-			icons[0] = "MP_SpecItem_Cash";icons[1] = "MP_SpecItem_Cash";
-		end),
-		case(1)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(2)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(4)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(6)(function()
-			icons[0] = "Shop_Box_CrossB";icons[1] = "Shop_Box_Cross";
-		end),
-		case(7)(function()
-			icons[0] = "Shop_Box_BlankB";icons[1] = "Shop_Box_Blank";
-		end),
-		case(5)(function()
-			icons[0] = "Shop_Box_TickB";icons[1] = "Shop_Box_Tick";
-		end),
-		case(8)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(9)(function()
-			icons[0] = "Shop_Clothing_Icon_B";icons[1] = "Shop_Clothing_Icon_A";
-		end),
-		case(10)(function()
-			icons[0] = "Shop_GunClub_Icon_B";icons[1] = "Shop_GunClub_Icon_A";
-		end),
-		case(17)(function()
-			icons[0] = "Shop_Ammo_Icon_B";icons[1] = "Shop_Ammo_Icon_A";
-		end),
-		case(18)(function()
-			icons[0] = "Shop_Armour_Icon_B";icons[1] = "Shop_Armour_Icon_A";
-		end),
-		case(19)(function()
-			icons[0] = "Shop_Health_Icon_B";icons[1] = "Shop_Health_Icon_A";
-		end),
-		case(20)(function()
-			icons[0] = "Shop_MakeUp_Icon_B";icons[1] = "Shop_MakeUp_Icon_A";
-		end),
-		case(11)(function()
-			icons[0] = "Shop_Tattoos_Icon_B";icons[1] = "Shop_Tattoos_Icon_A";
-		end),
-		case(12)(function()
-			icons[0] = "Shop_Garage_Icon_B";icons[1] = "Shop_Garage_Icon_A";
-		end),
-		case(13)(function()
-			icons[0] = "Shop_Garage_Bike_Icon_B";icons[1] = "Shop_Garage_Bike_Icon_A";
-		end),
-		case(14)(function()
-			icons[0] = "Shop_Barber_Icon_B";icons[1] = "Shop_Barber_Icon_A";
-		end),
-		case(15)(function()
-			icons[0] = "shop_Lock";icons[1] = "shop_Lock";
-		end),
-		case(16)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(26)(function()
-			icons[0] = "arrowleft";icons[1] = "arrowleft";
-		end),
-		case(27)(function()
-			icons[0] = "arrowright";icons[1] = "arrowright";
-		end),
-		case(28)(function()
-			icons[0] = "MP_AlertTriangle";icons[1] = "MP_AlertTriangle";
-		end),
-		case(29)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(31)(function()
-			icons[0] = "Shop_Michael_Icon_B";icons[1] = "Shop_Michael_Icon_A";
-		end),
-		case(32)(function()
-			icons[0] = "Shop_Franklin_Icon_B";icons[1] = "Shop_Franklin_Icon_A";
-		end),
-		case(33)(function()
-			icons[0] = "Shop_Trevor_Icon_B";icons[1] = "Shop_Trevor_Icon_A";
-		end),
-		case(51)(function()
-			icons[0] = "SaleIcon";icons[1] = "SaleIcon";
-		end),
-		case(52)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(54)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(55)(function()
-			icons[0] = "Shop_Lock_Arena";icons[1] = "Shop_Lock_Arena";
-		end),
-		case(56)(function()
-			icons[0] = "Card_Suit_Clubs";icons[1] = "Card_Suit_Clubs";
-		end),
-		case(57)(function()
-			icons[0] = "Card_Suit_Hearts";icons[1] = "Card_Suit_Hearts";
-		end),
-		case(58)(function()
-			icons[0] = "Card_Suit_Spades";icons[1] = "Card_Suit_Spades";
-		end),
-		case(59)(function()
-			icons[0] = "Card_Suit_Diamonds";icons[1] = "Card_Suit_Diamonds";
-		end),
-		case(60)(function()
-			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(62)(function()
-			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(61)(function()
-			icons[0] = "Shop_Chips_A";icons[1] = "Shop_Chips_B";
-		end),
-		case(0)(function()
-			icons[0] = "";icons[1] = "";
-		end)
-	)
-	if ed then
-		return icons[0];
-	end
-	return icons[1];
-end
+
 local function _ResetRects(y)
 	lastY = y
 end 
 local function _drawMenuRect(height, color, offsetY, alpha)
 	local y = lastY + (offsetY or 0.0)
 	local r,g,b,a = GetHudColour(color)
-    DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
+    DrawRect(basicRectDrawingX, y + height / 2, getmenuWidth(), height, r, g, b, (alpha or a))
 	lastY = y + height 
 	return lastY
 end
 local function _drawMenuSprite(sprite, height, color, offsetY, alpha)
 	local y = lastY + (offsetY or 0.0)
 	local r,g,b,a = GetHudColour(color)
-    DrawSprite("CommonMenu", sprite ,basicdrawingx,y + height / 2,menuWidth, height,0, r, g, b, (alpha or a))
+    DrawSprite("CommonMenu", sprite ,basicRectDrawingX,y + height / 2,getmenuWidth(), height,0, r, g, b, (alpha or a))
 	lastY = y + height 
 	return lastY
 end
 local function _drawMenuRectHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
-	DrawRect(basicdrawingx, y + height / 2, menuWidth, height, r, g, b, (alpha or a))
+	DrawRect(basicRectDrawingX, y + height / 2, getmenuWidth(), height, r, g, b, (alpha or a))
 end
 local function _drawMenuSpriteHighLight(y, height, color, offsetY, alpha)
 	local r,g,b,a = GetHudColour(color)
-	DrawSprite("CommonMenu", "Gradient_Nav",basicdrawingx,y + height / 2,menuWidth,height,0, r,g,b,(alpha or a))
+	DrawSprite("CommonMenu", "Gradient_Nav",basicRectDrawingX,y + height / 2,getmenuWidth(),height,0, r,g,b,(alpha or a))
 end
 local function _drawMenuText(text, x, y, font, color, scale, ishighlight)
 	if ishighlight then 
@@ -220,7 +75,7 @@ local function _drawMenuText_Right(text, x, y, font, color, scale)
     SetTextColour(GetHudColour(color))
     SetTextFont(font)
     SetTextScale(scale, scale)
-    SetTextWrap(basicx, basicx + menuWidth - buttonTextXOffset)
+    SetTextWrap(basicx, basicx + getmenuWidth() - buttonTextXOffset)
     SetTextRightJustify(true)
     BeginTextCommandDisplayText("STRING")
     AddTextComponentSubstringPlayerName(text)
@@ -250,20 +105,20 @@ local function _drawMenuTextArray(text, x, y, font, color, scale,showArrow)
 		local iconRight = "arrowright"
 		local iconLeft = "arrowleft"
 		local height = 0.032 
-		DrawSprite("CommonMenu", iconLeft ,x + menuWidth - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+		DrawSprite("CommonMenu", iconLeft ,x + getmenuWidth() - width - (buttonTextXOffset * 4),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
 		BeginTextCommandDisplayText("STRING")
 		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
-		DrawSprite("CommonMenu", iconRight ,x + menuWidth - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
+		EndTextCommandDisplayText(x + getmenuWidth() - width - (buttonTextXOffset * 3), y)
+		DrawSprite("CommonMenu", iconRight ,x + getmenuWidth() - (buttonTextXOffset * 2),y + height / 2, height/GetAspectRatio(), height,0, GetHudColour(color))
 	else 
 		BeginTextCommandDisplayText("STRING")
 		AddTextComponentSubstringPlayerName(text)
-		EndTextCommandDisplayText(x + menuWidth - width - (buttonTextXOffset * 3), y)
+		EndTextCommandDisplayText(x + getmenuWidth() - width - (buttonTextXOffset * 3), y)
 	end 
 end 
 local function _drawMenuIcon_Right(y,iconName)
 	if iconName then 
-		DrawSprite("CommonMenu", iconName ,basicx + menuWidth - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
+		DrawSprite("CommonMenu", iconName ,basicx + getmenuWidth() - (buttonTextXOffset * 4),y + buttonHeight / 2, buttonHeight/GetAspectRatio(), buttonHeight,0, GetHudColour(color))
 	end 
 end 
 local _drawButton = function(y,text,righttext,optionselected,icon,ishighlight)
@@ -296,7 +151,7 @@ local _drawButton = function(y,text,righttext,optionselected,icon,ishighlight)
 	end 
 end 
 local _initMenuScroll = function()
-	DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicdrawingx, _drawMenuRect(buttonHeight, 140, 0.002, 220) - buttonHeight / 2, 0.032, buttonHeight, 0, GetHudColour(0));
+	DrawSprite("CommonMenu", "shop_arrows_upANDdown", basicRectDrawingX, _drawMenuRect(buttonHeight, 140, 0.002, 220) - buttonHeight / 2, 0.032, buttonHeight, 0, GetHudColour(0));
 end 
 local _setMenuDescription = function(desc)
 	if desc then 
@@ -453,7 +308,7 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 		local btsT = #bts
 		if btsT > 0 then 
 			if (btsT > maxslot) then 
-				_drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + menuWidth, basicbuttony, buttonFont, 9, buttonScale) 
+				_drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + getmenuWidth(), basicbuttony, buttonFont, 9, buttonScale) 
 				_drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
 			else 
 				_drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
@@ -484,4 +339,146 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 		ResetScriptGfxAlign();
 	end)
 end 
+
+Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
+	local icons = {}
+	switch (icontype)(
+		case(3)(function()
+			icons[0] = "MP_hostCrown";icons[1] = "MP_hostCrown";
+		end),
+		case(21)(function()
+			icons[0] = "MP_SpecItem_Coke";icons[1] = "MP_SpecItem_Coke";
+		end),
+		case(22)(function()
+			icons[0] = "MP_SpecItem_Heroin";icons[1] = "MP_SpecItem_Heroin";
+		end),
+		case(23)(function()
+			icons[0] = "MP_SpecItem_Weed";icons[1] = "MP_SpecItem_Weed";
+		end),
+		case(24)(function()
+			icons[0] = "MP_SpecItem_Meth";icons[1] = "MP_SpecItem_Meth";
+		end),
+		case(25)(function()
+			icons[0] = "MP_SpecItem_Cash";icons[1] = "MP_SpecItem_Cash";
+		end),
+		case(1)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(2)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(4)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(6)(function()
+			icons[0] = "Shop_Box_CrossB";icons[1] = "Shop_Box_Cross";
+		end),
+		case(7)(function()
+			icons[0] = "Shop_Box_BlankB";icons[1] = "Shop_Box_Blank";
+		end),
+		case(5)(function()
+			icons[0] = "Shop_Box_TickB";icons[1] = "Shop_Box_Tick";
+		end),
+		case(8)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(9)(function()
+			icons[0] = "Shop_Clothing_Icon_B";icons[1] = "Shop_Clothing_Icon_A";
+		end),
+		case(10)(function()
+			icons[0] = "Shop_GunClub_Icon_B";icons[1] = "Shop_GunClub_Icon_A";
+		end),
+		case(17)(function()
+			icons[0] = "Shop_Ammo_Icon_B";icons[1] = "Shop_Ammo_Icon_A";
+		end),
+		case(18)(function()
+			icons[0] = "Shop_Armour_Icon_B";icons[1] = "Shop_Armour_Icon_A";
+		end),
+		case(19)(function()
+			icons[0] = "Shop_Health_Icon_B";icons[1] = "Shop_Health_Icon_A";
+		end),
+		case(20)(function()
+			icons[0] = "Shop_MakeUp_Icon_B";icons[1] = "Shop_MakeUp_Icon_A";
+		end),
+		case(11)(function()
+			icons[0] = "Shop_Tattoos_Icon_B";icons[1] = "Shop_Tattoos_Icon_A";
+		end),
+		case(12)(function()
+			icons[0] = "Shop_Garage_Icon_B";icons[1] = "Shop_Garage_Icon_A";
+		end),
+		case(13)(function()
+			icons[0] = "Shop_Garage_Bike_Icon_B";icons[1] = "Shop_Garage_Bike_Icon_A";
+		end),
+		case(14)(function()
+			icons[0] = "Shop_Barber_Icon_B";icons[1] = "Shop_Barber_Icon_A";
+		end),
+		case(15)(function()
+			icons[0] = "shop_Lock";icons[1] = "shop_Lock";
+		end),
+		case(16)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(26)(function()
+			icons[0] = "arrowleft";icons[1] = "arrowleft";
+		end),
+		case(27)(function()
+			icons[0] = "arrowright";icons[1] = "arrowright";
+		end),
+		case(28)(function()
+			icons[0] = "MP_AlertTriangle";icons[1] = "MP_AlertTriangle";
+		end),
+		case(29)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(31)(function()
+			icons[0] = "Shop_Michael_Icon_B";icons[1] = "Shop_Michael_Icon_A";
+		end),
+		case(32)(function()
+			icons[0] = "Shop_Franklin_Icon_B";icons[1] = "Shop_Franklin_Icon_A";
+		end),
+		case(33)(function()
+			icons[0] = "Shop_Trevor_Icon_B";icons[1] = "Shop_Trevor_Icon_A";
+		end),
+		case(51)(function()
+			icons[0] = "SaleIcon";icons[1] = "SaleIcon";
+		end),
+		case(52)(function()
+			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
+		end),
+		case(54)(function()
+			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
+		end),
+		case(55)(function()
+			icons[0] = "Shop_Lock_Arena";icons[1] = "Shop_Lock_Arena";
+		end),
+		case(56)(function()
+			icons[0] = "Card_Suit_Clubs";icons[1] = "Card_Suit_Clubs";
+		end),
+		case(57)(function()
+			icons[0] = "Card_Suit_Hearts";icons[1] = "Card_Suit_Hearts";
+		end),
+		case(58)(function()
+			icons[0] = "Card_Suit_Spades";icons[1] = "Card_Suit_Spades";
+		end),
+		case(59)(function()
+			icons[0] = "Card_Suit_Diamonds";icons[1] = "Card_Suit_Diamonds";
+		end),
+		case(60)(function()
+			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(62)(function()
+			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
+		end),
+		case(61)(function()
+			icons[0] = "Shop_Chips_A";icons[1] = "Shop_Chips_B";
+		end),
+		case(0)(function()
+			icons[0] = "";icons[1] = "";
+		end)
+	)
+	if ed then
+		return icons[0];
+	end
+	return icons[1];
+end
 end 

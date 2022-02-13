@@ -28,29 +28,28 @@ AddEventHandler("Tasksync:ShowDebug",function(resourcename)
 end)
 Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 	CreateThread(function()
-		local todo = Tasksync._jobTodo_tasksync_custom
-		local jobname = jobName
 		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.setloopcustomduration(jobName,newduration) end}),getter=function(t,newduration) return Tasksync.getloopcustomduration(jobName) end}
-		local fn = todo[jobname]
-		repeat
+		local fn = Tasksync._jobTodo_tasksync_custom[jobName]
+		while fn do 
 			if Tasksync._debug then 
 				print(resourceName.." (loopcustom) "..jobName)
 				print("Custom Loop Total",_getAmountsOfLoopType("loopcustom"))
 				print("Spaming after 3 seconds") Wait(3000)
 			end 
-			if fn then fn(delaySetter) end 
+			fn(delaySetter)
 			Wait(Tasksync._jobSpeed_tasksync_custom[jobName])
-		until not todo[jobName] 
+		end 
 		--if true then  print('breaked'..jobName) end
 		return 
 	end)
 end 	
-Tasksync.addloopcustom = function(jobName,defaultduration,fn) --jobname,duration,function
-	if Tasksync._jobTodo_tasksync_custom[jobName] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
+Tasksync.addloopcustom = function(jobName,defaultduration,fn) --jobName,duration,function
+	if Tasksync._jobTodo_tasksync_custom[jobName] ~= nil then error('Duplicated taskjob: '..jobName, 2) ; return end 
 	Tasksync._jobTodo_tasksync_custom[jobName] = fn 
 	Tasksync._jobSpeed_tasksync_custom[jobName] = defaultduration
 	Tasksync.__createDepartmentGardenCustom(jobName,defaultduration)
 end 
+Tasksync.insertloopcustom = Tasksync.addloopcustom
 Tasksync.deleteloopcustom = function(jobName)
 	Tasksync._jobTodo_tasksync_custom[jobName] = nil
 end 

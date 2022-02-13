@@ -31,27 +31,28 @@ Tasksync.__createDepartmentGarden = function(durationGroup)
 		local todos = Tasksync._jobTodo_tasksync
 		local jobGroup = Tasksync._jobNames_tasksync[durationGroup]
 		local duration = tonumber(durationGroup)
-		repeat
-			if jobGroup then 
-				local debugtext = {}
-				for i=1,#jobGroup do 
-					local jobname = jobGroup[i]
-					local fn = todos[jobname]
-					if Tasksync._debug and jobname then 
-						table.insert(debugtext,resourceName.." (loop) "..jobname.." "..durationGroup)
-					end
-					if fn then fn() end 
+		local isAnyJob = function() 
+			return jobGroup[1] 
+		end
+		while isAnyJob() do 
+			local debugtext = {}
+			for i=1,#jobGroup do 
+				local jobname = jobGroup[i]
+				local fn = todos[jobname]
+				if Tasksync._debug and jobname then 
+					table.insert(debugtext,resourceName.." (loop) "..jobname.." "..durationGroup)
+				end
+				if fn then fn() end 
+			end 
+			if Tasksync._debug then 
+				for i,v in pairs(debugtext) do 
+					print(v)
 				end 
-				if Tasksync._debug then 
-					for i,v in pairs(debugtext) do 
-						print(v)
-					end 
-					print("Normal Loop Total",_getAmountsOfLoopType("loop"))
-					print("Spaming after 3 seconds") Wait(3000)
-				end 
+				print("Normal Loop Total",_getAmountsOfLoopType("loop"))
+				print("Spaming after 3 seconds") Wait(3000)
 			end 
 			Wait(duration)
-		until not jobGroup or not jobGroup[1]
+		end 
 		--if true then  print('breaked'..durationGroup) end
 		return 
 	end)
@@ -68,6 +69,7 @@ Tasksync.addloop = function(jobname,durationGroup,fn_todo) --jobname,duration,fu
 		table.insert(Tasksync._jobNames_tasksync[durationGroup],jobname)
 	end 
 end 
+Tasksync.insertloop = Tasksync.addloop
 Tasksync.deleteloop = function(jobname)
 	for durationGroup,v in pairs(Tasksync._jobNames_tasksync) do 
 		for i=1,#Tasksync._jobNames_tasksync[durationGroup] do 
