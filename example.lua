@@ -34,129 +34,105 @@ CreateThread(function()
 	--]]
 end)
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
-load(LoadResourceFile("tasksync", 'tasksync_with_menu.lua.sourcecode'))()
-CreateThread(function() 
-	testmenu = Tasksync.NativeMenuGen()
-	testmenu:setHeader("negbook","subtitle",6,"PI")
-	testmenu:addItem{
-		name = "apple",
-		options = {"a","b","c"},
-		action = function(self,optionselection) 
-			print(self.options[optionselection])
-		end,
-		description = "select your apple color"
+load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
+local shared_cb = function(input)
+	print(input)
+end
+Tasksync.RegisterKeyTable{
+	group = "GROUP_TASKSYNC_DRAWMENU",
+	keys = {
+		{"TAB","THIS IS MENU TAB"},
+		{"BACK","THIS IS MENU BACK"},
+		{"SPACE","THIS IS MENU SPACE"},
+		{"ESCAPE","THIS IS MENU ESCAPE"},
+		{"RETURN","THIS IS MENU RETURN"},
+		{"UP","THIS IS MENU UP"},
+		{"DOWN","THIS IS MENU DOWN"},
+		{"LEFT","THIS IS MENU LEFT",500,50},
+		{"RIGHT","THIS IS MENU RIGHT",500,50}
+	},
+	cbs = {
+		{"BACK","JUST_PRESSED",shared_cb,"back"},
+		{"UP","JUST_PRESSED",shared_cb,"up"},
+		{"DOWN","JUST_PRESSED",shared_cb,"down"},
+		{"LEFT","JUST_PRESSED",shared_cb,"left"},
+		{"LEFT","PRESSED",shared_cb,"left"},
+		{"RIGHT","JUST_PRESSED",shared_cb,"right"},
+		{"RIGHT","PRESSED",shared_cb,"right"},
+		{"SPACE","JUST_PRESSED",shared_cb,"return"},
+		{"RETURN","JUST_PRESSED",shared_cb,"return"}
 	}
-	testmenu:addItem{
-		name = "apple",
-		icon = 12,
-		action = function(self,optionselection) 
-			self.tuneicon = not self.tuneicon
-		end,
-		price = 300
-	}
-	testmenu:addItem{
-		name = "apple",
-		righttext = "asdasd"
-	}
-	testmenu:addItem{
-		name = "apple",
-		righttext = "asdasd",
-		icon = 13
-	}
-	testmenu:addItem{
-		name = "check",
-		action = function(self,optionselection) 
-			self.tuneicon = not self.tuneicon
-		end,
-		icon = 17
-	}
-	testmenu:addItem{
-		name = "apple",
-		price = 4000,
-		icon = 13
-	}
-	
-	testmenu:addItem{
-		name = "Draw new menu",
-		action = function(self)
-			local 	testmenu2 = Tasksync.NativeMenuGen()
-			testmenu2:setHeader("negbook2","subtitle2",7)
-			testmenu2:addItem{
-				name = "appl2e",
-				options = {"a","b","c"},
-				action = function(self,optionselection) 
-					print(self.options[optionselection])
-				end
-			}
-			testmenu2:addItem{
-				name = "app3le",
-				icon = 12,
-				action = function(self,optionselection) 
-					self.tuneicon = not self.tuneicon
-				end,
-				price = 300
-			}
-			testmenu2:addItem{
-				name = "ap2ple",
-				righttext = "asdasd"
-			}
-			testmenu2:addItem{
-				name = "apple",
-				righttext = "asdasd",
-				icon = 13
-			}
-			testmenu2:addItem{
-				name = "apple",
-				price = 4000,
-				icon = 13
-			}
-			testmenu2:addItem{
-			name = "Draw new menu",
-			action = function(self)
-				local 	testmenu3 = Tasksync.NativeMenuGen()
-				testmenu3:setHeader("negbook3","subtitle3",7)
-				testmenu3:addItem{
-					name = "appl2e",
-					options = {"a","b","c"},
-					action = function(self,optionselection) 
-						print(self.options[optionselection])
-					end
-				}
-				testmenu3:addItem{
-					name = "app3le",
-					icon = 12,
-					action = function(self,optionselection) 
-						self.tuneicon = not self.tuneicon
-					end,
-					price = 300
-				}
-				testmenu3:addItem{
-					name = "ap2ple",
-					righttext = "asdasd"
-				}
-				testmenu3:addItem{
-					name = "apple",
-					righttext = "asdasd",
-					icon = 13
-				}
-				testmenu3:addItem{
-					name = "apple",
-					price = 4000,
-					icon = 13
-				}
-				testmenu3:draw()
-			end 
-		}
-			testmenu2:draw()
-		end 
-	}
-	testmenu:draw()
-	
-end) 
+}
+Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
 CreateThread(function()
-	Wait(60000)
-	Tasksync.MenuDrawEnd("testmenu")
+	local self = {}
+	self.title = "negbook"
+	self.subtitle = "hello"
+	self.maxslot = 7
+	self.items = {
+		{name="apple",description="hello",options={"a","b"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}},
+		{name="appl123e",description="hell312o",options={"zxc","basd"}}
+	}
+	self.selected = {y = 2,x = 2}
+	local isUpdate = false 
+	Tasksync.MenuDrawInit("menu:"..self.title, self.title,self.subtitle,self.maxslot or 7)
+	local buttons = {} 
+	for i=1,#self.items do 
+		local v = self.items[i]
+		if not isUpdate then 
+			table.insert(buttons,v.name)
+		end 
+		if v.description then 
+			Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.description)
+		end 
+		if v.options then 
+			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
+			if v.selected then Tasksync.MenuDrawSetSlotValue("menu:"..self.title,i,v.selected) end
+		end 
+		if v.price and v.icon then
+			Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
+			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,"$"..v.price)
+		else 
+			if v.icon then 
+				Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
+			end 
+			if v.righttext then 
+				Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
+			end 
+		end 
+	end 
+	if not isUpdate then 
+		Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
+	end 
+	
+	Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
+	if not isUpdate then 
+		Tasksync.MenuCheckGlareType(self.menutype)
+		Tasksync.MenuDrawRender("menu:"..self.title)
+	end 
+	
+	Wait(8000)
+	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
+	Tasksync.MenuDrawEnd("menu:"..self.title)
 end)
+
 
 --[=[
 local i = 1

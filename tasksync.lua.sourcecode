@@ -5,6 +5,7 @@ if not Tasksync._initialized_tasksync then
 Tasksync._initialized_tasksync = true 
 Tasksync._jobNames_tasksync = {}
 Tasksync._jobTodo_tasksync = {}
+Tasksync._jobTodoEnd_tasksync = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function(style)
@@ -57,9 +58,12 @@ Tasksync.__createDepartmentGarden = function(durationGroup)
 		return 
 	end)
 end 	
-Tasksync.addloop = function(jobname,durationGroup,fn_todo) --jobname,duration,function
+Tasksync.addloop = function(jobname,durationGroup,fn_todo,fn_todoend) --jobname,duration,function
 	if Tasksync._jobTodo_tasksync[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
 	Tasksync._jobTodo_tasksync[jobname] = fn_todo  
+	if fn_todoend then 
+		Tasksync._jobTodoEnd_tasksync[jobname] = fn_todoend  
+	end 
 	local durationGroup = tostring(durationGroup)
 	if Tasksync._jobNames_tasksync[durationGroup] == nil then 
 		Tasksync._jobNames_tasksync[durationGroup] = {}; 
@@ -74,6 +78,8 @@ Tasksync.deleteloop = function(jobname)
 	for durationGroup,v in pairs(Tasksync._jobNames_tasksync) do 
 		for i=1,#Tasksync._jobNames_tasksync[durationGroup] do 
 			if Tasksync._jobNames_tasksync[durationGroup][i] == jobname then 
+				if Tasksync._jobTodoEnd_tasksync[jobname]  then Tasksync._jobTodoEnd_tasksync[jobname] () end 
+				Tasksync._jobTodoEnd_tasksync[jobname] = nil 
 				Tasksync._jobTodo_tasksync[jobname] = nil 
 				table.remove(Tasksync._jobNames_tasksync[durationGroup],i)
 				if #Tasksync._jobNames_tasksync[durationGroup] == 0 then 

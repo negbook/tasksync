@@ -5,6 +5,7 @@ if not Tasksync._initialized_tasksync_once then
 Tasksync._initialized_tasksync_once = true 
 Tasksync._jobNames_tasksync_once = {}
 Tasksync._jobTodo_tasksync_once = {}
+Tasksync._jobTodoEnd_tasksync_once = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function(style)
@@ -58,7 +59,7 @@ Tasksync.__createDepartmentGardenOnce = function(durationGroup)
 		return 
 	end)
 end 	
-Tasksync.addlooponce = function(jobname,durationGroup,fn) --jobname,duration,function
+Tasksync.addlooponce = function(jobname,durationGroup,fn_todo,fn_todoend) --jobname,duration,function
 	local durationGroup = tostring(durationGroup)
 	local JobExisted = false 
 	if Tasksync._jobNames_tasksync_once[durationGroup] and #Tasksync._jobNames_tasksync_once[durationGroup] > 0 then 
@@ -69,7 +70,10 @@ Tasksync.addlooponce = function(jobname,durationGroup,fn) --jobname,duration,fun
 		end 
 	end 
 	if not JobExisted then 
-		Tasksync._jobTodo_tasksync_once[jobname] = fn
+		Tasksync._jobTodo_tasksync_once[jobname] = fn_todo
+		if fn_todoend then 
+			Tasksync._jobTodoEnd_tasksync_once[jobname] = fn_todoend
+		end 
 		if Tasksync._jobNames_tasksync_once[durationGroup] == nil then  
 			Tasksync._jobNames_tasksync_once[durationGroup] = {}; 
 			table.insert(Tasksync._jobNames_tasksync_once[durationGroup],jobname)
@@ -84,6 +88,8 @@ Tasksync.deletelooponce = function(jobname)
 	for durationGroup,v in pairs(Tasksync._jobNames_tasksync_once) do 
 		for i=1,#Tasksync._jobNames_tasksync_once[durationGroup] do 
 			if Tasksync._jobNames_tasksync_once[durationGroup][i] == jobname then 
+				if Tasksync._jobTodoEnd_tasksync_once[jobname] then Tasksync._jobTodoEnd_tasksync_once[jobname]() end 
+				Tasksync._jobTodoEnd_tasksync_once[jobname] = nil 
 				Tasksync._jobTodo_tasksync_once[jobname] = nil 
 				table.remove(Tasksync._jobNames_tasksync_once[durationGroup],i)
 				if #Tasksync._jobNames_tasksync_once[durationGroup] == 0 then 

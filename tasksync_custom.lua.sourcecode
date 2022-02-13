@@ -4,6 +4,7 @@ end
 if not Tasksync._initialized_tasksync_custom then 
 Tasksync._initialized_tasksync_custom = true 
 Tasksync._jobTodo_tasksync_custom = {}
+Tasksync._jobTodoEnd_tasksync_custom = {}
 Tasksync._jobSpeed_tasksync_custom = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
@@ -43,14 +44,19 @@ Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 		return 
 	end)
 end 	
-Tasksync.addloopcustom = function(jobName,defaultduration,fn) --jobName,duration,function
+Tasksync.addloopcustom = function(jobName,defaultduration,fn_todo,fn_todoend) --jobName,duration,function
 	if Tasksync._jobTodo_tasksync_custom[jobName] ~= nil then error('Duplicated taskjob: '..jobName, 2) ; return end 
-	Tasksync._jobTodo_tasksync_custom[jobName] = fn 
+	Tasksync._jobTodo_tasksync_custom[jobName] = fn_todo 
+	if fn_todoend then 
+		Tasksync._jobTodoEnd_tasksync_custom[jobname] = fn_todoend  
+	end 
 	Tasksync._jobSpeed_tasksync_custom[jobName] = defaultduration
 	Tasksync.__createDepartmentGardenCustom(jobName,defaultduration)
 end 
 Tasksync.insertloopcustom = Tasksync.addloopcustom
 Tasksync.deleteloopcustom = function(jobName)
+	if Tasksync._jobTodoEnd_tasksync_custom[jobName] then Tasksync._jobTodoEnd_tasksync_custom[jobName]() end 
+	Tasksync._jobTodoEnd_tasksync_custom[jobName] = nil 
 	Tasksync._jobTodo_tasksync_custom[jobName] = nil
 end 
 Tasksync.setloopcustomduration = function(jobName,newduration)
