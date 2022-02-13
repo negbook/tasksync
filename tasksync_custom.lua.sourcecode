@@ -26,12 +26,6 @@ end
 AddEventHandler("Tasksync:ShowDebug",function(resourcename)
 	Tasksync._debug = not Tasksync._debug 
 end)
-Tasksync.set_custom_duration = function(jobName,newduration)
-	Tasksync._jobSpeed_tasksync_custom[jobName] = newduration
-end 
-Tasksync.get_custom_duration = function(jobName)
-	return Tasksync._jobSpeed_tasksync_custom[jobName]
-end 
 Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 	CreateThread(function()
 		local todo = Tasksync._jobTodo_tasksync_custom
@@ -59,5 +53,11 @@ Tasksync.addloopcustom = function(jobName,defaultduration,fn) --jobname,duration
 end 
 Tasksync.deleteloopcustom = function(jobName)
 	Tasksync._jobTodo_tasksync_custom[jobName] = nil
+end 
+Tasksync.set_custom_duration = function(jobName,newduration)
+	Tasksync._jobSpeed_tasksync_custom[jobName] = newduration
+end 
+Tasksync.get_custom_duration = function(jobName)
+	return Tasksync._jobSpeed_tasksync_custom[jobName]
 end 
 end 
