@@ -30,7 +30,7 @@ Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 	CreateThread(function()
 		local todo = Tasksync._jobTodo_tasksync_custom
 		local jobname = jobName
-		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.set_custom_duration(jobName,newduration) end}),getter=function(t,newduration) return Tasksync.get_custom_duration(jobName) end}
+		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.setloopcustomduration(jobName,newduration) end}),getter=function(t,newduration) return Tasksync.getloopcustomduration(jobName) end}
 		local fn = todo[jobname]
 		repeat
 			if Tasksync._debug then 
@@ -54,10 +54,10 @@ end
 Tasksync.deleteloopcustom = function(jobName)
 	Tasksync._jobTodo_tasksync_custom[jobName] = nil
 end 
-Tasksync.set_custom_duration = function(jobName,newduration)
+Tasksync.setloopcustomduration = function(jobName,newduration)
 	Tasksync._jobSpeed_tasksync_custom[jobName] = newduration
 end 
-Tasksync.get_custom_duration = function(jobName)
+Tasksync.getloopcustomduration = function(jobName)
 	return Tasksync._jobSpeed_tasksync_custom[jobName]
 end 
 end 
