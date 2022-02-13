@@ -299,16 +299,17 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 		local btsT = #bts
 		if btsT > 0 then 
 			local isScroll = Tasksync._MenuDrawShouldScroll[menugroup]
+			local selection = Tasksync.MenuDrawGetSelection(menugroup,false)
 			if isScroll then 
-				_drawMenuText_Right(Tasksync.MenuDrawGetSelection(menugroup,false) .. ' / '..btsT, basicx + getmenuWidth(), basicbuttony, buttonFont, 9, buttonScale) 
-				_drawMenuSprite("Gradient_Bgd", buttonHeight * Tasksync._MenuDrawMaxslot[menugroup], 0, 0.0, 255)
+				_drawMenuText_Right(selection .. ' / '..btsT, basicx + getmenuWidth(), basicbuttony, buttonFont, 9, buttonScale) 
+				_drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
 			else 
 				_drawMenuSprite("Gradient_Bgd", buttonHeight * btsT, 0, 0.0, 255)
 			end 
-			local selection = Tasksync.MenuDrawGetSelection(menugroup,false)
+			
 			local from, to = 1, maxslot 
 			if isScroll and selection > maxslot then 
-				from, to = selection-(Tasksync._MenuDrawMaxslot[menugroup]-1),selection
+				from, to = selection-(maxslot-1),selection
 			end 
 			local n = 0
 			for i = from, to, 1 do 
@@ -320,7 +321,7 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 			if isScroll then 
 				_initMenuScroll()
 			end 
-			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(menugroup,Tasksync.MenuDrawGetSelection(menugroup,false)))
+			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(menugroup,selection))
 		end 
 		ResetScriptGfxAlign();
 	end)
