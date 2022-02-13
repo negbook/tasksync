@@ -1,7 +1,7 @@
 local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__call=function(a,...)return a[{...}]end,__index=function(a,c)local d=false;if c and type(c)=="table"then for e=1,#c do local f=c[e]if f and b and f==b then d=true;break end end end;if d then return setmetatable({},{__call=function(a,g)_G.default=setmetatable({},{__call=function(a,h)end})return g()end})else return function()end end end})_G.default=setmetatable({},{__call=function(a,b)if b and type(b)=="function"then return b()end end})return a[b]end,__index=function(a,f)return setmetatable({},{__call=function(a,...)local i={...}for j=1,#i do local k=i[j]if k~=nil then return k end end;return nil end})end})
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
-if not Tasksync._MenuDrawtasksync_with_drawmenu then 
-Tasksync._MenuDrawtasksync_with_drawmenu = true 
+if not Tasksync._initialized_tasksync_with_drawmenu then 
+Tasksync._initialized_tasksync_with_drawmenu = true 
 local HexToRGBA = function (hex,skipkeys)
 	local r = hex >> 24
 	local offset = hex - (r << 24)

@@ -1,7 +1,7 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
-if not Tasksync._tasksync_with_keys then 
-Tasksync._tasksync_with_keys = true 
+if not Tasksync._initialized_tasksync_with_keys then 
+Tasksync._initialized_tasksync_with_keys = true 
 local IsStringNullOrEmpty = function(str) return (str == nil or str == "" or type(str)~='string') end 
 Tasksync._RegisteredKeyEvent = {}
 Tasksync._ActiveKeyMappingGroup = {}

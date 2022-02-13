@@ -1,6 +1,6 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
-if not Tasksync._tasksync_with_drawtext then 
-Tasksync._tasksync_with_drawtext = true 
+if not Tasksync._initialized_tasksync_with_drawtext then 
+Tasksync._initialized_tasksync_with_drawtext = true 
 	local HexToRGBA = function (hex,skipkeys)
 		local r = hex >> 24
 		local offset = hex - (r << 24)
@@ -11,16 +11,12 @@ Tasksync._tasksync_with_drawtext = true
 		local a = offset
 		return (not skipkeys and {r=r,g=g,b=b,a=a}) or {r,g,b,a};
 	end 
-
-
 	Draw3DTexts = {}
 	Draw3DTextIndex = 0
 	Delete3DTextLabel = function(handle)
 		Tasksync.deleteloop(Draw3DTexts[handle].actionname)
 	end 
 	DrawText3D = function(coords, text, textsizeX,textsizeY,width,height,font,color,outline,usebox,boxcolor)
-		
-		
 		SetScriptGfxDrawOrder(1)
 		SetTextScale(textsizeX, textsizeY)
 		SetTextFont(font)
@@ -38,8 +34,6 @@ Tasksync._tasksync_with_drawtext = true
 			DrawRect(0.0, 0.0+height/2+height/4,width,height,table.unpack(boxcolor))
 		end 
 		ClearDrawOrigin()
-		
-		
 	end
 	Create3DTextLabel = function(text, color, font, x, y, z, drawdistance, virtualworld, testLOS) --virtualworld : RoutingBucket
 		local coords = vector3(x, y, z)
@@ -72,7 +66,6 @@ Tasksync._tasksync_with_drawtext = true
 					local fov = (1 / GetGameplayCamFov()) * 100
 					scale = scale * fov
 					local height = GetRenderedCharacterHeight(Draw3DTexts[handle].textsizeY,0)
-					
 					DrawText3D(Draw3DTexts[handle].coords, Draw3DTexts[handle].text, Draw3DTexts[handle].textsizeX*scale,Draw3DTexts[handle].textsizeY*scale,Draw3DTexts[handle].width*scale,Draw3DTexts[handle].height*scale,Draw3DTexts[handle].font,Draw3DTexts[handle].color,Draw3DTexts[handle].outline,Draw3DTexts[handle].usebox,Draw3DTexts[handle].boxcolor)	
 					Draw3DTexts[handle].show = true 
 				end
@@ -116,7 +109,6 @@ Tasksync._tasksync_with_drawtext = true
 	end 
 	Attach3DTextLabelToEntity = function(handle,entity,offsetX,offsetY,offsetZ)
 		Draw3DTexts[handle].attachentity = entity
-
 	end 
 	Attach3DTextLabelToPlayer = function(handle,playerid,...)
 		return Attach3DTextLabelToEntity(handle,GetPlayerPed(playerid),...)
@@ -124,7 +116,6 @@ Tasksync._tasksync_with_drawtext = true
 	Attach3DTextLabelToPed = Attach3DTextLabelToEntity
 	Attach3DTextLabelToVehicle = Attach3DTextLabelToEntity
 	Attach3DTextLabelToObject = Attach3DTextLabelToEntity
-	
 	local TextDraws = {}
 	local TextDrawsIndex = 0
 	local DrawText2D = function(text,x,y,textsizeX,textsizeY,width,height,font,color,outline,usebox,boxcolor)

@@ -1,10 +1,10 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
-if not Tasksync._tasksync_with_scaleform then 
-Tasksync._tasksync_with_scaleform = true 
+if not Tasksync._initialized_tasksync_with_scaleform then 
+Tasksync._initialized_tasksync_with_scaleform = true 
 Tasksync._scaleformHandle = {}
-Tasksync._scaleformHandleDrawing = {}
-Tasksync._scaleformReleaseDuration = {}
+Tasksync._scaleformIsDrawing = {}
+Tasksync._scaleformLifeRemain = {}
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local scaleformHandle = RequestScaleformMovie(scaleformName)
 	while not HasScaleformMovieLoaded(scaleformHandle) do
@@ -32,10 +32,10 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 	end 
 end
 Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk) 
-	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
+	if not Tasksync._scaleformIsDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
-			Tasksync._scaleformHandleDrawing[scaleformName] = true  
+			Tasksync._scaleformIsDrawing[scaleformName] = true  
 			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
@@ -44,7 +44,7 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-					Tasksync._scaleformHandleDrawing[scaleformName] = false 
+					Tasksync._scaleformIsDrawing[scaleformName] = false 
 				end 
 			end)
 		end 
@@ -53,10 +53,10 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 	end 
 end 
 Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk, cb,layer) 
-	if not Tasksync._scaleformHandleDrawing[scaleformName] then 
+	if not Tasksync._scaleformIsDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
-			Tasksync._scaleformHandleDrawing[scaleformName] = true  
+			Tasksync._scaleformIsDrawing[scaleformName] = true  
 			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
@@ -65,7 +65,7 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-					Tasksync._scaleformHandleDrawing[scaleformName] = false 
+					Tasksync._scaleformIsDrawing[scaleformName] = false 
 				end 
 			end)
 		end
@@ -78,10 +78,10 @@ local ops = {...}
     local cb = ops[#ops]
     table.remove(ops,#ops)
     CreateThread(function()
-        if not Tasksync._scaleformHandleDrawing[scaleformName] then 
+        if not Tasksync._scaleformIsDrawing[scaleformName] then 
 			Tasksync._loadscaleform(scaleformName,cb)
 			if Tasksync._scaleformHandle[scaleformName] then 
-				Tasksync._scaleformHandleDrawing[scaleformName] = true  
+				Tasksync._scaleformIsDrawing[scaleformName] = true  
 				Tasksync.addlooponce('scaleforms:drawwithendduration:'..scaleformName,0,function()
 					local handle = Tasksync._scaleformHandle[scaleformName]
 					if handle then 
@@ -90,14 +90,14 @@ local ops = {...}
 						if layer then ResetScriptGfxAlign() end
 					else 
 						Tasksync.deletelooponce('scaleforms:drawwithendduration:'..scaleformName)
-						Tasksync._scaleformHandleDrawing[scaleformName] = false 
+						Tasksync._scaleformIsDrawing[scaleformName] = false 
 					end 
 				end)
 			end 
 		end 
-        Tasksync._scaleformReleaseDuration[scaleformName] = GetGameTimer() + duration
+        Tasksync._scaleformLifeRemain[scaleformName] = GetGameTimer() + duration
         Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
-            if Tasksync._scaleformReleaseDuration[scaleformName] and GetGameTimer() >= Tasksync._scaleformReleaseDuration[scaleformName] then 
+            if Tasksync._scaleformLifeRemain[scaleformName] and GetGameTimer() >= Tasksync._scaleformLifeRemain[scaleformName] then 
                 Tasksync.ScaleformEnd(scaleformName);
                 if type(cb) == 'function' then 
                     cb()
@@ -108,7 +108,7 @@ local ops = {...}
     end)
 end
 Tasksync.ScaleformCall = function(scaleformName,cb) 
-	if not cb then error("What is you want to call?",2) end 
+	if not cb then error("What is it you gonna call?",2) end 
 	Tasksync._loadscaleform(scaleformName,cb)
 end 
 Tasksync.ScaleformEnd = function(scaleformName,cb) 

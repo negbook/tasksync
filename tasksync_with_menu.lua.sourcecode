@@ -1,7 +1,8 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end
-if not Tasksync._Menus then 
+if not Tasksync._initialized_tasksync_with_menu then 
+Tasksync._initialized_tasksync_with_menu = true
 Tasksync._Menus = {} 
 Tasksync._MenuFocus = 0
 Tasksync._KeyHookInitialed = nil 
