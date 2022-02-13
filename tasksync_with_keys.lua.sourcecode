@@ -148,14 +148,14 @@ Tasksync.RegisterKeyTable = function(regtable)
 		end 
 	end 
 end 
-Tasksync.RegisterMouseWheelCallback = function(key,group,description) 
+Tasksync.RegisterKeyGroupMouseWheel = function(key,group,description) 
 	local _groupedkeyname = returnGroupedKeyName(group,key)
 	RegisterCommand(_groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key) 
 	end, false) 
 	RegisterKeyMapping(_groupedkeyname, IsStringNullOrEmpty(description) and _groupedkeyname or description , 'MOUSE_WHEEL', key) 
 end 
-Tasksync.RegisterMouseButtonCallback = function(key,group,description) 
+Tasksync.RegisterKeyGroupMouseButton = function(key,group,description) 
 	local _groupedkeyname = returnGroupedKeyName(group,key)
 	RegisterCommand(_groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key) 
