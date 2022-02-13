@@ -1,21 +1,20 @@
-
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end
-if not Tasksync._tasksync_once then 
-Tasksync._tasksync_once = true 
-Tasksync.tasksjob_once = {}
-Tasksync.taskstodo_once = {}
+if not Tasksync._initialized_tasksync_once then 
+Tasksync._initialized_tasksync_once = true 
+Tasksync._jobNames_tasksync_once = {}
+Tasksync._jobTodo_tasksync_once = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
-local GetAmountOfLoops = function(style)
+local _getAmountsOfLoopType = function(style)
 		local nowTable
 		if style == "loop" then 
 			nowTable = (Tasksync.tasksjob)
 		elseif style == "loopcustom" then  
 			nowTable = (Tasksync.tasksjob_custom)
 		elseif style == "looponce" then  
-			nowTable = (Tasksync.tasksjob_once)
+			nowTable = (Tasksync._jobNames_tasksync_once)
 		end 
 		local total = 0 
 		for i,v in pairs(nowTable) do 
@@ -27,22 +26,19 @@ end
 AddEventHandler("Tasksync:ShowDebug",function(resourcename)
 	Tasksync._debug = not Tasksync._debug 
 end)
-Tasksync.__createbytemplate_once = function(durationgroup)
-	TriggerEvent("addlooponcelog",GetCurrentResourceName())
+Tasksync.__createDepartmentGardenOnce = function(durationGroup)
 	CreateThread(function()
-		local jobs_once = Tasksync.tasksjob_once
-		local todo = Tasksync.taskstodo_once
-		local tasks_once = jobs_once[durationgroup]
-		local duration = tonumber(durationgroup)
+		local todo = Tasksync._jobTodo_tasksync_once
+		local jobGroup_once = Tasksync._jobNames_tasksync_once[durationGroup]
+		local duration = tonumber(durationGroup)
 		repeat 
-			if tasks_once then 
-				
+			if jobGroup_once then 
 				local debugtext = {}
-				for i=1,#tasks_once do 
-					local jobname = tasks_once[i]
+				for i=1,#jobGroup_once do 
+					local jobname = jobGroup_once[i]
 					local fn = todo[jobname]
 					if Tasksync._debug and jobname then 
-						table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..durationgroup) 
+						table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..durationGroup) 
 					end
 					if fn then fn() end 
 				end 
@@ -50,53 +46,48 @@ Tasksync.__createbytemplate_once = function(durationgroup)
 					for i,v in pairs(debugtext) do 
 						print(v)
 					end 
-					print("Once Loop Total",GetAmountOfLoops("looponce"))
+					print("Once Loop Total",_getAmountsOfLoopType("looponce"))
 					print("Spaming after 3 seconds") Wait(3000)
 				end 
 			end 
 			Wait(duration)
-		until not tasks_once or not tasks_once[1]
-		--if true then  print('breaked'..durationgroup) end
+		until not jobGroup_once or not jobGroup_once[1]
+		--if true then  print('breaked'..durationGroup) end
 		return 
 	end)
 end 	
-Tasksync.addlooponce = function(jobname,durationgroup,fn) --jobname,duration,function
-	local durationgroup = tostring(durationgroup)
-	--if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
-	local creatable = false 
-	local found = false 
-	if Tasksync.tasksjob_once[durationgroup] and #Tasksync.tasksjob_once[durationgroup] > 0 then 
-		for i=1,#Tasksync.tasksjob_once[durationgroup] do 
-			if Tasksync.tasksjob_once[durationgroup][i] == jobname then 
-				found = true 
+Tasksync.addlooponce = function(jobname,durationGroup,fn) --jobname,duration,function
+	local durationGroup = tostring(durationGroup)
+	local JobExisted = false 
+	if Tasksync._jobNames_tasksync_once[durationGroup] and #Tasksync._jobNames_tasksync_once[durationGroup] > 0 then 
+		for i=1,#Tasksync._jobNames_tasksync_once[durationGroup] do 
+			if Tasksync._jobNames_tasksync_once[durationGroup][i] == jobname then 
+				JobExisted = true 
 			end 
 		end 
 	end 
-	if not found then 
-		Tasksync.taskstodo_once[jobname] = fn
-		if Tasksync.tasksjob_once[durationgroup] == nil then creatable = true; Tasksync.tasksjob_once[durationgroup] = {}; end 
-		table.insert(Tasksync.tasksjob_once[durationgroup],jobname)
-		if creatable then 
-			Tasksync.__createbytemplate_once(durationgroup)
+	if not JobExisted then 
+		Tasksync._jobTodo_tasksync_once[jobname] = fn
+		if Tasksync._jobNames_tasksync_once[durationGroup] == nil then  
+			Tasksync._jobNames_tasksync_once[durationGroup] = {}; 
+			table.insert(Tasksync._jobNames_tasksync_once[durationGroup],jobname)
+			Tasksync.__createDepartmentGardenOnce(durationGroup)
+		else 
+			table.insert(Tasksync._jobNames_tasksync_once[durationGroup],jobname)
 		end 
 	end 
 end 
 Tasksync.deletelooponce = function(jobname)
-	
-	for durationgroup,v in pairs(Tasksync.tasksjob_once) do 
-		for i=1,#Tasksync.tasksjob_once[durationgroup] do 
-			if Tasksync.tasksjob_once[durationgroup][i] == jobname then 
-				Tasksync.taskstodo_once[jobname] = nil 
-				table.remove(Tasksync.tasksjob_once[durationgroup],i)
-				TriggerEvent("deletelooponcelog",GetCurrentResourceName())
-				if #Tasksync.tasksjob_once[durationgroup] == 0 then 
-					Tasksync.tasksjob_once[durationgroup] = nil
-					
+	for durationGroup,v in pairs(Tasksync._jobNames_tasksync_once) do 
+		for i=1,#Tasksync._jobNames_tasksync_once[durationGroup] do 
+			if Tasksync._jobNames_tasksync_once[durationGroup][i] == jobname then 
+				Tasksync._jobTodo_tasksync_once[jobname] = nil 
+				table.remove(Tasksync._jobNames_tasksync_once[durationGroup],i)
+				if #Tasksync._jobNames_tasksync_once[durationGroup] == 0 then 
+					Tasksync._jobNames_tasksync_once[durationGroup] = nil
 				end 
 			end 
 		end 
 	end 
 end 
-
-
 end 

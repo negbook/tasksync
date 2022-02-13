@@ -1,16 +1,16 @@
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end 
-if not Tasksync._tasksync then 
-Tasksync._tasksync = true 
-Tasksync.tasksjob = {}
-Tasksync.taskstodo = {}
+if not Tasksync._initialized_tasksync then 
+Tasksync._initialized_tasksync = true 
+Tasksync._jobNames_tasksync = {}
+Tasksync._jobTodo_tasksync = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
-local GetAmountOfLoops = function(style)
+local _getAmountsOfLoopType = function(style)
 		local nowTable
 		if style == "loop" then 
-			nowTable = (Tasksync.tasksjob)
+			nowTable = (Tasksync._jobNames_tasksync)
 		elseif style == "loopcustom" then  
 			nowTable = (Tasksync.tasksjob_custom)
 		elseif style == "looponce" then  
@@ -26,21 +26,19 @@ end
 AddEventHandler("Tasksync:ShowDebug",function(resourcename)
 	Tasksync._debug = not Tasksync._debug 
 end)
-Tasksync.__createbytemplate = function(durationgroup)
-	TriggerEvent("addlooplog",GetCurrentResourceName())
+Tasksync.__createDepartmentGarden = function(durationGroup)
 	CreateThread(function()
-		local jobs = Tasksync.tasksjob
-		local todo = Tasksync.taskstodo
-		local tasks = jobs[durationgroup]
-		local duration = tonumber(durationgroup)
+		local todos = Tasksync._jobTodo_tasksync
+		local jobGroup = Tasksync._jobNames_tasksync[durationGroup]
+		local duration = tonumber(durationGroup)
 		repeat
-			if tasks then 
+			if jobGroup then 
 				local debugtext = {}
-				for i=1,#tasks do 
-					local jobname = tasks[i]
-					local fn = todo[jobname]
+				for i=1,#jobGroup do 
+					local jobname = jobGroup[i]
+					local fn = todos[jobname]
 					if Tasksync._debug and jobname then 
-						table.insert(debugtext,resourceName.." (loop) "..jobname.." "..durationgroup)
+						table.insert(debugtext,resourceName.." (loop) "..jobname.." "..durationGroup)
 					end
 					if fn then fn() end 
 				end 
@@ -48,36 +46,36 @@ Tasksync.__createbytemplate = function(durationgroup)
 					for i,v in pairs(debugtext) do 
 						print(v)
 					end 
-					print("Normal Loop Total",GetAmountOfLoops("loop"))
+					print("Normal Loop Total",_getAmountsOfLoopType("loop"))
 					print("Spaming after 3 seconds") Wait(3000)
 				end 
 			end 
 			Wait(duration)
-		until not tasks or not tasks[1]
-		--if true then  print('breaked'..durationgroup) end
+		until not jobGroup or not jobGroup[1]
+		--if true then  print('breaked'..durationGroup) end
 		return 
 	end)
 end 	
-Tasksync.addloop = function(jobname,durationgroup,fn) --jobname,duration,function
-	local durationgroup = tostring(durationgroup)
-	if Tasksync.taskstodo[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
-	Tasksync.taskstodo[jobname] = fn 
-	local creatable = false 
-	if Tasksync.tasksjob[durationgroup] == nil then creatable = true; Tasksync.tasksjob[durationgroup] = {}; end 
-	table.insert(Tasksync.tasksjob[durationgroup],jobname)
-	if creatable then 
-		Tasksync.__createbytemplate(durationgroup)
+Tasksync.addloop = function(jobname,durationGroup,fn_todo) --jobname,duration,function
+	if Tasksync._jobTodo_tasksync[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
+	Tasksync._jobTodo_tasksync[jobname] = fn_todo  
+	local durationGroup = tostring(durationGroup)
+	if Tasksync._jobNames_tasksync[durationGroup] == nil then 
+		Tasksync._jobNames_tasksync[durationGroup] = {}; 
+		table.insert(Tasksync._jobNames_tasksync[durationGroup],jobname)
+		Tasksync.__createDepartmentGarden(durationGroup)
+	else 
+		table.insert(Tasksync._jobNames_tasksync[durationGroup],jobname)
 	end 
 end 
 Tasksync.deleteloop = function(jobname)
-	for durationgroup,v in pairs(Tasksync.tasksjob) do 
-		for i=1,#Tasksync.tasksjob[durationgroup] do 
-			if Tasksync.tasksjob[durationgroup][i] == jobname then 
-				Tasksync.taskstodo[jobname] = nil 
-				table.remove(Tasksync.tasksjob[durationgroup],i)
-				TriggerEvent("deletelooplog",GetCurrentResourceName())
-				if #Tasksync.tasksjob[durationgroup] == 0 then 
-					Tasksync.tasksjob[durationgroup] = nil
+	for durationGroup,v in pairs(Tasksync._jobNames_tasksync) do 
+		for i=1,#Tasksync._jobNames_tasksync[durationGroup] do 
+			if Tasksync._jobNames_tasksync[durationGroup][i] == jobname then 
+				Tasksync._jobTodo_tasksync[jobname] = nil 
+				table.remove(Tasksync._jobNames_tasksync[durationGroup],i)
+				if #Tasksync._jobNames_tasksync[durationGroup] == 0 then 
+					Tasksync._jobNames_tasksync[durationGroup] = nil
 				end 
 			end 
 		end 

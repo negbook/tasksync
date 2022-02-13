@@ -386,7 +386,6 @@ Tasksync.MenuDrawGetSelection = function(menugroup,needx)
 	return needx and Tasksync._MenuDrawSelection[menugroup] or Tasksync._MenuDrawSelection[menugroup].y
 end 
 Tasksync.MenuDrawEnd = function(menugroup)
-	
 	if Tasksync._CurrentMenuGroups and #Tasksync._CurrentMenuGroups > 0 then 
 		for i,v in pairs(Tasksync._CurrentMenuGroups) do 
 			if v == menugroup then 
@@ -401,7 +400,6 @@ Tasksync.MenuDrawEnd = function(menugroup)
 			end 
 		end 
 	end 
-	
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckGlareType = function(menutype)
@@ -409,14 +407,11 @@ Tasksync.MenuCheckGlareType = function(menutype)
 	if menutype == "PI" or menutype == "PersonalInteraction" then 
 		if not Tasksync._MenuDrawSpecial["PI"] then 
 			Tasksync._MenuDrawSpecial["PI"] = true 
-			
 			CreateThread(function()
 				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 				Tasksync.ScaleformDrawMini("MP_MENU_GLARE",0.5,0.5,1.0,1.0,255,255,255,255,0,function(initialise)
 					initialise("SET_DATA_SLOT",0.5,true)
-					
 				end,5)
-				
 			end)
 		end 
 	else 
@@ -425,14 +420,12 @@ Tasksync.MenuCheckGlareType = function(menutype)
 				Tasksync.ScaleformEnd("MP_MENU_GLARE")
 				Tasksync._MenuDrawSpecial["PI"] = false 
 			end 
-			
 		end 
 	end 
 end 
 Tasksync._CurrentMenuGroups = {}
 Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 	local maxslot = maxslot or 7
-	
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
 	Tasksync.MenuDrawSetSelection(menugroup,1)
@@ -447,7 +440,6 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 	end 
 	Tasksync.addlooponce("tasksync_drawmenu",0,function()
 		local menugroup = Tasksync._CurrentMenuGroups[#Tasksync._CurrentMenuGroups]
-
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
@@ -492,5 +484,4 @@ Tasksync.MenuDrawRender = function(menugroup,title,subtitle,maxslot)
 		ResetScriptGfxAlign();
 	end)
 end 
-
 end 
