@@ -48,6 +48,8 @@ Tasksync.RegisterKeyTable{
 		{"RETURN","THIS IS MENU RETURN"},
 		{"UP","THIS IS MENU UP"},
 		{"DOWN","THIS IS MENU DOWN"},
+		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP"},
+		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN"},
 		{"LEFT","THIS IS MENU LEFT",500,50},
 		{"RIGHT","THIS IS MENU RIGHT",500,50}
 	},
@@ -60,7 +62,9 @@ Tasksync.RegisterKeyTable{
 		{"RIGHT","JUST_PRESSED",shared_cb,"right"},
 		{"RIGHT","PRESSED",shared_cb,"right"},
 		{"SPACE","JUST_PRESSED",shared_cb,"return"},
-		{"RETURN","JUST_PRESSED",shared_cb,"return"}
+		{"RETURN","JUST_PRESSED",shared_cb,"return"},
+		{"IOM_WHEEL_UP","JUST_PRESSED",shared_cb,"IOM_WHEEL_UP"},
+		{"IOM_WHEEL_DOWN","JUST_PRESSED",shared_cb,"IOM_WHEEL_DOWN"}
 	}
 }
 Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
