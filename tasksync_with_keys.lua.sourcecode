@@ -54,6 +54,7 @@ end
 Tasksync.SetKeyGroupActive = function(group,bool) 
 	Tasksync._KeyGroupEnable[group] = bool 
 end 
+
 Tasksync.IsKeyGroupActive = function(group)
 	return Tasksync._KeyGroupEnable[group]
 end 
@@ -115,46 +116,22 @@ Tasksync.RegisterKeyTable = function(regtable)
 	if cbs then 
 		for i,v in pairs(cbs) do 
 			local style = v[2]
-			if style == "JUST_PRESSED" then 
-				if v[4] then 
-					local _cb = function()
-						local _atbl = {}
-						for i=4,#v do 
-							table.insert(_atbl,v[i])
-						end 
-						return v[3](table.unpack(_atbl))
+			local action = {}
+			action["JUST_PRESSED"] = Tasksync.RegisterGroupedKeyCallbackJustPressed
+			action["PRESSED"] = Tasksync.RegisterGroupedKeyCallbackPressed
+			action["JUST_RELEASED"] = Tasksync.RegisterGroupedKeyCallbackJustReleased
+			if v[4] then 
+				local _cb = function()
+					local _atbl = {}
+					for i=4,#v do 
+						table.insert(_atbl,v[i])
 					end 
-					Tasksync.RegisterGroupedKeyCallbackJustPressed(group,v[1],_cb)
-				else 
-					Tasksync.RegisterGroupedKeyCallbackJustPressed(group,v[1],v[3])
-				end
-			elseif style == "PRESSED" then
-				if v[4] then 
-					local _cb = function()
-						local _atbl = {}
-						for i=4,#v do 
-							table.insert(_atbl,v[i])
-						end 
-						return v[3](table.unpack(_atbl))
-					end 
-					Tasksync.RegisterGroupedKeyCallbackPressed(group,v[1],_cb)
-				else 
-					Tasksync.RegisterGroupedKeyCallbackPressed(group,v[1],v[3])
-				end
-			elseif style == "JUST_RELEASED" then 
-				if v[4] then 
-					local _cb = function()
-						local _atbl = {}
-						for i=4,#v do 
-							table.insert(_atbl,v[i])
-						end 
-						return v[3](table.unpack(_atbl))
-					end 
-					Tasksync.RegisterGroupedKeyCallbackJustReleased(group,v[1],_cb)
-				else 
-					Tasksync.RegisterGroupedKeyCallbackJustReleased(group,v[1],v[3])
-				end
-			end 
+					return v[3](table.unpack(_atbl))
+				end 
+				action[style](group,v[1],_cb)
+			else 
+				action[style](group,v[1],v[3])
+			end
 		end 
 	end 
 end 

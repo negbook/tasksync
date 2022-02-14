@@ -210,7 +210,7 @@ local _setMenuDescription = function(desc)
 	end 
 end 
 _menudraw_ = {
-	Special = {},
+	Glare = false ,
 	Buttons = {},
 	ButtonDescriptions = {},
 	Title = "",
@@ -312,19 +312,14 @@ Tasksync.MenuDrawGetFocusSlot = function()
 end 
 
 Tasksync.MenuDrawEnd = function()
-	if _menudraw_.Special["PI"] and Tasksync.ScaleformEnd then 
-		Tasksync.ScaleformEnd("MP_MENU_GLARE")
-		_menudraw_.Special["PI"] = false 
-	end 
 	Tasksync.deletelooponce("tasksync_drawmenu")
-	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckGlareType = function(menutype)
 	local menutype = menutype or "default"
 	if menutype == "PI" or menutype == "PersonalInteraction" then 
-		if not _menudraw_.Special["PI"] then 
-			_menudraw_.Special["PI"] = true 
+		if not _menudraw_.Glare then 
+			_menudraw_.Glare = true 
 			CreateThread(function()
 				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 				Tasksync.ScaleformDrawMini("MP_MENU_GLARE",0.5,0.5,1.0,1.0,255,255,255,255,0,function(initialise)
@@ -333,11 +328,9 @@ Tasksync.MenuCheckGlareType = function(menutype)
 			end)
 		end 
 	else 
-		if _menudraw_.Special["PI"] then 
-			if _menudraw_.Special["PI"] and Tasksync.ScaleformEnd then 
-				Tasksync.ScaleformEnd("MP_MENU_GLARE")
-				_menudraw_.Special["PI"] = false 
-			end 
+		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
+			Tasksync.ScaleformEnd("MP_MENU_GLARE")
+			_menudraw_.Glare = false 
 		end 
 	end 
 end 
@@ -393,6 +386,12 @@ Tasksync.MenuDrawRender = function()
 			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(selection))
 		end 
 		ResetScriptGfxAlign();
+	end,function()
+		Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
+		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
+			Tasksync.ScaleformEnd("MP_MENU_GLARE")
+			_menudraw_.Glare = false 
+		end 
 	end)
 end 
 Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
