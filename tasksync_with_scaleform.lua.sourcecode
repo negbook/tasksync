@@ -29,8 +29,7 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 		PopScaleformMovieFunctionVoid()
 	end
 	if cb then 
-		local _cbdraw = function(fn) if fn then return Tasksync.ScaleformDrawingFunction(scaleformName,fn) end return  end 
-		cb(Tasksync._sendscaleformvalues,_cbdraw)
+		cb(Tasksync._sendscaleformvalues)
 	end 
 end
 Tasksync.ScaleformDrawingFunction = function(scaleformName,fn)

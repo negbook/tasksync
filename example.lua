@@ -61,7 +61,7 @@ CreateThread(function()
 	}
 	self.selected = {y = 2,x = 2}
 	local isUpdate = false 
-	Tasksync.MenuDrawInit( self.title,self.subtitle,self.maxslot or 7,true)
+	Tasksync.MenuDrawInitMouse( self.title,self.subtitle,self.maxslot or 7)
 	local buttonnames = {} 
 	for i=1,#self.buttons do 
 		local v = self.buttons[i]

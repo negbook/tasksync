@@ -2,6 +2,19 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
+local _menudraw_ = {
+	Glare = false ,
+	Buttons = {},
+	ButtonDescriptions = {},
+	Title = "",
+	Subtitle = "",
+	Maxslot = 7,
+	ShouldScroll = false,
+	ButtonIcons = {},
+	ButtonOptions = {},
+	MenuSlotSelection = {},
+	Selection = 1
+}
 load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 local shared_cb = function(input)
 	local action = {}
@@ -42,6 +55,7 @@ local shared_cb = function(input)
 				newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
 			else 
 				Tasksync.MenuDrawSetFocusSlot(mslot)
+				PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 			end 
 		end 
 		return newselection
@@ -67,16 +81,22 @@ Tasksync.RegisterKeyTable{
 		{"RETURN","THIS IS MENU RETURN"},
 		{"UP","THIS IS MENU UP",500,50},
 		{"DOWN","THIS IS MENU DOWN",500,50},
-		{"MOUSE_LEFT","THIS IS MENU MOUSE_LEFT","MOUSE_BUTTON"},
-		{"MOUSE_RIGHT","THIS IS MENU MOUSE_RIGHT","MOUSE_BUTTON"},
-		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP","MOUSE_WHEEL"},
-		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN","MOUSE_WHEEL"},
 		{"LEFT","THIS IS MENU LEFT",500,50},
 		{"RIGHT","THIS IS MENU RIGHT",500,50},
+		
+		{"MOUSE_LEFT","THIS IS MENU MOUSE_LEFT","MOUSE_BUTTON"},
+		{"MOUSE_RIGHT","THIS IS MENU MOUSE_RIGHT","MOUSE_BUTTON"},
+		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP","MOUSE_BUTTON"},
+		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN","MOUSE_BUTTON"},
+		
+		
 		{"LUP_INDEX","THIS IS MENU LUP_INDEX",500,50,"PAD_DIGITALBUTTON"},
 		{"LDOWN_INDEX","THIS IS MENU LDOWN_INDEX",500,50,"PAD_DIGITALBUTTON"},
 		{"LLEFT_INDEX","THIS IS MENU LLEFT_INDEX",500,50,"PAD_DIGITALBUTTON"},
-		{"LRIGHT_INDEX","THIS IS MENU LRIGHT_INDEX",500,50,"PAD_DIGITALBUTTON"}
+		{"LRIGHT_INDEX","THIS IS MENU LRIGHT_INDEX",500,50,"PAD_DIGITALBUTTON"},
+		{"RDOWN_INDEX","THIS IS MENU RDOWN_INDEX","PAD_DIGITALBUTTON"},
+		{"RRIGHT_INDEX","THIS IS MENU RRIGHT_INDEX","PAD_DIGITALBUTTON"},
+
 		
 	},
 	cbs = {
@@ -105,12 +125,13 @@ Tasksync.RegisterKeyTable{
 		{"LUP_INDEX","PRESSED",shared_cb,"up"},
 		{"LDOWN_INDEX","PRESSED",shared_cb,"down"},
 		{"LLEFT_INDEX","PRESSED",shared_cb,"left"},
-		{"LRIGHT_INDEX","PRESSED",shared_cb,"right"}
-		
+		{"LRIGHT_INDEX","PRESSED",shared_cb,"right"},
+		{"RDOWN_INDEX","JUST_PRESSED",shared_cb,"return"},
+		{"RRIGHT_INDEX","JUST_PRESSED",shared_cb,"back"},
 	}
 }
 Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
-local menuWidth = 0.258
+local menuWidth = 0.256
 local titleHeight = 0.091
 local buttonHeight = 0.038
 local buttonRectHeight = 0
@@ -118,8 +139,8 @@ local buttonFont = 0
 local buttonScale = 0.365
 local buttonTextXOffset = 0.005
 local buttonTextYOffset = 0.005
-local basicx = 0.0525
-local basicy = 0.085
+local basicx = 0.085
+local basicy = 0.115
 local getmenuWidth = function() 
 	return menuWidth 
 end 
@@ -205,7 +226,11 @@ local function _drawMenuIcon_Right(y,iconName)
 end 
 local _drawButton = function(y,text,righttext,optionselected,icon,selection,slot)
 	local ishighlight = selection == slot
-	local ishoverd = Tasksync.GetMouseHoverSlot() == slot 
+	
+	local ishoverd = false 
+	if _menudraw_.ShowMouse then 
+		ishoverd = _menudraw_.MouseHoverSlot == slot 
+	end 
 	local r = {}
 	r.x = basicx
 	r.y = y
@@ -226,7 +251,7 @@ local _drawButton = function(y,text,righttext,optionselected,icon,selection,slot
 			end 
 		end 
 	elseif ishoverd then 
-		_drawMenuSpriteHighLight(y ,buttonHeight, 3, 0.0, 255)
+		_drawMenuSpriteHighLight(y ,buttonHeight, 3, 0.0, 180)
 		_drawMenuText(text,basicx,y,buttonFont,2,buttonScale, false)
 		if righttext and icon then 
 			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
@@ -264,19 +289,7 @@ local _setMenuDescription = function(desc)
 		_drawMenuText(desc,basicx,_drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)-buttonHeight + 0.0025,buttonFont,0,buttonScale)
 	end 
 end 
-local _menudraw_ = {
-	Glare = false ,
-	Buttons = {},
-	ButtonDescriptions = {},
-	Title = "",
-	Subtitle = "",
-	Maxslot = 7,
-	ShouldScroll = false,
-	ButtonIcons = {},
-	ButtonOptions = {},
-	MenuSlotSelection = {},
-	Selection = 1
-}
+
 Tasksync.MenuDrawSetButtons = function(...)
 	if not _menudraw_.Buttons then _menudraw_.Buttons = {} end 
 	_menudraw_.Buttons = {...}
@@ -377,34 +390,9 @@ Tasksync.MenuCheckGlareType = function(isglare)
 			CreateThread(function()
 				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 				Tasksync.ScaleformDraw("MP_MENU_GLARE",function(initialise,ondraw)
-					--initialise("SET_DATA_SLOT",0.5,true)
-					local send = initialise
-					local v_0 = 0
-					local v_1 = 0.5
-					local v_2 = vector3(0,0,0)
-					local some = 0
-					local func_6610_c = function(p_0, p_1, p_2)
-						local v_0;
-						
-						if (p_1 == p_2) then
-							return p_1;
-						end
-						v_0 = (p_2 - p_1);
-						p_0 = (p_0 - ((Round(((p_0 - p_1) / v_0))) + 0.0 * v_0));
-						if (p_0 < p_1) then
-							p_0 = (p_0 + v_0);
-						end
-						return p_0;
-					end
-					ondraw(function(handle)
-						v_2 = GetFinalRenderedCamRot(2)
-						v_0 = func_6610_c(v_2.y,0.0,360.0)
-						if ((some == 0 or (some - v_0) > v_1) or (some - v_0) < -v_1) then
-							some = v_0;
-							send("SET_DATA_SLOT",some)
-						end 
-					end)
-				end, 5, 76, 84,basicx - 0.034, basicy - titleHeight/2-0.018, 0.0, 0.0)
+					initialise("SET_DATA_SLOT",0.5,true)
+					
+				end, 5,76,84,0.05,0.05,0.0,0.0)
 				
 			end)
 		end 
@@ -413,8 +401,7 @@ Tasksync.MenuCheckGlareType = function(isglare)
 		_menudraw_.showedGlare = false 
 	end 
 end 
-
-Tasksync.MenuDrawInit = function(title,subtitle,maxslot,showmouse)
+Tasksync.MenuDrawInitMouse = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
 	_menudraw_ = {
 		Glare = false ,
@@ -434,10 +421,32 @@ Tasksync.MenuDrawInit = function(title,subtitle,maxslot,showmouse)
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	_menudraw_.ShowMouse = not not showmouse
+	_menudraw_.ShowMouse = true
 	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
 end 
-Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot,showmouse)
+Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
+	local maxslot = maxslot or 7
+	_menudraw_ = {
+		Glare = false ,
+		Buttons = {},
+		ButtonDescriptions = {},
+		Title = "",
+		Subtitle = "",
+		Maxslot = 7,
+		ShouldScroll = false,
+		ButtonIcons = {},
+		ButtonOptions = {},
+		MenuSlotSelection = {},
+		ShowMouse = false,
+		MouseHoverSlot = -1,
+		Selection = 1
+	}
+	_menudraw_.Maxslot =  maxslot
+	_menudraw_.Title = title
+	_menudraw_.Subtitle = subtitle
+	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+end 
+Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
 	_menudraw_ = {
 		Glare = false ,
@@ -458,7 +467,6 @@ Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot,showmouse)
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	_menudraw_.ShowMouse = not not showmouse
 	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
 end 
 
@@ -512,7 +520,7 @@ Tasksync.MenuDrawRender = function()
 					end 
 				end 
 			end 
-			if _menudraw_.ShowMouse and IsUsingKeyboard(2) then
+			if _menudraw_.ShowMouse  then
 				_menudraw_.MouseHoverSlot = hoverslot 
 				SetMouseCursorActiveThisFrame()
 			end 
