@@ -48,22 +48,11 @@ CreateThread(function()
 		{name="appl123e",description="hell312o",options={"zxc","basd"}},
 		{name="appl123e",description="hell312o",options={"zxc","basd"}},
 		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}},
-		{name="appl123e",description="hell312o",options={"zxc","basd"}}
+		
 	}
 	self.selected = {y = 2,x = 2}
 	local isUpdate = false 
-	Tasksync.MenuDrawInit( self.title,self.subtitle,self.maxslot or 7)
+	Tasksync.MenuDrawInitGlare( self.title,self.subtitle,self.maxslot or 7)
 	local buttonnames = {} 
 	for i=1,#self.buttons do 
 		local v = self.buttons[i]
@@ -97,10 +86,10 @@ CreateThread(function()
 		Tasksync.MenuCheckGlareType(self.menutype)
 		Tasksync.MenuDrawRender()
 	end 
-	
+	--[[
 	Wait(8000)
 	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
-	Tasksync.MenuDrawEnd()
+	Tasksync.MenuDrawEnd()--]]
 end)
 
 

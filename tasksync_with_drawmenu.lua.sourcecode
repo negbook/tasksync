@@ -45,15 +45,15 @@ end
 Tasksync.RegisterKeyTable{
 	group = "GROUP_TASKSYNC_DRAWMENU",
 	keys = {
-		{"TAB","THIS IS MENU TAB"},
+		--{"TAB","THIS IS MENU TAB"},
 		{"BACK","THIS IS MENU BACK"},
 		{"SPACE","THIS IS MENU SPACE"},
 		{"ESCAPE","THIS IS MENU ESCAPE"},
 		{"RETURN","THIS IS MENU RETURN"},
 		{"UP","THIS IS MENU UP"},
 		{"DOWN","THIS IS MENU DOWN"},
-		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP"},
-		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN"},
+		--{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP"},
+		--{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN"},
 		{"LEFT","THIS IS MENU LEFT",500,50},
 		{"RIGHT","THIS IS MENU RIGHT",500,50}
 	},
@@ -67,8 +67,8 @@ Tasksync.RegisterKeyTable{
 		{"RIGHT","PRESSED",shared_cb,"right"},
 		{"SPACE","JUST_PRESSED",shared_cb,"return"},
 		{"RETURN","JUST_PRESSED",shared_cb,"return"},
-		{"IOM_WHEEL_UP","JUST_PRESSED",shared_cb,"IOM_WHEEL_UP"},
-		{"IOM_WHEEL_DOWN","JUST_PRESSED",shared_cb,"IOM_WHEEL_DOWN"}
+		--{"IOM_WHEEL_UP","JUST_PRESSED",shared_cb,"IOM_WHEEL_UP"},
+		--{"IOM_WHEEL_DOWN","JUST_PRESSED",shared_cb,"IOM_WHEEL_DOWN"}
 	}
 }
 Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
@@ -209,7 +209,7 @@ local _setMenuDescription = function(desc)
 		_drawMenuText(desc,basicx,_drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)-buttonHeight + 0.0025,buttonFont,0,buttonScale)
 	end 
 end 
-_menudraw_ = {
+local _menudraw_ = {
 	Glare = false ,
 	Buttons = {},
 	ButtonDescriptions = {},
@@ -315,11 +315,10 @@ Tasksync.MenuDrawEnd = function()
 	Tasksync.deletelooponce("tasksync_drawmenu")
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
-Tasksync.MenuCheckGlareType = function(menutype)
-	local menutype = menutype or "default"
-	if menutype == "PI" or menutype == "PersonalInteraction" then 
-		if not _menudraw_.Glare then 
-			_menudraw_.Glare = true 
+Tasksync.MenuCheckGlareType = function(isglare)
+	if isglare then  
+		if not _menudraw_.showedGlare then 
+			_menudraw_.showedGlare = true 
 			CreateThread(function()
 				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 				Tasksync.ScaleformDrawMini("MP_MENU_GLARE",0.5,0.5,1.0,1.0,255,255,255,255,0,function(initialise)
@@ -327,21 +326,53 @@ Tasksync.MenuCheckGlareType = function(menutype)
 				end,5)
 			end)
 		end 
-	else 
-		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
-			Tasksync.ScaleformEnd("MP_MENU_GLARE")
-			_menudraw_.Glare = false 
-		end 
+	elseif _menudraw_.showedGlare and Tasksync.ScaleformEnd then 
+		Tasksync.ScaleformEnd("MP_MENU_GLARE")
+		_menudraw_.showedGlare = false 
 	end 
 end 
 
 Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
+	menudraw_ = {
+		Glare = false ,
+		Buttons = {},
+		ButtonDescriptions = {},
+		Title = "",
+		Subtitle = "",
+		Maxslot = 7,
+		ShouldScroll = false,
+		ButtonIcons = {},
+		ButtonOptions = {},
+		MenuSlotSelection = {},
+		Selection = 1
+	}
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
+	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
 end 
-
+Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
+	local maxslot = maxslot or 7
+	menudraw_ = {
+		Glare = false ,
+		Buttons = {},
+		ButtonDescriptions = {},
+		Title = "",
+		Subtitle = "",
+		Maxslot = 7,
+		ShouldScroll = false,
+		ButtonIcons = {},
+		ButtonOptions = {},
+		MenuSlotSelection = {},
+		Selection = 1
+	}
+	_menudraw_.Glare = true
+	_menudraw_.Maxslot =  maxslot
+	_menudraw_.Title = title
+	_menudraw_.Subtitle = subtitle
+	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+end 
 Tasksync.MenuDrawRender = function()
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
@@ -391,7 +422,9 @@ Tasksync.MenuDrawRender = function()
 		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
 			Tasksync.ScaleformEnd("MP_MENU_GLARE")
 			_menudraw_.Glare = false 
+			Tasksync.MenuCheckGlareType(_menudraw_.Glare)
 		end 
+		
 	end)
 end 
 Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
