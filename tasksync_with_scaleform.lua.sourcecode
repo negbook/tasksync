@@ -3,6 +3,7 @@ load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_scaleform then 
 Tasksync._initialized_tasksync_with_scaleform = true 
 Tasksync._scaleformHandle = {}
+Tasksync._scaleformDrawingFunctions = {}
 Tasksync._scaleformIsDrawing = {}
 Tasksync._scaleformLifeRemain = {}
 Tasksync._loadscaleform = function(scaleformName,cb)
@@ -28,10 +29,14 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 		PopScaleformMovieFunctionVoid()
 	end
 	if cb then 
-		cb(Tasksync._sendscaleformvalues)
+		local _cbdraw = function(fn) if fn then return Tasksync.ScaleformDrawingFunction(scaleformName,fn) end return  end 
+		cb(Tasksync._sendscaleformvalues,_cbdraw)
 	end 
 end
-Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk) 
+Tasksync.ScaleformDrawingFunction = function(scaleformName,fn)
+	Tasksync._scaleformDrawingFunctions[scaleformName] = fn
+end 
+Tasksync.ScaleformDraw = function(scaleformName,cb,layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
 	if not Tasksync._scaleformIsDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
 		if Tasksync._scaleformHandle[scaleformName] then 
@@ -40,6 +45,9 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, x ,y ,width ,height ,r
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
+					if alignx and aligny then SetScriptGfxAlign(alignx, aligny) end 
+					if align_p1 and align_p2 and align_p3 and align_p4 then SetScriptGfxAlignParams(align_p1, align_p2, align_p3, align_p4) end 
+					if Tasksync._scaleformDrawingFunctions[scaleformName] then Tasksync._scaleformDrawingFunctions[scaleformName](handle) end 
 					DrawScaleformMovieFullscreen(handle)
 					if layer then ResetScriptGfxAlign() end
 				else 
@@ -61,6 +69,7 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 				local handle = Tasksync._scaleformHandle[scaleformName]
 				if handle then 
 					if layer then SetScriptGfxDrawOrder(layer) end 
+					if Tasksync._scaleformDrawingFunctions[scaleformName] then Tasksync._scaleformDrawingFunctions[scaleformName](handle) end 
 					DrawScaleformMovie(handle ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
 					if layer then ResetScriptGfxAlign() end
 				else 

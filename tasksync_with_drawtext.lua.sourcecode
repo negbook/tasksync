@@ -165,6 +165,10 @@ Tasksync._initialized_tasksync_with_drawtext = true
 			end)
 		end 
 	end 
+	TextDrawSetPosition = function(handle,x,y)
+		TextDraws[handle].x = x
+		TextDraws[handle].y = y
+	end 
 	TextDrawHide = function(handle,color)
 		TextDraws[handle].hide = true
 	end 

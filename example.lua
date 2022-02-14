@@ -8,6 +8,15 @@ CreateThread(function()
 	--[[
 	local handle = TextDrawCreate(0.4,0.4,"test")
 	TextDrawShow(handle)
+	while true do Wait(0)
+		local cx,cy = GetNuiCursorPosition()
+		local sw,sh = GetActiveScreenResolution()
+		local x,y = cx/sw,cy/sh
+		TextDrawSetPosition(handle,x,y)
+	end 
+	--]]
+	--[[
+	
 	local x,y,z = table.unpack(GetEntityCoords(PlayerPedId()))
 	local handle = Create3DTextLabel("test3d",0xff0000ff,0,x,y,z,50.0)
 	
@@ -52,7 +61,7 @@ CreateThread(function()
 	}
 	self.selected = {y = 2,x = 2}
 	local isUpdate = false 
-	Tasksync.MenuDrawInitGlare( self.title,self.subtitle,self.maxslot or 7)
+	Tasksync.MenuDrawInit( self.title,self.subtitle,self.maxslot or 7,true)
 	local buttonnames = {} 
 	for i=1,#self.buttons do 
 		local v = self.buttons[i]

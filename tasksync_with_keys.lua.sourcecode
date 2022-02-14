@@ -62,7 +62,8 @@ Tasksync.RemoveKeyGroup = function(group)
 	Tasksync._KeyGroupEnable[group] = nil
 end 
 Tasksync.DeleteKeyGroup = Tasksync.RemoveKeyGroup
-Tasksync.RegisterKeyGroupKeyboard = function(key,group,description) 
+Tasksync.RegisterKeyGroup = function(key,group,description,type_) 
+	local type_ = type_ or 'keyboard'
 	local _groupedkeyname = returnGroupedKeyName(group,key)
 	RegisterCommand("+".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") 
@@ -70,9 +71,10 @@ Tasksync.RegisterKeyGroupKeyboard = function(key,group,description)
 	RegisterCommand("-".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
 	end, false) 
-	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , 'keyboard', key) 
+	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
 end 
-Tasksync.RegisterKeyGroupKeyboardFull = function(key,group,description,presseddelay,delayperpressed) 
+Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,delayperpressed,type_) 
+	local type_ = type_ or 'keyboard'
 	local _groupedkeyname = returnGroupedKeyName(group,key)
 	RegisterCommand("+".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
@@ -87,23 +89,25 @@ Tasksync.RegisterKeyGroupKeyboardFull = function(key,group,description,pressedde
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
 		Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
 	end, false) 
-	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , 'keyboard', key) 
+	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
 	 
 end 
 Tasksync.RegisterKeyTable = function(regtable)
 	local group = regtable.group 
 	local keys = regtable.keys 
 	for i,v in pairs(keys) do 
+		--[[
 		if string.find(v[1],"IOM") or string.find(v[1],"MOUSE") then 
 			print("It not suppose to be used because some mouse key can not be detected and glitched on apple magic mouse")
 			print("I suggested using IsControlPressed on mouse")
 		else 
-			local isFullRegister = (v[3] and type(v[3]) == 'number')
-			if isFullRegister then 
-				Tasksync.RegisterKeyGroupKeyboardFull(v[1],group,v[2],v[3],v[4])
-			else 
-				Tasksync.RegisterKeyGroupKeyboard(v[1],group,v[2])
-			end 
+			
+		end --]]
+		local isFullRegister = (v[3] and type(v[3]) == 'number')
+		if isFullRegister then 
+			Tasksync.RegisterKeyGroupFull(v[1],group,v[2],v[3],v[4],v[5])
+		else 
+			Tasksync.RegisterKeyGroup(v[1],group,v[2],v[3])
 		end 
 	end 
 	local cbs = regtable.cbs 
@@ -129,22 +133,5 @@ Tasksync.RegisterKeyTable = function(regtable)
 		end 
 	end 
 end 
---[[
-Tasksync.RegisterKeyGroupMouseWheel = function(key,group,description) 
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	RegisterCommand(_groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") 
-	end, false) 
-	RegisterKeyMapping(_groupedkeyname, IsStringNullOrEmpty(description) and _groupedkeyname or description , 'MOUSE_WHEEL', key) 
-end 
---]]
---[[
-Tasksync.RegisterKeyGroupMouseButton = function(key,group,description) 
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	RegisterCommand(_groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") --MOUSE_BUTTONANY-IOM_WHEEL_DOWN = left click down,MOUSE_LEFT = left click up 
-	end, false) 
-	RegisterKeyMapping(_groupedkeyname, IsStringNullOrEmpty(description) and _groupedkeyname or description , 'MOUSE_BUTTON', key) 
-end 
---]]
+
 end 
