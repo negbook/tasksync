@@ -5,31 +5,43 @@ Tasksync._initialized_tasksync_with_drawmenu = true
 load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 local shared_cb = function(input)
 	local action = {}
-	local menugroup = Tasksync.GetCurrentMenuGroup ()
-	if menugroup then 
-		action["up"] = function()
-			local selection = Tasksync.MenuDrawGetSelection(menugroup) 
-			return Tasksync.MenuDrawSetSelection(menugroup,selection - 1)
-		end 
-		action["down"] = function()
-			local selection = Tasksync.MenuDrawGetSelection(menugroup) 
-			return Tasksync.MenuDrawSetSelection(menugroup,selection + 1)
-		end 
-		action["left"] = function()
-			local slot =  Tasksync.MenuDrawGetSelection(menugroup)
-			local selection = Tasksync.MenuDrawGetSlotSelection(menugroup,slot) 
-			return Tasksync.MenuDrawSetSlotSelection(menugroup,slot,selection - 1)
-		end 
-		action["right"] = function()
-			local slot =  Tasksync.MenuDrawGetSelection(menugroup)
-			local selection = Tasksync.MenuDrawGetSlotSelection(menugroup,slot) 
-			return Tasksync.MenuDrawSetSlotSelection(menugroup,slot,selection + 1)
-		end 
-		print(input)
-	return action[input] and action[input]()
+	action["up"] = function()
+		local selection = Tasksync.MenuDrawGetFocusSlot() 
+		PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		local newselection = Tasksync.MenuDrawSetFocusSlot(selection - 1)
+		return newselection
 	end 
-	return 
+	action["down"] = function()
+		local selection = Tasksync.MenuDrawGetFocusSlot() 
+		PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		local newselection = Tasksync.MenuDrawSetFocusSlot(selection + 1)
+		return newselection
+	end 
+	action["left"] = function()
+		local slot =  Tasksync.MenuDrawGetFocusSlot()
+		local selection = Tasksync.MenuDrawGetSlotSelection(slot) 
+		PlaySound(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		local newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection - 1)
+		return newselection
+	end 
+	action["right"] = function()
+		local slot =  Tasksync.MenuDrawGetFocusSlot()
+		local selection = Tasksync.MenuDrawGetSlotSelection(slot) 
+		PlaySound(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		local newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
+		return newselection
+	end 
+	action["return"] = function()
+		PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		return 1
+	end 
+	action["back"] = function()
+		PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+		return 1
+	end 
+	return action[input] and action[input]()
 end
+
 Tasksync.RegisterKeyTable{
 	group = "GROUP_TASKSYNC_DRAWMENU",
 	keys = {
@@ -197,62 +209,63 @@ local _setMenuDescription = function(desc)
 		_drawMenuText(desc,basicx,_drawMenuSprite("Gradient_Bgd", buttonHeight, 0, 0.0, 255)-buttonHeight + 0.0025,buttonFont,0,buttonScale)
 	end 
 end 
-local m_Special = {}
-local m_Buttons = {}
-local m_ButtonDescriptions = {}
-local m_Title = {} 
-local m_Subtitle = {} 
-local m_Maxslot = {} 
-local m_ShouldScroll = {} 
-local m_ButtonIcons = {}
-local m_ButtonOptions = {}
-local m_MenuSlotSelection = {}
-local m_Selection = {}
-local m_CurrentMenuGroups = {}
-Tasksync.MenuDrawSetButtons = function(menugroup,...)
-	if not m_Buttons[menugroup] then m_Buttons[menugroup] = {} end 
-	m_Buttons[menugroup] = {...}
-	if #m_Buttons[menugroup] > m_Maxslot[menugroup] then m_ShouldScroll[menugroup] = true 
-	else m_ShouldScroll[menugroup] = false  end 
-	if not Tasksync.MenuDrawGetSelection(menugroup) then 
-		Tasksync.MenuDrawSetSelection(menugroup,1)
+_menudraw_ = {
+	Special = {},
+	Buttons = {},
+	ButtonDescriptions = {},
+	Title = "",
+	Subtitle = "",
+	Maxslot = 7,
+	ShouldScroll = false,
+	ButtonIcons = {},
+	ButtonOptions = {},
+	MenuSlotSelection = {},
+	Selection = 1
+}
+Tasksync.MenuDrawSetButtons = function(...)
+	if not _menudraw_.Buttons then _menudraw_.Buttons = {} end 
+	_menudraw_.Buttons = {...}
+	if #_menudraw_.Buttons > _menudraw_.Maxslot then _menudraw_.ShouldScroll = true 
+	else _menudraw_.ShouldScroll = false  end 
+	if not Tasksync.MenuDrawGetFocusSlot() then 
+		Tasksync.MenuDrawSetFocusSlot(1)
 	end 
 
 end 
-Tasksync.MenuDrawGetButtons = function(menugroup)
-	return m_Buttons[menugroup] or {}
+Tasksync.MenuDrawGetButtons = function()
+	return _menudraw_.Buttons 
 end 
-Tasksync.MenuDrawSetButtonDescription = function(menugroup,slot,description)
-	if not m_ButtonDescriptions[menugroup] then m_ButtonDescriptions[menugroup] = {} end 
-	m_ButtonDescriptions[menugroup][slot] = description
+Tasksync.MenuDrawSetButtonDescription = function(slot,description)
+	if not _menudraw_.ButtonDescriptions then _menudraw_.ButtonDescriptions = {} end 
+	_menudraw_.ButtonDescriptions[slot] = description
 end 
-Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
-	if not m_ButtonOptions[menugroup] then m_ButtonOptions[menugroup] = {} end 
-	m_ButtonOptions[menugroup][slot] = {...}
-	if not Tasksync.MenuDrawGetSlotSelection(menugroup,slot) then 
-		Tasksync.MenuDrawSetSlotSelection(menugroup,slot, 1)
+Tasksync.MenuDrawSetButtonOptions = function(slot,...)
+	if not _menudraw_.ButtonOptions then _menudraw_.ButtonOptions = {} end 
+	_menudraw_.ButtonOptions[slot] = {...}
+	if not Tasksync.MenuDrawGetSlotSelection(slot) then 
+		Tasksync.MenuDrawSetSlotSelection(slot, 1)
 	end 
 end 
-Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
-	local bdo = m_ButtonOptions[menugroup]
-	local bdov = m_MenuSlotSelection[menugroup]
+Tasksync.MenuDrawGetButtonOptions = function(slot)
+	local bdo = _menudraw_.ButtonOptions
+	local bdov = _menudraw_.MenuSlotSelection
 	return bdo and bdo[slot],bdov and bdov[slot] or 1
 end 
-Tasksync.MenuDrawGetButtonDescription = function(menugroup,slot)
-	local bds = m_ButtonDescriptions[menugroup]
+Tasksync.MenuDrawGetButtonDescription = function(slot)
+	local bds = _menudraw_.ButtonDescriptions
 	return bds and bds[slot]
 end 
-Tasksync.MenuDrawSetButtonIcon = function(menugroup,slot,iconName)
-	if not m_ButtonIcons[menugroup] then m_ButtonIcons[menugroup] = {} end 
-	m_ButtonIcons[menugroup][slot] = iconName
+Tasksync.MenuDrawSetButtonIcon = function(slot,iconName)
+	if not _menudraw_.ButtonIcons then _menudraw_.ButtonIcons = {} end 
+	_menudraw_.ButtonIcons[slot] = iconName
 end 
-Tasksync.MenuDrawGetButtonIcon = function(menugroup,slot)
-	local bdicon = m_ButtonIcons[menugroup]
+Tasksync.MenuDrawGetButtonIcon = function(slot)
+	local bdicon = _menudraw_.ButtonIcons
 	return bdicon and bdicon[slot]
 end 
-Tasksync.MenuDrawSetSlotSelection = function(menugroup,slot,selection_x)
-	if not m_MenuSlotSelection[menugroup] then m_MenuSlotSelection[menugroup] = {} end 
-	local options = Tasksync.MenuDrawGetButtonOptions(menugroup,slot)
+Tasksync.MenuDrawSetSlotSelection = function(slot,selection_x)
+	if not _menudraw_.MenuSlotSelection then _menudraw_.MenuSlotSelection = {} end 
+	local options = Tasksync.MenuDrawGetButtonOptions(slot)
 	if options then 
 		if options and #options >= 1 then 
 		
@@ -268,15 +281,15 @@ Tasksync.MenuDrawSetSlotSelection = function(menugroup,slot,selection_x)
 	else 
 		selection_x = 1
 	end 
-	m_MenuSlotSelection[menugroup][slot] = selection_x 
-	return m_MenuSlotSelection[menugroup][slot] 
+	_menudraw_.MenuSlotSelection[slot] = selection_x 
+	return _menudraw_.MenuSlotSelection[slot] 
 end 
-Tasksync.MenuDrawGetSlotSelection = function(menugroup,slot)
-	local slotselection = m_MenuSlotSelection and m_MenuSlotSelection[menugroup] and m_MenuSlotSelection[menugroup][slot]
+Tasksync.MenuDrawGetSlotSelection = function(slot)
+	local slotselection = _menudraw_.MenuSlotSelection and _menudraw_.MenuSlotSelection and _menudraw_.MenuSlotSelection[slot]
 	return slotselection
 end 
-Tasksync.MenuDrawSetSelection = function(menugroup,y)
-	local buttons = Tasksync.MenuDrawGetButtons(menugroup)
+Tasksync.MenuDrawSetFocusSlot = function(y)
+	local buttons = Tasksync.MenuDrawGetButtons()
 	--if not x then x = 1 end  
 	if not y then y = 1 end 
 	if buttons and #buttons >= 1 then  
@@ -290,37 +303,28 @@ Tasksync.MenuDrawSetSelection = function(menugroup,y)
 		end 
 		
 	end 
-	m_Selection[menugroup] = y
-	return m_Selection[menugroup]
+	_menudraw_.Selection = y
+	return _menudraw_.Selection
 end 
-Tasksync.MenuDrawGetSelection = function(menugroup,needx)
-	local selection = m_Selection[menugroup]
+Tasksync.MenuDrawGetFocusSlot = function()
+	local selection = _menudraw_.Selection
 	return selection
 end 
 
-Tasksync.MenuDrawEnd = function(menugroup)
-	if m_CurrentMenuGroups and #m_CurrentMenuGroups > 0 then 
-		for i,v in pairs(m_CurrentMenuGroups) do 
-			if v == menugroup then 
-				table.remove(m_CurrentMenuGroups,i)
-				if #m_CurrentMenuGroups == 0 then 
-					if m_Special["PI"] and Tasksync.ScaleformEnd then 
-						Tasksync.ScaleformEnd("MP_MENU_GLARE")
-						m_Special["PI"] = false 
-					end 
-					Tasksync.deletelooponce("tasksync_drawmenu")
-					Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
-				end 
-			end 
-		end 
+Tasksync.MenuDrawEnd = function()
+	if _menudraw_.Special["PI"] and Tasksync.ScaleformEnd then 
+		Tasksync.ScaleformEnd("MP_MENU_GLARE")
+		_menudraw_.Special["PI"] = false 
 	end 
+	Tasksync.deletelooponce("tasksync_drawmenu")
+	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckGlareType = function(menutype)
 	local menutype = menutype or "default"
 	if menutype == "PI" or menutype == "PersonalInteraction" then 
-		if not m_Special["PI"] then 
-			m_Special["PI"] = true 
+		if not _menudraw_.Special["PI"] then 
+			_menudraw_.Special["PI"] = true 
 			CreateThread(function()
 				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 				Tasksync.ScaleformDrawMini("MP_MENU_GLARE",0.5,0.5,1.0,1.0,255,255,255,255,0,function(initialise)
@@ -329,42 +333,28 @@ Tasksync.MenuCheckGlareType = function(menutype)
 			end)
 		end 
 	else 
-		if m_Special["PI"] then 
-			if m_Special["PI"] and Tasksync.ScaleformEnd then 
+		if _menudraw_.Special["PI"] then 
+			if _menudraw_.Special["PI"] and Tasksync.ScaleformEnd then 
 				Tasksync.ScaleformEnd("MP_MENU_GLARE")
-				m_Special["PI"] = false 
+				_menudraw_.Special["PI"] = false 
 			end 
 		end 
 	end 
 end 
 
-Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot)
+Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
-	m_Maxslot[menugroup] =  maxslot
-	m_Title[menugroup] = title
-	m_Subtitle[menugroup] = subtitle
+	_menudraw_.Maxslot =  maxslot
+	_menudraw_.Title = title
+	_menudraw_.Subtitle = subtitle
 end 
-Tasksync.GetCurrentMenuGroup = function()
-	return m_CurrentMenuGroups and m_CurrentMenuGroups[#m_CurrentMenuGroups]
-end 
-Tasksync.MenuDrawRender = function(menugroup)
+
+Tasksync.MenuDrawRender = function()
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
-	--Tasksync.MenuDrawSetSelection(menugroup,1)
-	local found 
-	for i,v in pairs(m_CurrentMenuGroups) do 
-			if v == menugroup then
-				found = true 
-			end 
-	end 
-	if not found then 
-		table.insert(m_CurrentMenuGroups,menugroup)
-	end 
 	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
-	
 	Tasksync.addlooponce("tasksync_drawmenu",0,function()
-		local menugroup = m_CurrentMenuGroups[#m_CurrentMenuGroups]
-		local maxslot = m_Maxslot[menugroup]
+		local maxslot = _menudraw_.Maxslot
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
 		SetScriptGfxAlignParams(-0.05 + 0.0, -0.05 + 0.0, 0 + 0.0, 0 + 0.0);
@@ -372,13 +362,13 @@ Tasksync.MenuDrawRender = function(menugroup)
 		--_drawMenuRect(titleHeight, 178)
 		_drawMenuSprite("interaction_bgd",titleHeight, 0, 0.0, 255)
 		local subtitley = _drawMenuRect(buttonHeight, 140, 0.0, 220)
-		_drawMenuTextShadow(m_Title[menugroup] , basicx, basicy + 0.03 , basicfont,0, 0.5)
-		_drawMenuText(m_Subtitle[menugroup] , basicx, basicbuttony, buttonFont, 9, buttonScale)
-		local bts = Tasksync.MenuDrawGetButtons(menugroup)
+		_drawMenuTextShadow(_menudraw_.Title , basicx, basicy + 0.03 , basicfont,0, 0.5)
+		_drawMenuText(_menudraw_.Subtitle , basicx, basicbuttony, buttonFont, 9, buttonScale)
+		local bts = Tasksync.MenuDrawGetButtons()
 		local btsT = #bts
 		if btsT > 0 then 
-			local isScroll = m_ShouldScroll[menugroup]
-			local selection = Tasksync.MenuDrawGetSelection(menugroup)
+			local isScroll = _menudraw_.ShouldScroll
+			local selection = Tasksync.MenuDrawGetFocusSlot()
 			if isScroll then 
 				_drawMenuText_Right(selection .. ' / '..btsT, basicx + getmenuWidth(), basicbuttony, buttonFont, 9, buttonScale) 
 				_drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
@@ -393,14 +383,14 @@ Tasksync.MenuDrawRender = function(menugroup)
 			local n = 0
 			for i = from, to, 1 do 
 				n = n + 1
-				local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(menugroup,i)
-				local icon = Tasksync.MenuDrawGetButtonIcon(menugroup,i)
+				local righttextarray,optionselection = Tasksync.MenuDrawGetButtonOptions(i)
+				local icon = Tasksync.MenuDrawGetButtonIcon(i)
 				_drawButton(basicbuttony + buttonHeight * n,bts[i],righttextarray,optionselection,icon,selection == i)
 			end 
 			if isScroll then 
 				_initMenuScroll()
 			end 
-			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(menugroup,selection))
+			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(selection))
 		end 
 		ResetScriptGfxAlign();
 	end)

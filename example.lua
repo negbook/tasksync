@@ -63,7 +63,7 @@ CreateThread(function()
 	}
 	self.selected = {y = 2,x = 2}
 	local isUpdate = false 
-	Tasksync.MenuDrawInit("menu:"..self.title, self.title,self.subtitle,self.maxslot or 7)
+	Tasksync.MenuDrawInit( self.title,self.subtitle,self.maxslot or 7)
 	local buttonnames = {} 
 	for i=1,#self.buttons do 
 		local v = self.buttons[i]
@@ -72,35 +72,35 @@ CreateThread(function()
 		end 
 	end
 	if not isUpdate then 
-		Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttonnames))
+		Tasksync.MenuDrawSetButtons(table.unpack(buttonnames))
 	end 
 	for i=1,#self.buttons do 
 		local v = self.buttons[i]
 		if v.description then 
-			Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.description)
+			Tasksync.MenuDrawSetButtonDescription(i,v.description)
 		end 
 		if v.options then 
-			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
-			--if v.selected then Tasksync.MenuDrawSetSlotSelection("menu:"..self.title,i,v.selected) end
+			Tasksync.MenuDrawSetButtonOptions(i,table.unpack(v.options))
+			--if v.selected then Tasksync.MenuDrawSetSlotSelection(i,v.selected) end
 		end 
 		if v.icon then 
-			Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
+			Tasksync.MenuDrawSetButtonIcon(i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
 		end 
 		if v.righttext then 
-			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
+			Tasksync.MenuDrawSetButtonOptions(i,v.righttext)
 		end 
 	end 
 	
 	
-	--Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
+	--Tasksync.MenuDrawSetSelection(self.selected.y,self.selected.x)
 	if not isUpdate then 
 		Tasksync.MenuCheckGlareType(self.menutype)
-		Tasksync.MenuDrawRender("menu:"..self.title)
+		Tasksync.MenuDrawRender()
 	end 
 	
 	Wait(8000)
 	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
-	Tasksync.MenuDrawEnd("menu:"..self.title)
+	Tasksync.MenuDrawEnd()
 end)
 
 
