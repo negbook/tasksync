@@ -94,19 +94,13 @@ Tasksync.RegisterKeyTable = function(regtable)
 	local group = regtable.group 
 	local keys = regtable.keys 
 	for i,v in pairs(keys) do 
-		local full = false 
-		if v[3] and type(v[3]) == 'number' then full = true end 
-		if full then 
-			if string.find(v[1],"IOM") or string.find(v[1],"MOUSE") then 
-				print("It not suppose to be used because some mouse key can not be detected and glitched on apple magic mouse")
-				print("I suggested using IsControlPressed on mouse")
-			else 
-				Tasksync.RegisterKeyGroupKeyboardFull(v[1],group,v[2],v[3],v[4])
-			end 
+		if string.find(v[1],"IOM") or string.find(v[1],"MOUSE") then 
+			print("It not suppose to be used because some mouse key can not be detected and glitched on apple magic mouse")
+			print("I suggested using IsControlPressed on mouse")
 		else 
-			if string.find(v[1],"IOM") or string.find(v[1],"MOUSE") then 
-				print("It not suppose to be used because some mouse key can not be detected and glitched on apple magic mouse")
-				print("I suggested using IsControlPressed on mouse")
+			local isFullRegister = (v[3] and type(v[3]) == 'number')
+			if isFullRegister then 
+				Tasksync.RegisterKeyGroupKeyboardFull(v[1],group,v[2],v[3],v[4])
 			else 
 				Tasksync.RegisterKeyGroupKeyboard(v[1],group,v[2])
 			end 
