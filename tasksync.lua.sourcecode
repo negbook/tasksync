@@ -8,15 +8,8 @@ Tasksync._jobTodo_tasksync = {}
 Tasksync._jobTodoEnd_tasksync = {}
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
-local _getAmountsOfLoopType = function(style)
-		local nowTable
-		if style == "loop" then 
-			nowTable = (Tasksync._jobNames_tasksync)
-		elseif style == "loopcustom" then  
-			nowTable = (Tasksync.tasksjob_custom)
-		elseif style == "looponce" then  
-			nowTable = (Tasksync.tasksjob_once)
-		end 
+local _getAmountsOfLoop = function()
+		local nowTable = (Tasksync._jobNames_tasksync)
 		local total = 0 
 		for i,v in pairs(nowTable) do 
 			local n = #v
@@ -49,7 +42,7 @@ Tasksync.__createDepartmentGarden = function(durationGroup)
 				for i,v in pairs(debugtext) do 
 					print(v)
 				end 
-				print("Normal Loop Total",_getAmountsOfLoopType("loop"))
+				print("Normal Loop Total",_getAmountsOfLoopType())
 				print("Spaming after 3 seconds") Wait(3000)
 			end 
 			Wait(duration)

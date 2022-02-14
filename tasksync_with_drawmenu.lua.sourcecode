@@ -2,6 +2,64 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
+load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
+local shared_cb = function(input)
+	local action = {}
+	local menugroup = Tasksync.GetCurrentMenuGroup ()
+	if menugroup then 
+		action["up"] = function()
+			local selection = Tasksync.MenuDrawGetSelection(menugroup) 
+			return Tasksync.MenuDrawSetSelection(menugroup,selection - 1)
+		end 
+		action["down"] = function()
+			local selection = Tasksync.MenuDrawGetSelection(menugroup) 
+			return Tasksync.MenuDrawSetSelection(menugroup,selection + 1)
+		end 
+		action["left"] = function()
+			local slot =  Tasksync.MenuDrawGetSelection(menugroup)
+			local selection = Tasksync.MenuDrawGetSlotSelection(menugroup,slot) 
+			return Tasksync.MenuDrawSetSlotSelection(menugroup,slot,selection - 1)
+		end 
+		action["right"] = function()
+			local slot =  Tasksync.MenuDrawGetSelection(menugroup)
+			local selection = Tasksync.MenuDrawGetSlotSelection(menugroup,slot) 
+			return Tasksync.MenuDrawSetSlotSelection(menugroup,slot,selection + 1)
+		end 
+		print(input)
+	return action[input] and action[input]()
+	end 
+	return 
+end
+Tasksync.RegisterKeyTable{
+	group = "GROUP_TASKSYNC_DRAWMENU",
+	keys = {
+		{"TAB","THIS IS MENU TAB"},
+		{"BACK","THIS IS MENU BACK"},
+		{"SPACE","THIS IS MENU SPACE"},
+		{"ESCAPE","THIS IS MENU ESCAPE"},
+		{"RETURN","THIS IS MENU RETURN"},
+		{"UP","THIS IS MENU UP"},
+		{"DOWN","THIS IS MENU DOWN"},
+		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP"},
+		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN"},
+		{"LEFT","THIS IS MENU LEFT",500,50},
+		{"RIGHT","THIS IS MENU RIGHT",500,50}
+	},
+	cbs = {
+		{"BACK","JUST_PRESSED",shared_cb,"back"},
+		{"UP","JUST_PRESSED",shared_cb,"up"},
+		{"DOWN","JUST_PRESSED",shared_cb,"down"},
+		{"LEFT","JUST_PRESSED",shared_cb,"left"},
+		{"LEFT","PRESSED",shared_cb,"left"},
+		{"RIGHT","JUST_PRESSED",shared_cb,"right"},
+		{"RIGHT","PRESSED",shared_cb,"right"},
+		{"SPACE","JUST_PRESSED",shared_cb,"return"},
+		{"RETURN","JUST_PRESSED",shared_cb,"return"},
+		{"IOM_WHEEL_UP","JUST_PRESSED",shared_cb,"IOM_WHEEL_UP"},
+		{"IOM_WHEEL_DOWN","JUST_PRESSED",shared_cb,"IOM_WHEEL_DOWN"}
+	}
+}
+Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 local menuWidth = 0.258
 local titleHeight = 0.091
 local buttonHeight = 0.038
@@ -148,7 +206,7 @@ local m_Maxslot = {}
 local m_ShouldScroll = {} 
 local m_ButtonIcons = {}
 local m_ButtonOptions = {}
-local m_MenuSlotValue = {}
+local m_MenuSlotSelection = {}
 local m_Selection = {}
 local m_CurrentMenuGroups = {}
 Tasksync.MenuDrawSetButtons = function(menugroup,...)
@@ -156,6 +214,10 @@ Tasksync.MenuDrawSetButtons = function(menugroup,...)
 	m_Buttons[menugroup] = {...}
 	if #m_Buttons[menugroup] > m_Maxslot[menugroup] then m_ShouldScroll[menugroup] = true 
 	else m_ShouldScroll[menugroup] = false  end 
+	if not Tasksync.MenuDrawGetSelection(menugroup) then 
+		Tasksync.MenuDrawSetSelection(menugroup,1)
+	end 
+
 end 
 Tasksync.MenuDrawGetButtons = function(menugroup)
 	return m_Buttons[menugroup] or {}
@@ -167,13 +229,13 @@ end
 Tasksync.MenuDrawSetButtonOptions = function(menugroup,slot,...)
 	if not m_ButtonOptions[menugroup] then m_ButtonOptions[menugroup] = {} end 
 	m_ButtonOptions[menugroup][slot] = {...}
-	if not m_MenuSlotValue[menugroup] then m_MenuSlotValue[menugroup] = {} 
-		m_MenuSlotValue[menugroup][slot] = 1
+	if not Tasksync.MenuDrawGetSlotSelection(menugroup,slot) then 
+		Tasksync.MenuDrawSetSlotSelection(menugroup,slot, 1)
 	end 
 end 
 Tasksync.MenuDrawGetButtonOptions = function(menugroup,slot)
 	local bdo = m_ButtonOptions[menugroup]
-	local bdov = m_MenuSlotValue[menugroup]
+	local bdov = m_MenuSlotSelection[menugroup]
 	return bdo and bdo[slot],bdov and bdov[slot] or 1
 end 
 Tasksync.MenuDrawGetButtonDescription = function(menugroup,slot)
@@ -188,13 +250,34 @@ Tasksync.MenuDrawGetButtonIcon = function(menugroup,slot)
 	local bdicon = m_ButtonIcons[menugroup]
 	return bdicon and bdicon[slot]
 end 
-Tasksync.MenuDrawSetSlotValue = function(menugroup,slot,value)
-	if not m_MenuSlotValue[menugroup] then m_MenuSlotValue[menugroup] = {} end 
-	m_MenuSlotValue[menugroup][slot] = value 
+Tasksync.MenuDrawSetSlotSelection = function(menugroup,slot,selection_x)
+	if not m_MenuSlotSelection[menugroup] then m_MenuSlotSelection[menugroup] = {} end 
+	local options = Tasksync.MenuDrawGetButtonOptions(menugroup,slot)
+	if options then 
+		if options and #options >= 1 then 
+		
+			if selection_x <= 0 then 
+				selection_x = (selection_x-1)%#options+1
+			elseif selection_x > #options then 
+				selection_x = selection_x%#options
+				if selection_x <= 0 then 
+					selection_x = (selection_x-1)%#options+1
+				end 
+			end 
+		end 
+	else 
+		selection_x = 1
+	end 
+	m_MenuSlotSelection[menugroup][slot] = selection_x 
+	return m_MenuSlotSelection[menugroup][slot] 
 end 
-Tasksync.MenuDrawSetSelection = function(menugroup,y,x)
+Tasksync.MenuDrawGetSlotSelection = function(menugroup,slot)
+	local slotselection = m_MenuSlotSelection and m_MenuSlotSelection[menugroup] and m_MenuSlotSelection[menugroup][slot]
+	return slotselection
+end 
+Tasksync.MenuDrawSetSelection = function(menugroup,y)
 	local buttons = Tasksync.MenuDrawGetButtons(menugroup)
-	if not x then x = 1 end  
+	--if not x then x = 1 end  
 	if not y then y = 1 end 
 	if buttons and #buttons >= 1 then  
 		if y <= 0 then 
@@ -205,28 +288,16 @@ Tasksync.MenuDrawSetSelection = function(menugroup,y,x)
 				y = (y-1)%#buttons+1
 			end 
 		end 
+		
 	end 
-	local options = Tasksync.MenuDrawGetButtonOptions(menugroup,y)
-	if options then 
-		if options and #options >= 1 then 
-			if x <= 0 then 
-				x = (x-1)%#options+1
-			elseif x > #options then 
-				x = x%#options
-				if x <= 0 then 
-					x = (x-1)%#options+1
-				end 
-			end 
-		end 
-		Tasksync.MenuDrawSetSlotValue(menugroup,y,x)
-	else 
-		x = 1 
-	end 
-	m_Selection[menugroup] = {y=y,x=x}
+	m_Selection[menugroup] = y
+	return m_Selection[menugroup]
 end 
 Tasksync.MenuDrawGetSelection = function(menugroup,needx)
-	return needx and m_Selection[menugroup] or m_Selection[menugroup].y
+	local selection = m_Selection[menugroup]
+	return selection
 end 
+
 Tasksync.MenuDrawEnd = function(menugroup)
 	if m_CurrentMenuGroups and #m_CurrentMenuGroups > 0 then 
 		for i,v in pairs(m_CurrentMenuGroups) do 
@@ -238,6 +309,7 @@ Tasksync.MenuDrawEnd = function(menugroup)
 						m_Special["PI"] = false 
 					end 
 					Tasksync.deletelooponce("tasksync_drawmenu")
+					Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
 				end 
 			end 
 		end 
@@ -272,6 +344,9 @@ Tasksync.MenuDrawInit = function(menugroup,title,subtitle,maxslot)
 	m_Title[menugroup] = title
 	m_Subtitle[menugroup] = subtitle
 end 
+Tasksync.GetCurrentMenuGroup = function()
+	return m_CurrentMenuGroups and m_CurrentMenuGroups[#m_CurrentMenuGroups]
+end 
 Tasksync.MenuDrawRender = function(menugroup)
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
@@ -285,6 +360,8 @@ Tasksync.MenuDrawRender = function(menugroup)
 	if not found then 
 		table.insert(m_CurrentMenuGroups,menugroup)
 	end 
+	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
+	
 	Tasksync.addlooponce("tasksync_drawmenu",0,function()
 		local menugroup = m_CurrentMenuGroups[#m_CurrentMenuGroups]
 		local maxslot = m_Maxslot[menugroup]
@@ -301,7 +378,7 @@ Tasksync.MenuDrawRender = function(menugroup)
 		local btsT = #bts
 		if btsT > 0 then 
 			local isScroll = m_ShouldScroll[menugroup]
-			local selection = Tasksync.MenuDrawGetSelection(menugroup,false)
+			local selection = Tasksync.MenuDrawGetSelection(menugroup)
 			if isScroll then 
 				_drawMenuText_Right(selection .. ' / '..btsT, basicx + getmenuWidth(), basicbuttony, buttonFont, 9, buttonScale) 
 				_drawMenuSprite("Gradient_Bgd", buttonHeight * maxslot, 0, 0.0, 255)
@@ -330,143 +407,57 @@ Tasksync.MenuDrawRender = function(menugroup)
 end 
 Tasksync.MenuDrawGetIcon = function(icontype, ed) --max:61 dont use it in loop/draws
 	local icons = {}
-	switch (icontype)(
-		case(3)(function()
-			icons[0] = "MP_hostCrown";icons[1] = "MP_hostCrown";
-		end),
-		case(21)(function()
-			icons[0] = "MP_SpecItem_Coke";icons[1] = "MP_SpecItem_Coke";
-		end),
-		case(22)(function()
-			icons[0] = "MP_SpecItem_Heroin";icons[1] = "MP_SpecItem_Heroin";
-		end),
-		case(23)(function()
-			icons[0] = "MP_SpecItem_Weed";icons[1] = "MP_SpecItem_Weed";
-		end),
-		case(24)(function()
-			icons[0] = "MP_SpecItem_Meth";icons[1] = "MP_SpecItem_Meth";
-		end),
-		case(25)(function()
-			icons[0] = "MP_SpecItem_Cash";icons[1] = "MP_SpecItem_Cash";
-		end),
-		case(1)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(2)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(4)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(6)(function()
-			icons[0] = "Shop_Box_CrossB";icons[1] = "Shop_Box_Cross";
-		end),
-		case(7)(function()
-			icons[0] = "Shop_Box_BlankB";icons[1] = "Shop_Box_Blank";
-		end),
-		case(5)(function()
-			icons[0] = "Shop_Box_TickB";icons[1] = "Shop_Box_Tick";
-		end),
-		case(8)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(9)(function()
-			icons[0] = "Shop_Clothing_Icon_B";icons[1] = "Shop_Clothing_Icon_A";
-		end),
-		case(10)(function()
-			icons[0] = "Shop_GunClub_Icon_B";icons[1] = "Shop_GunClub_Icon_A";
-		end),
-		case(17)(function()
-			icons[0] = "Shop_Ammo_Icon_B";icons[1] = "Shop_Ammo_Icon_A";
-		end),
-		case(18)(function()
-			icons[0] = "Shop_Armour_Icon_B";icons[1] = "Shop_Armour_Icon_A";
-		end),
-		case(19)(function()
-			icons[0] = "Shop_Health_Icon_B";icons[1] = "Shop_Health_Icon_A";
-		end),
-		case(20)(function()
-			icons[0] = "Shop_MakeUp_Icon_B";icons[1] = "Shop_MakeUp_Icon_A";
-		end),
-		case(11)(function()
-			icons[0] = "Shop_Tattoos_Icon_B";icons[1] = "Shop_Tattoos_Icon_A";
-		end),
-		case(12)(function()
-			icons[0] = "Shop_Garage_Icon_B";icons[1] = "Shop_Garage_Icon_A";
-		end),
-		case(13)(function()
-			icons[0] = "Shop_Garage_Bike_Icon_B";icons[1] = "Shop_Garage_Bike_Icon_A";
-		end),
-		case(14)(function()
-			icons[0] = "Shop_Barber_Icon_B";icons[1] = "Shop_Barber_Icon_A";
-		end),
-		case(15)(function()
-			icons[0] = "shop_Lock";icons[1] = "shop_Lock";
-		end),
-		case(16)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(26)(function()
-			icons[0] = "arrowleft";icons[1] = "arrowleft";
-		end),
-		case(27)(function()
-			icons[0] = "arrowright";icons[1] = "arrowright";
-		end),
-		case(28)(function()
-			icons[0] = "MP_AlertTriangle";icons[1] = "MP_AlertTriangle";
-		end),
-		case(29)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(31)(function()
-			icons[0] = "Shop_Michael_Icon_B";icons[1] = "Shop_Michael_Icon_A";
-		end),
-		case(32)(function()
-			icons[0] = "Shop_Franklin_Icon_B";icons[1] = "Shop_Franklin_Icon_A";
-		end),
-		case(33)(function()
-			icons[0] = "Shop_Trevor_Icon_B";icons[1] = "Shop_Trevor_Icon_A";
-		end),
-		case(51)(function()
-			icons[0] = "SaleIcon";icons[1] = "SaleIcon";
-		end),
-		case(52)(function()
-			icons[0] = "Shop_Tick_Icon";icons[1] = "Shop_Tick_Icon";
-		end),
-		case(54)(function()
-			icons[0] = "shop_NEW_Star";icons[1] = "shop_NEW_Star";
-		end),
-		case(55)(function()
-			icons[0] = "Shop_Lock_Arena";icons[1] = "Shop_Lock_Arena";
-		end),
-		case(56)(function()
-			icons[0] = "Card_Suit_Clubs";icons[1] = "Card_Suit_Clubs";
-		end),
-		case(57)(function()
-			icons[0] = "Card_Suit_Hearts";icons[1] = "Card_Suit_Hearts";
-		end),
-		case(58)(function()
-			icons[0] = "Card_Suit_Spades";icons[1] = "Card_Suit_Spades";
-		end),
-		case(59)(function()
-			icons[0] = "Card_Suit_Diamonds";icons[1] = "Card_Suit_Diamonds";
-		end),
-		case(60)(function()
-			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(62)(function()
-			icons[0] = "Shop_Art_Icon_B";icons[1] = "Shop_Art_Icon_A";
-		end),
-		case(61)(function()
-			icons[0] = "Shop_Chips_A";icons[1] = "Shop_Chips_B";
-		end),
-		case(0)(function()
-			icons[0] = "";icons[1] = "";
-		end)
-	)
+	local icontype = icontype + 1
+	
+	icons = {
+		{"",""},
+		{"shop_NEW_Star","shop_NEW_Star"},
+		{"shop_NEW_Star","shop_NEW_Star"},
+		{"MP_hostCrown","MP_hostCrown"},
+		{"Shop_Tick_Icon","Shop_Tick_Icon"},
+		{"Shop_Box_TickB","Shop_Box_Tick"},
+		{"Shop_Box_CrossB","Shop_Box_Cross"},
+		{"Shop_Box_BlankB","Shop_Box_Blank"},
+		{"shop_NEW_Star","shop_NEW_Star"},
+		{"Shop_Clothing_Icon_B","Shop_Clothing_Icon_A"},
+		{"Shop_GunClub_Icon_B","Shop_GunClub_Icon_A"},
+		{"Shop_Tattoos_Icon_B","Shop_Tattoos_Icon_A"},
+		{"Shop_Garage_Icon_B","Shop_Garage_Icon_A"},
+		{"Shop_Garage_Bike_Icon_B","Shop_Garage_Bike_Icon_A"},
+		{"Shop_Barber_Icon_B","Shop_Barber_Icon_A"},
+		{"shop_Lock","shop_Lock"},
+		{"Shop_Tick_Icon","Shop_Tick_Icon"},
+		{"Shop_Ammo_Icon_B","Shop_Ammo_Icon_A"},
+		{"Shop_Armour_Icon_B","Shop_Armour_Icon_A"},
+		{"Shop_Health_Icon_B","Shop_Health_Icon_A"},
+		{"Shop_MakeUp_Icon_B","Shop_MakeUp_Icon_A"},
+		{"MP_SpecItem_Coke","MP_SpecItem_Coke"},
+		{"MP_SpecItem_Heroin","MP_SpecItem_Heroin"},
+		{"MP_SpecItem_Weed","MP_SpecItem_Weed"},
+		{"MP_SpecItem_Meth","MP_SpecItem_Meth"},
+		{"MP_SpecItem_Cash","MP_SpecItem_Cash"},
+		{"arrowleft","arrowleft"},
+		{"arrowright","arrowright"},
+		{"MP_AlertTriangle","MP_AlertTriangle"},
+		{"shop_NEW_Star","shop_NEW_Star"},
+		{"Shop_Michael_Icon_B","Shop_Michael_Icon_A"},
+		{"Shop_Franklin_Icon_B","Shop_Franklin_Icon_A"},
+		{"Shop_Trevor_Icon_B","Shop_Trevor_Icon_A"},
+		{"SaleIcon","SaleIcon"},
+		{"Shop_Tick_Icon","Shop_Tick_Icon"},
+		{"shop_NEW_Star","shop_NEW_Star"},
+		{"Shop_Lock_Arena","Shop_Lock_Arena"},
+		{"Card_Suit_Clubs","Card_Suit_Clubs"},
+		{"Card_Suit_Hearts","Card_Suit_Hearts"},
+		{"Card_Suit_Spades","Card_Suit_Spades"},
+		{"Card_Suit_Diamonds","Card_Suit_Diamonds"},
+		{"Shop_Art_Icon_B","Shop_Art_Icon_A"},
+		{"Shop_Art_Icon_B","Shop_Art_Icon_A"},
+		{"Shop_Chips_A","Shop_Chips_B"}
+	}
 	if ed then
-		return icons[0];
+		return icons[icontype][0];
 	end
-	return icons[1];
+	return icons[icontype][1];
 end
 end 

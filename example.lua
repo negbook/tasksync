@@ -34,46 +34,13 @@ CreateThread(function()
 	--]]
 end)
 load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
-load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
-local shared_cb = function(input)
-	print(input)
-end
-Tasksync.RegisterKeyTable{
-	group = "GROUP_TASKSYNC_DRAWMENU",
-	keys = {
-		{"TAB","THIS IS MENU TAB"},
-		{"BACK","THIS IS MENU BACK"},
-		{"SPACE","THIS IS MENU SPACE"},
-		{"ESCAPE","THIS IS MENU ESCAPE"},
-		{"RETURN","THIS IS MENU RETURN"},
-		{"UP","THIS IS MENU UP"},
-		{"DOWN","THIS IS MENU DOWN"},
-		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP"},
-		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN"},
-		{"LEFT","THIS IS MENU LEFT",500,50},
-		{"RIGHT","THIS IS MENU RIGHT",500,50}
-	},
-	cbs = {
-		{"BACK","JUST_PRESSED",shared_cb,"back"},
-		{"UP","JUST_PRESSED",shared_cb,"up"},
-		{"DOWN","JUST_PRESSED",shared_cb,"down"},
-		{"LEFT","JUST_PRESSED",shared_cb,"left"},
-		{"LEFT","PRESSED",shared_cb,"left"},
-		{"RIGHT","JUST_PRESSED",shared_cb,"right"},
-		{"RIGHT","PRESSED",shared_cb,"right"},
-		{"SPACE","JUST_PRESSED",shared_cb,"return"},
-		{"RETURN","JUST_PRESSED",shared_cb,"return"},
-		{"IOM_WHEEL_UP","JUST_PRESSED",shared_cb,"IOM_WHEEL_UP"},
-		{"IOM_WHEEL_DOWN","JUST_PRESSED",shared_cb,"IOM_WHEEL_DOWN"}
-	}
-}
-Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
+
 CreateThread(function()
 	local self = {}
 	self.title = "negbook"
 	self.subtitle = "hello"
 	self.maxslot = 7
-	self.items = {
+	self.buttons = {
 		{name="apple",description="hello",options={"a","b"}},
 		{name="appl123e",description="hell312o",options={"zxc","basd"}},
 		{name="appl123e",description="hell312o",options={"zxc","basd"}},
@@ -97,36 +64,35 @@ CreateThread(function()
 	self.selected = {y = 2,x = 2}
 	local isUpdate = false 
 	Tasksync.MenuDrawInit("menu:"..self.title, self.title,self.subtitle,self.maxslot or 7)
-	local buttons = {} 
-	for i=1,#self.items do 
-		local v = self.items[i]
+	local buttonnames = {} 
+	for i=1,#self.buttons do 
+		local v = self.buttons[i]
 		if not isUpdate then 
-			table.insert(buttons,v.name)
+			table.insert(buttonnames,v.name)
 		end 
+	end
+	if not isUpdate then 
+		Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttonnames))
+	end 
+	for i=1,#self.buttons do 
+		local v = self.buttons[i]
 		if v.description then 
 			Tasksync.MenuDrawSetButtonDescription("menu:"..self.title,i,v.description)
 		end 
 		if v.options then 
 			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,table.unpack(v.options))
-			if v.selected then Tasksync.MenuDrawSetSlotValue("menu:"..self.title,i,v.selected) end
+			--if v.selected then Tasksync.MenuDrawSetSlotSelection("menu:"..self.title,i,v.selected) end
 		end 
-		if v.price and v.icon then
-			Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false ))
-			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,"$"..v.price)
-		else 
-			if v.icon then 
-				Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
-			end 
-			if v.righttext then 
-				Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
-			end 
+		if v.icon then 
+			Tasksync.MenuDrawSetButtonIcon("menu:"..self.title,i,Tasksync.MenuDrawGetIcon(v.icon,v.tuneicon or false))
 		end 
-	end 
-	if not isUpdate then 
-		Tasksync.MenuDrawSetButtons("menu:"..self.title,table.unpack(buttons))
+		if v.righttext then 
+			Tasksync.MenuDrawSetButtonOptions("menu:"..self.title,i,v.righttext)
+		end 
 	end 
 	
-	Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
+	
+	--Tasksync.MenuDrawSetSelection("menu:"..self.title,self.selected.y,self.selected.x)
 	if not isUpdate then 
 		Tasksync.MenuCheckGlareType(self.menutype)
 		Tasksync.MenuDrawRender("menu:"..self.title)
