@@ -42,9 +42,11 @@ CreateThread(function()
 	Tasksync.ScaleformEnd("mp_big_message_freemode")
 	--]]
 end)
-load(LoadResourceFile("tasksync", 'tasksync_with_drawmenu.lua.sourcecode'))()
+
 
 CreateThread(function()
+	
+	--[[
 	local self = {}
 	self.title = "negbook"
 	self.subtitle = "hello"
@@ -95,6 +97,7 @@ CreateThread(function()
 		Tasksync.MenuCheckGlareType(self.menutype)
 		Tasksync.MenuDrawRender()
 	end 
+	--]]
 	--[[
 	Wait(8000)
 	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)

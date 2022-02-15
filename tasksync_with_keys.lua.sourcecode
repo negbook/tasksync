@@ -56,7 +56,7 @@ Tasksync.SetKeyGroupActive = function(group,bool)
 end 
 
 Tasksync.IsKeyGroupActive = function(group)
-	return Tasksync._KeyGroupEnable[group]
+	return not not Tasksync._KeyGroupEnable[group]
 end 
 Tasksync.RemoveKeyGroup = function(group)
 	Tasksync._KeyGroupEnable[group] = nil

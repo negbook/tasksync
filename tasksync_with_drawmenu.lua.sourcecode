@@ -30,6 +30,7 @@ local shared_cb = function(input)
 		local newselection = Tasksync.MenuDrawSetFocusSlot(selection + 1)
 		return newselection
 	end 
+	--[[
 	action["left"] = function()
 		local slot =  Tasksync.MenuDrawGetFocusSlot()
 		local selection = Tasksync.MenuDrawGetSlotSelection(slot) 
@@ -37,6 +38,7 @@ local shared_cb = function(input)
 		local newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection - 1)
 		return newselection
 	end 
+	
 	action["right"] = function()
 		local slot =  Tasksync.MenuDrawGetFocusSlot()
 		local selection = Tasksync.MenuDrawGetSlotSelection(slot) 
@@ -44,6 +46,7 @@ local shared_cb = function(input)
 		local newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
 		return newselection
 	end 
+	--]]
 	action["mouse_click"] = function()
 		local newselection 
 		local mslot = Tasksync.GetMouseHoverSlot()
@@ -52,7 +55,7 @@ local shared_cb = function(input)
 			if mslot == slot then 
 				local selection = Tasksync.MenuDrawGetSlotSelection(slot) 
 				PlaySound(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
-				newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
+				--newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
 			else 
 				Tasksync.MenuDrawSetFocusSlot(mslot)
 				PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
@@ -60,6 +63,7 @@ local shared_cb = function(input)
 		end 
 		return newselection
 	end 
+	
 	action["return"] = function()
 		PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 		return 1
@@ -378,12 +382,15 @@ Tasksync.MenuDrawGetFocusSlot = function()
 	local selection = _menudraw_.Selection
 	return selection
 end 
-
+Tasksync.MenuDrawGetGlared = function()
+	local Glare = _menudraw_.Glare
+	return Glare
+end 
 Tasksync.MenuDrawEnd = function()
 	Tasksync.deletelooponce("tasksync_drawmenu")
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
-Tasksync.MenuCheckGlareType = function(isglare)
+Tasksync.MenuCheckGlare = function(isglare)
 	if isglare then  
 		if not _menudraw_.showedGlare then 
 			_menudraw_.showedGlare = true 
@@ -422,7 +429,7 @@ Tasksync.MenuDrawInitMouse = function(title,subtitle,maxslot)
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
 	_menudraw_.ShowMouse = true
-	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+	Tasksync.MenuCheckGlare(_menudraw_.Glare)
 end 
 Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
@@ -444,7 +451,7 @@ Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+	Tasksync.MenuCheckGlare(_menudraw_.Glare)
 end 
 Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
@@ -467,7 +474,7 @@ Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+	Tasksync.MenuCheckGlare(_menudraw_.Glare)
 end 
 
 Tasksync.GetMouseHoverSlot = function()
@@ -535,7 +542,7 @@ Tasksync.MenuDrawRender = function()
 		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
 			Tasksync.ScaleformEnd("MP_MENU_GLARE")
 			_menudraw_.Glare = false 
-			Tasksync.MenuCheckGlareType(_menudraw_.Glare)
+			Tasksync.MenuCheckGlare(_menudraw_.Glare)
 		end 
 		
 	end)
