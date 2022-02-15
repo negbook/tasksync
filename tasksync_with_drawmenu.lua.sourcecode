@@ -57,7 +57,7 @@ local shared_cb = function(input)
 				PlaySound(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 				--newselection = Tasksync.MenuDrawSetSlotSelection(slot,selection + 1)
 			else 
-				Tasksync.MenuDrawSetFocusSlot(mslot)
+				--Tasksync.MenuDrawSetFocusSlot(mslot)
 				PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 			end 
 		end 
@@ -78,28 +78,28 @@ end
 Tasksync.RegisterKeyTable{
 	group = "GROUP_TASKSYNC_DRAWMENU",
 	keys = {
-		--{"TAB","THIS IS MENU TAB"},
-		{"BACK","THIS IS MENU BACK"},
-		{"SPACE","THIS IS MENU SPACE"},
-		{"ESCAPE","THIS IS MENU ESCAPE"},
-		{"RETURN","THIS IS MENU RETURN"},
-		{"UP","THIS IS MENU UP",500,50},
-		{"DOWN","THIS IS MENU DOWN",500,50},
-		{"LEFT","THIS IS MENU LEFT",500,50},
-		{"RIGHT","THIS IS MENU RIGHT",500,50},
+		--{"TAB","DRAWMENU TAB"},
+		{"BACK","DRAWMENU BACK"},
+		{"SPACE","DRAWMENU SPACE"},
+		{"ESCAPE","DRAWMENU ESCAPE"},
+		{"RETURN","DRAWMENU RETURN"},
+		{"UP","DRAWMENU UP",500,50},
+		{"DOWN","DRAWMENU DOWN",500,50},
+		{"LEFT","DRAWMENU LEFT",500,50},
+		{"RIGHT","DRAWMENU RIGHT",500,50},
 		
-		{"MOUSE_LEFT","THIS IS MENU MOUSE_LEFT","MOUSE_BUTTON"},
-		{"MOUSE_RIGHT","THIS IS MENU MOUSE_RIGHT","MOUSE_BUTTON"},
-		{"IOM_WHEEL_UP","THIS IS MENU IOM_WHEEL_UP","MOUSE_BUTTON"},
-		{"IOM_WHEEL_DOWN","THIS IS MENU IOM_WHEEL_DOWN","MOUSE_BUTTON"},
+		{"MOUSE_LEFT","DRAWMENU MOUSE_LEFT","MOUSE_BUTTON"},
+		{"MOUSE_RIGHT","DRAWMENU MOUSE_RIGHT","MOUSE_BUTTON"},
+		{"IOM_WHEEL_UP","DRAWMENU IOM_WHEEL_UP","MOUSE_BUTTON"},
+		{"IOM_WHEEL_DOWN","DRAWMENU IOM_WHEEL_DOWN","MOUSE_BUTTON"},
 		
 		
-		{"LUP_INDEX","THIS IS MENU LUP_INDEX",500,50,"PAD_DIGITALBUTTON"},
-		{"LDOWN_INDEX","THIS IS MENU LDOWN_INDEX",500,50,"PAD_DIGITALBUTTON"},
-		{"LLEFT_INDEX","THIS IS MENU LLEFT_INDEX",500,50,"PAD_DIGITALBUTTON"},
-		{"LRIGHT_INDEX","THIS IS MENU LRIGHT_INDEX",500,50,"PAD_DIGITALBUTTON"},
-		{"RDOWN_INDEX","THIS IS MENU RDOWN_INDEX","PAD_DIGITALBUTTON"},
-		{"RRIGHT_INDEX","THIS IS MENU RRIGHT_INDEX","PAD_DIGITALBUTTON"},
+		{"LUP_INDEX","DRAWMENU LUP_INDEX",500,50,"PAD_DIGITALBUTTON"},
+		{"LDOWN_INDEX","DRAWMENU LDOWN_INDEX",500,50,"PAD_DIGITALBUTTON"},
+		{"LLEFT_INDEX","DRAWMENU LLEFT_INDEX",500,50,"PAD_DIGITALBUTTON"},
+		{"LRIGHT_INDEX","DRAWMENU LRIGHT_INDEX",500,50,"PAD_DIGITALBUTTON"},
+		{"RDOWN_INDEX","DRAWMENU RDOWN_INDEX","PAD_DIGITALBUTTON"},
+		{"RRIGHT_INDEX","DRAWMENU RRIGHT_INDEX","PAD_DIGITALBUTTON"},
 
 		
 	},
@@ -256,13 +256,13 @@ local _drawButton = function(y,text,righttext,optionselected,icon,selection,slot
 		end 
 	elseif ishoverd then 
 		_drawMenuSpriteHighLight(y ,buttonHeight, 3, 0.0, 180)
-		_drawMenuText(text,basicx,y,buttonFont,2,buttonScale, false)
+		_drawMenuText(text,basicx,y,buttonFont,0,buttonScale, false)
 		if righttext and icon then 
-			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,false)
 			_drawMenuIcon_Right(y,icon)
 		else 
 			if righttext then 
-				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,2,buttonScale,#righttext > 1 and true or false)
+				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,false)
 			end 
 			if icon then 
 				_drawMenuIcon_Right(y,icon)
@@ -271,11 +271,11 @@ local _drawButton = function(y,text,righttext,optionselected,icon,selection,slot
 	else 
 		_drawMenuText(text,basicx,y,buttonFont,0,buttonScale, false)
 		if righttext and icon then 
-			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+			_drawMenuTextArray(righttext[optionselected],basicx - buttonTextXOffset*4,y,buttonFont,0,buttonScale,false)
 			_drawMenuIcon_Right(y,icon)
 		else 
 			if righttext then 
-				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,#righttext > 1 and true or false)
+				_drawMenuTextArray(righttext[optionselected],basicx,y,buttonFont,0,buttonScale,false)
 			end 
 			if icon then 
 				_drawMenuIcon_Right(y,icon)
