@@ -2,6 +2,7 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
+local MenuStyle = "native"
 local _menudraw_ = {
 	Glare = false ,
 	Buttons = {},
@@ -76,7 +77,7 @@ local shared_cb = function(input)
 end
 
 Tasksync.RegisterKeyTable{
-	group = "GROUP_TASKSYNC_DRAWMENU",
+	group = "TASKSYNC_DRAWMENU_KEY"..MenuStyle,
 	keys = {
 		--{"TAB","DRAWMENU TAB"},
 		{"BACK","DRAWMENU BACK"},
@@ -134,7 +135,7 @@ Tasksync.RegisterKeyTable{
 		{"RRIGHT_INDEX","JUST_PRESSED",shared_cb,"back"},
 	}
 }
-Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
+Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,false)
 local menuWidth = 0.256
 local titleHeight = 0.091
 local buttonHeight = 0.038
@@ -387,7 +388,7 @@ Tasksync.MenuDrawGetGlared = function()
 	return Glare
 end 
 Tasksync.MenuDrawEnd = function()
-	Tasksync.deletelooponce("tasksync_drawmenu")
+	Tasksync.deletelooponce("tasksync_loop_drawmenu"..MenuStyle)
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
 Tasksync.MenuCheckGlare = function(isglare)
@@ -484,8 +485,8 @@ end
 Tasksync.MenuDrawRender = function()
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
-	Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",true)
-	Tasksync.addlooponce("tasksync_drawmenu",0,function()
+	Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,true)
+	Tasksync.addlooponce("tasksync_loop_drawmenu"..MenuStyle,0,function()
 		local maxslot = _menudraw_.Maxslot
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
@@ -538,7 +539,7 @@ Tasksync.MenuDrawRender = function()
 		end 
 		ResetScriptGfxAlign();
 	end,function()
-		Tasksync.SetKeyGroupActive("GROUP_TASKSYNC_DRAWMENU",false)
+		Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,false)
 		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
 			Tasksync.ScaleformEnd("MP_MENU_GLARE")
 			_menudraw_.Glare = false 
