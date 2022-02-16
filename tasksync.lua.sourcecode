@@ -26,7 +26,7 @@ Tasksync.__createDepartmentGarden = function(durationGroup)
 		local jobGroup = Tasksync._jobNames_tasksync[durationGroup]
 		local duration = tonumber(durationGroup)
 		local isAnyJob = function() 
-			return jobGroup[1] 
+			return jobGroup and jobGroup[1] 
 		end
 		while isAnyJob() do 
 			local debugtext = {}
