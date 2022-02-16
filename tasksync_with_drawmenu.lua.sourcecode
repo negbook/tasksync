@@ -2,9 +2,8 @@ local switch=setmetatable({},{__call=function(a,b)_G.case=setmetatable({},{__cal
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_drawmenu then 
 Tasksync._initialized_tasksync_with_drawmenu = true 
-local MenuStyle = "native"
+
 local _menudraw_ = {
-	Glare = false ,
 	Buttons = {},
 	ButtonDescriptions = {},
 	Title = "",
@@ -13,6 +12,7 @@ local _menudraw_ = {
 	ShouldScroll = false,
 	ButtonIcons = {},
 	ButtonOptions = {},
+	isRendering = false,
 	MenuSlotSelection = {},
 	Selection = 1
 }
@@ -77,7 +77,7 @@ local shared_cb = function(input)
 end
 
 Tasksync.RegisterKeyTable{
-	group = "TASKSYNC_DRAWMENU_KEY"..MenuStyle,
+	group = "TASKSYNC_DRAWMENU_KEY",
 	keys = {
 		--{"TAB","DRAWMENU TAB"},
 		{"BACK","DRAWMENU BACK"},
@@ -135,7 +135,7 @@ Tasksync.RegisterKeyTable{
 		{"RRIGHT_INDEX","JUST_PRESSED",shared_cb,"back"},
 	}
 }
-Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,false)
+Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY",false)
 local menuWidth = 0.256
 local titleHeight = 0.091
 local buttonHeight = 0.038
@@ -383,36 +383,29 @@ Tasksync.MenuDrawGetFocusSlot = function()
 	local selection = _menudraw_.Selection
 	return selection
 end 
-Tasksync.MenuDrawGetGlared = function()
-	local Glare = _menudraw_.Glare
-	return Glare
-end 
+
 Tasksync.MenuDrawEnd = function()
-	Tasksync.deletelooponce("tasksync_loop_drawmenu"..MenuStyle)
+	Tasksync.deletelooponce("tasksync_loop_drawmenu")
 end 
 Tasksync.MenuEnd = Tasksync.MenuDrawEnd
-Tasksync.MenuCheckGlare = function(isglare)
-	if isglare then  
-		if not _menudraw_.showedGlare then 
-			_menudraw_.showedGlare = true 
-			CreateThread(function()
-				load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
-				Tasksync.ScaleformDraw("MP_MENU_GLARE",function(initialise,ondraw)
-					initialise("SET_DATA_SLOT",0.5,true)
-					
-				end, 5,76,84,0.05,0.05,0.0,0.0)
+Tasksync.MenuShowGlare = function(toshow)
+	if toshow then  
+		
+		if not Tasksync.ScaleformIsDrawing("MP_MENU_GLARE") then 
+			Tasksync.ScaleformDraw("MP_MENU_GLARE",function(initialise)
+				initialise("SET_DATA_SLOT",0.5,true)
 				
-			end)
+			end, 5,76,84,0.05,0.05,0.0,0.0)
 		end 
-	elseif _menudraw_.showedGlare and Tasksync.ScaleformEnd then 
-		Tasksync.ScaleformEnd("MP_MENU_GLARE")
-		_menudraw_.showedGlare = false 
+	else
+		if Tasksync.ScaleformIsDrawing("MP_MENU_GLARE") then
+			Tasksync.ScaleformEnd("MP_MENU_GLARE")
+		end 
 	end 
 end 
 Tasksync.MenuDrawInitMouse = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
 	_menudraw_ = {
-		Glare = false ,
 		Buttons = {},
 		ButtonDescriptions = {},
 		Title = "",
@@ -430,12 +423,12 @@ Tasksync.MenuDrawInitMouse = function(title,subtitle,maxslot)
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
 	_menudraw_.ShowMouse = true
-	Tasksync.MenuCheckGlare(_menudraw_.Glare)
+	load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
+	Tasksync.MenuShowGlare(false)
 end 
 Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	local maxslot = maxslot or 7
 	_menudraw_ = {
-		Glare = false ,
 		Buttons = {},
 		ButtonDescriptions = {},
 		Title = "",
@@ -452,12 +445,14 @@ Tasksync.MenuDrawInit = function(title,subtitle,maxslot)
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	Tasksync.MenuCheckGlare(_menudraw_.Glare)
+	load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
+	Tasksync.MenuShowGlare(false)
+	
 end 
 Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
+	
 	local maxslot = maxslot or 7
 	_menudraw_ = {
-		Glare = false ,
 		Buttons = {},
 		ButtonDescriptions = {},
 		Title = "",
@@ -471,11 +466,11 @@ Tasksync.MenuDrawInitGlare = function(title,subtitle,maxslot)
 		MouseHoverSlot = -1,
 		Selection = 1
 	}
-	_menudraw_.Glare = true
 	_menudraw_.Maxslot =  maxslot
 	_menudraw_.Title = title
 	_menudraw_.Subtitle = subtitle
-	Tasksync.MenuCheckGlare(_menudraw_.Glare)
+	load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
+	Tasksync.MenuShowGlare(true)
 end 
 
 Tasksync.GetMouseHoverSlot = function()
@@ -485,8 +480,13 @@ end
 Tasksync.MenuDrawRender = function()
 	RequestStreamedTextureDict( "commonmenu" )
 	while not HasStreamedTextureDictLoaded("commonmenu") do Wait(0) end
-	Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,true)
-	Tasksync.addlooponce("tasksync_loop_drawmenu"..MenuStyle,0,function()
+	if not _menudraw_.isRendering then 
+		Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY",true)
+	end 
+	
+	
+	Tasksync.addlooponce("tasksync_loop_drawmenu",0,function()
+		
 		local maxslot = _menudraw_.Maxslot
 		SetScriptGfxDrawOrder(0)
 		SetScriptGfxAlign(76, 84);
@@ -538,13 +538,11 @@ Tasksync.MenuDrawRender = function()
 			_setMenuDescription(Tasksync.MenuDrawGetButtonDescription(selection))
 		end 
 		ResetScriptGfxAlign();
+		_menudraw_.isRendering = true 
 	end,function()
-		Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY"..MenuStyle,false)
-		if _menudraw_.Glare and Tasksync.ScaleformEnd then 
-			Tasksync.ScaleformEnd("MP_MENU_GLARE")
-			_menudraw_.Glare = false 
-			Tasksync.MenuCheckGlare(_menudraw_.Glare)
-		end 
+		_menudraw_.isRendering = false 
+		Tasksync.SetKeyGroupActive("TASKSYNC_DRAWMENU_KEY",false)
+		Tasksync.MenuShowGlare(false)
 		
 	end)
 end 
