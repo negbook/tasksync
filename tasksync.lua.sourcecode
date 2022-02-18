@@ -51,11 +51,30 @@ Tasksync.__createDepartmentGarden = function(durationGroup)
 		return 
 	end)
 end 	
-Tasksync.addloop = function(jobname,durationGroup,fn_todo,fn_todoend) --jobname,duration,function
-	if Tasksync._jobTodo_tasksync[jobname] ~= nil then error('Duplicated taskjob: '..jobname, 2) ; return end 
+Tasksync.addloop = function(jobname,durationGroup,fn_todo,fn_todoend,cannotreplace) --jobname,duration,function
+	local jobnameexisted = false 
+	if Tasksync._jobTodo_tasksync[jobname] ~= nil then 
+		if cannotreplace then error('Duplicated taskjob: '..jobname, 2) return end 
+		print ('Replaced Duplicated taskjob: '..jobname) ; 
+		jobnameexisted = true 
+    end 
 	Tasksync._jobTodo_tasksync[jobname] = fn_todo  
 	if fn_todoend then 
 		Tasksync._jobTodoEnd_tasksync[jobname] = fn_todoend  
+	end 
+	if jobnameexisted then 
+		for olddurationGroup,jobs in pairs(Tasksync._jobNames_tasksync) do 
+			for i=1,#jobs do 
+				local v = jobs[i]
+				if v == jobname then 
+					local newduration = durationGroup
+					local oldduration = olddurationGroup
+					if newduration ~= oldduration then 
+						table.remove(Tasksync._jobNames_tasksync[olddurationGroup],i)
+					end 
+				end 
+			end 
+		end 
 	end 
 	local durationGroup = tostring(durationGroup)
 	if Tasksync._jobNames_tasksync[durationGroup] == nil then 
@@ -66,6 +85,7 @@ Tasksync.addloop = function(jobname,durationGroup,fn_todo,fn_todoend) --jobname,
 		table.insert(Tasksync._jobNames_tasksync[durationGroup],jobname)
 	end 
 end 
+
 Tasksync.insertloop = Tasksync.addloop
 Tasksync.deleteloop = function(jobname)
 	for durationGroup,v in pairs(Tasksync._jobNames_tasksync) do 
