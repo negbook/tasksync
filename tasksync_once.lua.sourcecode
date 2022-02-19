@@ -53,12 +53,12 @@ Tasksync.__createDepartmentGardenOnce = function(duration)
 		return 
 	end)
 end 	
-Tasksync.addlooponce = function(jobname,durationGroup,fn_todo,fn_todoend) --jobname,duration,function
-	local durationGroup = tostring(durationGroup)
+Tasksync.addlooponce = function(jobname,duration,fn_todo,fn_todoend) --jobname,duration,function
+	local duration = tostring(duration)
 	local JobExisted = false 
-	if DurationGroup[durationGroup] and #DurationGroup[durationGroup] > 0 then 
-		for i=1,#DurationGroup[durationGroup] do 
-			if DurationGroup[durationGroup][i] == jobname then 
+	if DurationGroup[duration] and #DurationGroup[duration] > 0 then 
+		for i=1,#DurationGroup[duration] do 
+			if DurationGroup[duration][i] == jobname then 
 				JobExisted = true 
 			end 
 		end 
@@ -68,26 +68,26 @@ Tasksync.addlooponce = function(jobname,durationGroup,fn_todo,fn_todoend) --jobn
 		if fn_todoend then 
 			TodosEndFn[jobname] = fn_todoend
 		end 
-		if DurationGroup[durationGroup] == nil then  
-			DurationGroup[durationGroup] = {}; 
-			table.insert(DurationGroup[durationGroup],jobname)
-			Tasksync.__createDepartmentGardenOnce(durationGroup)
+		if DurationGroup[duration] == nil then  
+			DurationGroup[duration] = {}; 
+			table.insert(DurationGroup[duration],jobname)
+			Tasksync.__createDepartmentGardenOnce(duration)
 		else 
-			table.insert(DurationGroup[durationGroup],jobname)
+			table.insert(DurationGroup[duration],jobname)
 		end 
 	end 
 end 
 Tasksync.insertlooponce = Tasksync.addlooponce
 Tasksync.deletelooponce = function(jobname)
-	for durationGroup,v in pairs(DurationGroup) do 
-		for i=1,#DurationGroup[durationGroup] do 
-			if DurationGroup[durationGroup][i] == jobname then 
+	for duration,v in pairs(DurationGroup) do 
+		for i=1,#DurationGroup[duration] do 
+			if DurationGroup[duration][i] == jobname then 
 				if TodosEndFn[jobname] then TodosEndFn[jobname]() end 
 				TodosEndFn[jobname] = nil 
 				TodosFn[jobname] = nil 
-				table.remove(DurationGroup[durationGroup],i)
-				if #DurationGroup[durationGroup] == 0 then 
-					DurationGroup[durationGroup] = nil
+				table.remove(DurationGroup[duration],i)
+				if #DurationGroup[duration] == 0 then 
+					DurationGroup[duration] = nil
 				end 
 			end 
 		end 
