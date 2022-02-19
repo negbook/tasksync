@@ -7,7 +7,6 @@ Tasksync._LoopsCustom = {{},{},{}}
 local LoopsGroup = Tasksync._LoopsCustom[1]
 local LoopsTodoFn = Tasksync._LoopsCustom[2]
 local LoopsTodoFnWhenBreak = Tasksync._LoopsCustom[3]
-Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function()
 		local nowTable = (LoopsGroup)
@@ -18,19 +17,12 @@ local _getAmountsOfLoopType = function()
 		end
 		return total 
 end 
-AddEventHandler("Tasksync:ShowDebug",function(resourcename)
-	Tasksync._debug = not Tasksync._debug 
-end)
+
 Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 	CreateThread(function()
 		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.setloopcustomduration(jobName,newduration) end}),getter=function(t,newduration) return Tasksync.getloopcustomduration(jobName) end}
 		local fn = LoopsGroup[jobName]
 		while fn do 
-			if Tasksync._debug then 
-				print(resourceName.." (loopcustom) "..jobName)
-				print("Custom Loop Total",_getAmountsOfLoopType())
-				print("Spaming after 3 seconds") Wait(3000)
-			end 
 			fn(delaySetter)
 			Wait(LoopsTodoFnWhenBreak[jobName])
 		end 

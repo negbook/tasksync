@@ -79,9 +79,10 @@ Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,dela
 	RegisterCommand("+".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
 		local delaytime = GetGameTimer() + (presseddelay or 500)
+		local _TriggerGroupedKeyCallback = Tasksync._TriggerGroupedKeyCallback
 		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),delayperpressed or 300,function()
 			if GetGameTimer() > delaytime then 
-				Tasksync._TriggerGroupedKeyCallback(group,key.."_PRESSED")
+				_TriggerGroupedKeyCallback(group,key.."_PRESSED")
 			end 
 		end)
 	end, false) 
