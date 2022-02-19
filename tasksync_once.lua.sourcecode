@@ -26,29 +26,31 @@ Tasksync.__createDepartmentGardenOnce = function(duration)
 		local todo = LoopsTodoFn
 		local jobGroup_once = LoopsGroup[duration]
 		local duration = tonumber(duration)
-		local isAnyJob = function() 
-			return jobGroup_once and jobGroup_once[1]
-		end
-		while isAnyJob() do 
-			local debugtext = {}
-			for i=1,#jobGroup_once do 
-				local jobname = jobGroup_once[i]
-				local fn = todo[jobname]
-				if Tasksync._debug and jobname then 
-					table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..duration) 
-				end
-				if fn then fn() end 
-			end 
-			if Tasksync._debug then 
-				for i,v in pairs(debugtext) do 
-					print(v)
+		local e = {}
+		
+		repeat 
+			local loc_jobgroup_once =  (jobGroup_once or e)
+			local isAnyJob = loc_jobgroup_once[1]
+			if isAnyJob then
+				local debugtext = {}
+				for i=1,#loc_jobgroup_once do 
+					local jobname = loc_jobgroup_once[i]
+					local fn = jobname and todo[jobname]
+					if fn then fn() end
+					if Tasksync._debug and jobname then 
+						table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..duration) 
+					end
 				end 
-				print("Once Loop Total",_getAmountsOfLoopType())
-				print("Spaming after 3 seconds") Wait(3000)
+				if Tasksync._debug then 
+					for i,v in pairs(debugtext) do 
+						print(v)
+					end 
+					print("Once Loop Total",_getAmountsOfLoopType())
+					print("Spaming after 3 seconds") Wait(3000)
+				end 
 			end 
 			Wait(duration)
-		end 
-		--if true then  print('breaked'..duration) end
+		until not isAnyJob
 		return 
 	end)
 end 	
