@@ -3,14 +3,14 @@ if not Tasksync then
 end 
 if not Tasksync._initialized_tasksync_custom then 
 Tasksync._initialized_tasksync_custom = true 
-Tasksync._JobsCustom = {{},{},{}}
-local DurationGroup = Tasksync._JobsCustom[1]
-local TodosFn = Tasksync._JobsCustom[2]
-local TodosEndFn = Tasksync._JobsCustom[3]
+Tasksync._LoopsCustom = {{},{},{}}
+local LoopsGroup = Tasksync._LoopsCustom[1]
+local LoopsTodoFn = Tasksync._LoopsCustom[2]
+local LoopsTodoFnWhenBreak = Tasksync._LoopsCustom[3]
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function()
-		local nowTable = (DurationGroup)
+		local nowTable = (LoopsGroup)
 		local total = 0 
 		for i,v in pairs(nowTable) do 
 			local n = #v
@@ -24,7 +24,7 @@ end)
 Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 	CreateThread(function()
 		local delaySetter = {setter=setmetatable({},{__call = function(t,newduration) Tasksync.setloopcustomduration(jobName,newduration) end}),getter=function(t,newduration) return Tasksync.getloopcustomduration(jobName) end}
-		local fn = DurationGroup[jobName]
+		local fn = LoopsGroup[jobName]
 		while fn do 
 			if Tasksync._debug then 
 				print(resourceName.." (loopcustom) "..jobName)
@@ -32,31 +32,31 @@ Tasksync.__createDepartmentGardenCustom = function(jobName,defaultduration)
 				print("Spaming after 3 seconds") Wait(3000)
 			end 
 			fn(delaySetter)
-			Wait(TodosEndFn[jobName])
+			Wait(LoopsTodoFnWhenBreak[jobName])
 		end 
 		--if true then  print('breaked'..jobName) end
 		return 
 	end)
 end 	
 Tasksync.addloopcustom = function(jobName,defaultduration,fn_todo,fn_todoend) --jobName,duration,function
-	if DurationGroup[jobName] ~= nil then error('Duplicated taskjob: '..jobName, 2) ; return end 
-	DurationGroup[jobName] = fn_todo 
+	if LoopsGroup[jobName] ~= nil then error('Duplicated taskjob: '..jobName, 2) ; return end 
+	LoopsGroup[jobName] = fn_todo 
 	if fn_todoend then 
-		TodosFn[jobname] = fn_todoend  
+		LoopsTodoFn[jobname] = fn_todoend  
 	end 
-	TodosEndFn[jobName] = defaultduration
+	LoopsTodoFnWhenBreak[jobName] = defaultduration
 	Tasksync.__createDepartmentGardenCustom(jobName,defaultduration)
 end 
 Tasksync.insertloopcustom = Tasksync.addloopcustom
 Tasksync.deleteloopcustom = function(jobName)
-	if TodosFn[jobName] then TodosFn[jobName]() end 
-	TodosFn[jobName] = nil 
-	DurationGroup[jobName] = nil
+	if LoopsTodoFn[jobName] then LoopsTodoFn[jobName]() end 
+	LoopsTodoFn[jobName] = nil 
+	LoopsGroup[jobName] = nil
 end 
 Tasksync.setloopcustomduration = function(jobName,newduration)
-	TodosEndFn[jobName] = newduration
+	LoopsTodoFnWhenBreak[jobName] = newduration
 end 
 Tasksync.getloopcustomduration = function(jobName)
-	return TodosEndFn[jobName]
+	return LoopsTodoFnWhenBreak[jobName]
 end 
 end 

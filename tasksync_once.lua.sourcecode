@@ -3,14 +3,14 @@ if not Tasksync then
 end
 if not Tasksync._initialized_tasksync_once then 
 Tasksync._initialized_tasksync_once = true 
-Tasksync._JobsOnce = {{},{},{}}
-local DurationGroup = Tasksync._JobsOnce[1]
-local TodosFn = Tasksync._JobsOnce[2]
-local TodosEndFn = Tasksync._JobsOnce[3]
+Tasksync._LoopsOnce = {{},{},{}}
+local LoopsGroup = Tasksync._LoopsOnce[1]
+local LoopsTodoFn = Tasksync._LoopsOnce[2]
+local LoopsTodoFnWhenBreak = Tasksync._LoopsOnce[3]
 Tasksync._debug = false
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function()
-		local nowTable = (DurationGroup)
+		local nowTable = (LoopsGroup)
 		local total = 0 
 		for i,v in pairs(nowTable) do 
 			local n = #v
@@ -23,71 +23,70 @@ AddEventHandler("Tasksync:ShowDebug",function(resourcename)
 end)
 Tasksync.__createDepartmentGardenOnce = function(duration)
 	CreateThread(function()
-		local todo = TodosFn
-		local jobGroup_once = DurationGroup[duration]
+		local todo = LoopsTodoFn
+		local jobGroup_once = LoopsGroup[duration]
 		local duration = tonumber(duration)
-		local e = {}
-		repeat 
-			local loc_jobgroup_once =  (jobGroup_once or e)
-			local isAnyJob = loc_jobgroup_once[1]
-			if isAnyJob then 
-				local debugtext = {}
-				for i=1,#loc_jobgroup_once do 
-					local jobname = loc_jobgroup_once[i]
-					local fn = jobname and todo[jobname]
-					if fn then fn() end 
-					if Tasksync._debug and jobname then 
-						table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..duration) 
-					end
+		local isAnyJob = function() 
+			return jobGroup_once and jobGroup_once[1]
+		end
+		while isAnyJob() do 
+			local debugtext = {}
+			for i=1,#jobGroup_once do 
+				local jobname = jobGroup_once[i]
+				local fn = todo[jobname]
+				if Tasksync._debug and jobname then 
+					table.insert(debugtext,resourceName.." (looponce) "..jobname.." "..duration) 
+				end
+				if fn then fn() end 
+			end 
+			if Tasksync._debug then 
+				for i,v in pairs(debugtext) do 
+					print(v)
 				end 
-				if Tasksync._debug then 
-					for i,v in pairs(debugtext) do 
-						print(v)
-					end 
-					print("Once Loop Total",_getAmountsOfLoopType())
-					print("Spaming after 3 seconds") Wait(3000)
-				end 
+				print("Once Loop Total",_getAmountsOfLoopType())
+				print("Spaming after 3 seconds") Wait(3000)
 			end 
 			Wait(duration)
-		until not isAnyJob 
+		end 
+		--if true then  print('breaked'..duration) end
 		return 
 	end)
 end 	
 Tasksync.addlooponce = function(jobname,duration,fn_todo,fn_todoend) --jobname,duration,function
 	local duration = tostring(duration)
 	local JobExisted = false 
-	if DurationGroup[duration] and #DurationGroup[duration] > 0 then 
-		for i=1,#DurationGroup[duration] do 
-			if DurationGroup[duration][i] == jobname then 
+	if LoopsGroup[duration] and #LoopsGroup[duration] > 0 then 
+		for i=1,#LoopsGroup[duration] do 
+			if LoopsGroup[duration][i] == jobname then 
 				JobExisted = true 
 			end 
 		end 
 	end 
 	if not JobExisted then 
-		TodosFn[jobname] = fn_todo
+		LoopsTodoFn[jobname] = fn_todo
 		if fn_todoend then 
-			TodosEndFn[jobname] = fn_todoend
+			LoopsTodoFnWhenBreak[jobname] = fn_todoend
 		end 
-		if DurationGroup[duration] == nil then  
-			DurationGroup[duration] = {}; 
-			table.insert(DurationGroup[duration],jobname)
+		if LoopsGroup[duration] == nil then  
+			LoopsGroup[duration] = {}; 
+			table.insert(LoopsGroup[duration],jobname)
 			Tasksync.__createDepartmentGardenOnce(duration)
 		else 
-			table.insert(DurationGroup[duration],jobname)
+			table.insert(LoopsGroup[duration],jobname)
 		end 
 	end 
 end 
 Tasksync.insertlooponce = Tasksync.addlooponce
 Tasksync.deletelooponce = function(jobname)
-	for duration,v in pairs(DurationGroup) do 
-		for i=1,#DurationGroup[duration] do 
-			if DurationGroup[duration][i] == jobname then 
-				if TodosEndFn[jobname] then TodosEndFn[jobname]() end 
-				TodosEndFn[jobname] = nil 
-				TodosFn[jobname] = nil 
-				table.remove(DurationGroup[duration],i)
-				if #DurationGroup[duration] == 0 then 
-					DurationGroup[duration] = nil
+	for duration,v in pairs(LoopsGroup) do 
+		for i=1,#LoopsGroup[duration] do 
+			if LoopsGroup[duration][i] == jobname then 
+				if LoopsTodoFnWhenBreak[jobname] then LoopsTodoFnWhenBreak[jobname]() end 
+				LoopsTodoFnWhenBreak[jobname] = nil 
+				LoopsTodoFn[jobname] = nil 
+				table.remove(LoopsGroup[duration],i)
+				if #LoopsGroup[duration] == 0 then 
+					LoopsGroup[duration] = nil
 				end 
 			end 
 		end 
