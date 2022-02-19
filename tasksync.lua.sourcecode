@@ -3,10 +3,9 @@ if not Tasksync then
 end 
 if not Tasksync._initialized_tasksync then 
 Tasksync._initialized_tasksync = true 
-Tasksync._Loops = {{},{},{}}
-local LoopsGroup = Tasksync._Loops[1]
-local LoopsTodoFn = Tasksync._Loops[2]
-local LoopsTodoFnWhenBreak = Tasksync._Loops[3]
+local LoopsGroup = {}
+local LoopsTodoFn = {}
+local LoopsTodoFnWhenBreak = {}
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoop = function()
 		local nowTable = (LoopsGroup)

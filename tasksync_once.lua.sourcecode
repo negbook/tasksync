@@ -3,10 +3,9 @@ if not Tasksync then
 end
 if not Tasksync._initialized_tasksync_once then 
 Tasksync._initialized_tasksync_once = true 
-Tasksync._LoopsOnce = {{},{},{}}
-local LoopsGroup = Tasksync._LoopsOnce[1]
-local LoopsTodoFn = Tasksync._LoopsOnce[2]
-local LoopsTodoFnWhenBreak = Tasksync._LoopsOnce[3]
+local LoopsGroup = {}
+local LoopsTodoFn = {}
+local LoopsTodoFnWhenBreak = {}
 
 local resourceName = GetCurrentResourceName()
 local _getAmountsOfLoopType = function()

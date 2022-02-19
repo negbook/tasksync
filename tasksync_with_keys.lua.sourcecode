@@ -68,9 +68,11 @@ Tasksync.RegisterKeyGroup = function(key,group,description,type_)
 	RegisterCommand("+".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") 
 	end, false) 
+	
 	RegisterCommand("-".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
 	end, false) 
+	
 	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
 end 
 Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,delayperpressed,type_) 
