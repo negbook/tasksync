@@ -44,6 +44,7 @@ end
 Tasksync.ScaleformIsDrawing = function(scaleformName)
 	return scaleformsIsDrawing and  scaleformsIsDrawing[scaleformName]
 end 
+
 Tasksync.ScaleformDraw = function(scaleformName,cb,layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
 	if not scaleformsIsDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)

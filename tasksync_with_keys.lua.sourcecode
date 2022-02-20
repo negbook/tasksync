@@ -44,6 +44,9 @@ end
 Tasksync.RegisterGroupedKeyCallbackPressed = function(group,key,cb)
 	return Tasksync._RegisterGroupedKeyCallback(group,key.."_PRESSED",cb)
 end 
+Tasksync.RegisterGroupedKeyCallbackJustHolded = function(group,key,cb)
+	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_HOLDED",cb)
+end 
 Tasksync.RegisterGroupedKeyCallbackJustReleased = function(group,key,cb)
 	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_RELEASED",cb)
 end 
@@ -82,9 +85,16 @@ Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,dela
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
 		local delaytime = GetGameTimer() + (presseddelay or 500)
 		local _TriggerGroupedKeyCallback = Tasksync._TriggerGroupedKeyCallback
+		local loopduration = delayperpressed
+		if delayperpressed == -1 then loopduration = 50 end 
 		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),delayperpressed or 300,function()
 			if GetGameTimer() > delaytime then 
-				_TriggerGroupedKeyCallback(group,key.."_PRESSED")
+				if delayperpressed == - 1 then 
+					_TriggerGroupedKeyCallback(group,key.."_JUST_HOLDED")
+					Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
+				else 
+					_TriggerGroupedKeyCallback(group,key.."_PRESSED")
+				end 
 			end 
 		end)
 	end, false) 
@@ -120,6 +130,7 @@ Tasksync.RegisterKeyTable = function(regtable)
 			local action = {}
 			action["JUST_PRESSED"] = Tasksync.RegisterGroupedKeyCallbackJustPressed
 			action["PRESSED"] = Tasksync.RegisterGroupedKeyCallbackPressed
+			action["JUST_HOLDED"] = Tasksync.RegisterGroupedKeyCallbackJustHolded
 			action["JUST_RELEASED"] = Tasksync.RegisterGroupedKeyCallbackJustReleased
 			if v[4] then 
 				local _cb = function()
