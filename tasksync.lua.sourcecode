@@ -66,11 +66,10 @@ Tasksync._initialized_tasksync = true
 						local f = Fn[_nowfnname]
 						local fd = FnOnDelete[_nowfnname]
 						if f then 
-							local setgeter = {isset = false, set= function(self,newduration) Tasksync.setloopcustomduration(_nowfnname,newduration);self.isset = true end,get= function(self) return Tasksync.getloopcustomduration(_nowfnname) end}
+							local setgeter = {isset = false,currentvalue = nil, set= function(self,newduration) Tasksync.setloopcustomduration(_nowfnname,newduration);self.isset = true;self.currentvalue = newduration end,get= function(self) return Tasksync.getloopcustomduration(_nowfnname) end}
 							f(setgeter)
-							if setgeter.isset and Tasksync.hasloopcustomduration(_nowfnname) then 
-								local _newdurationNum = Tasksync.getloopcustomduration(_nowfnname)
-								Tasksync.updateloop(_nowfnname,_durationNum,_newdurationNum)
+							if setgeter.isset then 
+								Tasksync.updateloop(_nowfnname,_durationNum,setgeter.currentvalue)
 							end 
 						end 
 					end 
@@ -98,7 +97,7 @@ Tasksync._initialized_tasksync = true
 		if _fnondelete then 
 			FnOnDelete[_fnname] = _fnondelete  
 		end 
-		Tasksync.setloopcustomduration(_fnname,_duration)
+		
 		local _durationStr = tostring(_duration)
 		
 		if Loops[_durationStr] == nil then 
