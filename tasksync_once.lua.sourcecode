@@ -1,11 +1,15 @@
+
 if not Tasksync then 
 	Tasksync = setmetatable({},{})
 end
 if not Tasksync._initialized_tasksync_once then 
 Tasksync._initialized_tasksync_once = true 
 -- 👆important to avoid loaded multiple replace existed vars
-load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
-	Tasksync.addlooponce = function(_fnname,_duration,_fn,_fnondelete) return Tasksync.addloop(_fnname,_duration,_fn,_fnondelete,true,true) end 
-	Tasksync.insertlooponce = Tasksync.addlooponce
-	Tasksync.deletelooponce = function(_fnname) return Tasksync.deleteloop(_fnname,true) end
+	do 
+	load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+		Tasksync.addlooponce = function(_fnname,_duration,_fn,_fnondelete) return Tasksync.addloop(_fnname,_duration,_fn,_fnondelete,true,true) end 
+		Tasksync.insertlooponce = Tasksync.addlooponce
+		Tasksync.deletelooponce = function(_fnname) return Tasksync.deleteloop(_fnname,true) end
+		Tasksync.isloopaliveonce = function(_fnname) return Tasksync.isloopalive(_fnname,true) end
+	end 
 end 

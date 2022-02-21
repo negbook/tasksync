@@ -1,0 +1,8 @@
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
+if not Tasksync._initialized_tasksync_with_* then 
+Tasksync._initialized_tasksync_with_* = true 
+	do 
+		...
+	end 
+end 

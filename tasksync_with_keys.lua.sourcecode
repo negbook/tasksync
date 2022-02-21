@@ -1,152 +1,143 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_keys then 
-local upper = string.upper
 Tasksync._initialized_tasksync_with_keys = true 
-local IsStringNullOrEmpty = function(str) return (str == nil or str == "" or type(str)~='string') end 
-Tasksync._GroupedKeyCallBacks = {}
-Tasksync._KeyGroupEnable = {}
-local returnGroupedKeyName = function(group,key)
-	return upper(group .. "_" .. key)
-end 
-local _setGroupedKeyCallback = function(group,key,value)
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	local groupedkeycallback = _getGroupedKeyCallback(group,key)
-	if groupedkeycallback then 
-		Tasksync._GroupedKeyCallBacks[_groupedkeyname] = value
+	do 
+	local upper = string.upper
+	local IsStringNullOrEmpty = function(str) return (str == nil or str == "" or type(str)~='string') end 
+	local KeyGroupEnable = {}
+	local GroupedKeys = {}
+	local GroupedKeyCallBacks = {}
+	local e = {}
+
+	local _clearGroupedKeyCallback = function(group,key,style)
+		if _getGroupedKeyCallback(group,key,style) then GroupedKeys[group][key][style] =  nil end 
 	end 
-end 
-local _getGroupedKeyCallback = function(group,key)
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	return Tasksync._GroupedKeyCallBacks and Tasksync._GroupedKeyCallBacks[_groupedkeyname]
-end 
-
-Tasksync._RegisterGroupedKeyCallback = function(group,key,cb)
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	if not Tasksync._GroupedKeyCallBacks[_groupedkeyname] then Tasksync._GroupedKeyCallBacks[_groupedkeyname] = {} end 
-	table.insert(Tasksync._GroupedKeyCallBacks[_groupedkeyname] , cb )
-end 
-Tasksync._TriggerGroupedKeyCallback = function(group,key)
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	if Tasksync.IsKeyGroupActive(group) then 
-		local groupedkeycallback = _getGroupedKeyCallback(group,key)
-		if groupedkeycallback then 
-			for i=1,#groupedkeycallback do 
-				groupedkeycallback[i](group,key)  
-			end
-		end 		
+	local _getGroupedKeyCallback = function(group,key,style,...)
+		local t = (((GroupedKeys or e)[group] or e)[key] or e)[style]
+		return t
 	end 
-end 
 
-Tasksync.RegisterGroupedKeyCallbackJustPressed = function(group,key,cb)
-	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_PRESSED",cb)
-end 
-Tasksync.RegisterGroupedKeyCallbackPressed = function(group,key,cb)
-	return Tasksync._RegisterGroupedKeyCallback(group,key.."_PRESSED",cb)
-end 
-Tasksync.RegisterGroupedKeyCallbackJustHolded = function(group,key,cb)
-	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_HOLDED",cb)
-end 
-Tasksync.RegisterGroupedKeyCallbackJustReleased = function(group,key,cb)
-	return Tasksync._RegisterGroupedKeyCallback(group,key.."_JUST_RELEASED",cb)
-end 
-Tasksync.UnRegisterKeyEvent = function(group,key)
-	_setGroupedKeyCallback(group,key,nil)
-end 
+	local registerGroupedKeyCallback = function(group,key,style,cb)
+		if not GroupedKeys[group] then GroupedKeys[group] = {} end 
+		if not GroupedKeys[group][key] then GroupedKeys[group][key] = {} end 
+		GroupedKeys[group][key][style] = cb
+	end 
 
-Tasksync.SetKeyGroupActive = function(group,bool) 
-	Tasksync._KeyGroupEnable[group] = bool 
-end 
+	local triggerGroupedKeyCallback = function(group,key,style)
+		if Tasksync.IsKeyGroupActive(group) then 
+			local groupedkeycallback = _getGroupedKeyCallback(group,key,style)
+			if groupedkeycallback then groupedkeycallback(group,key)  end 		
+		end 
+	end 
 
-Tasksync.IsKeyGroupActive = function(group)
-	return not not Tasksync._KeyGroupEnable[group]
-end 
-Tasksync.RemoveKeyGroup = function(group)
-	Tasksync._KeyGroupEnable[group] = nil
-end 
-Tasksync.DeleteKeyGroup = Tasksync.RemoveKeyGroup
-Tasksync.RegisterKeyGroup = function(key,group,description,type_) 
-	local type_ = type_ or 'keyboard'
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	RegisterCommand("+".._groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED") 
-	end, false) 
-	
-	RegisterCommand("-".._groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
-	end, false) 
-	
-	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
-end 
-Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,delayperpressed,type_) 
-	local type_ = type_ or 'keyboard'
-	local _groupedkeyname = returnGroupedKeyName(group,key)
-	RegisterCommand("+".._groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
+	Tasksync.RegisterGroupedKeyCallbackJustPressed = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_PRESSED",cb)
+	end 
+	Tasksync.RegisterGroupedKeyCallbackPressed = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_PRESSED",cb)
+	end 
+	Tasksync.RegisterGroupedKeyCallbackJustHolded = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_HOLDED",cb)
+	end 
+	Tasksync.RegisterGroupedKeyCallbackJustReleased = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_RELEASED",cb)
+	end 
+	Tasksync.UnRegisterKeyEventCallback = function(group,key,style)
+		_clearGroupedKeyCallback(group,key,style)
+	end 
+
+	Tasksync.SetKeyGroupActive = function(group,bool) 
+		KeyGroupEnable[group] = bool 
+	end 
+
+	Tasksync.IsKeyGroupActive = function(group)
+		return not not KeyGroupEnable[group]
+	end 
+	Tasksync.RemoveKeyGroup = function(group)
+		KeyGroupEnable[group] = nil
+	end 
+	Tasksync.DeleteKeyGroup = Tasksync.RemoveKeyGroup
+
+	local returnGroupedKeyName = function(group,key)
+		return upper(group .. "_" .. key)
+	end 
+
+	Tasksync.RegisterKeyGroup = function(key,group,description,type_) 
+		local type_ = type_ or 'keyboard'
+		local _groupedkeyname = returnGroupedKeyName(group,key)
+		RegisterCommand("+".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_PRESSED") 
+		end, false) 
 		
-		local delaytime = GetGameTimer() + (presseddelay or 500)
-		local _TriggerGroupedKeyCallback = Tasksync._TriggerGroupedKeyCallback
-		local loopduration = delayperpressed
-		if delayperpressed == -1 then loopduration = 50 end 
-		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),loopduration or 300,function()
-			if GetGameTimer() > delaytime then 
-				if delayperpressed == - 1 then 
-					_TriggerGroupedKeyCallback(group,key.."_JUST_HOLDED")
-					Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
-				else 
-					_TriggerGroupedKeyCallback(group,key.."_PRESSED")
-				end 
-			end 
-		end)
-	end, false) 
-	RegisterCommand("-".._groupedkeyname, function() 
-		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_RELEASED") 
-		Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
-	end, false) 
-	RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
-	 
-end 
-Tasksync.RegisterKeyTable = function(regtable)
-	local group = regtable.group 
-	local keys = regtable.keys 
-	for i,v in pairs(keys) do 
-		--[[
-		if string.find(v[1],"IOM") or string.find(v[1],"MOUSE") then 
-			print("It not suppose to be used because some mouse key can not be detected and glitched on apple magic mouse")
-			print("I suggested using IsControlPressed on mouse")
-		else 
+		RegisterCommand("-".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_RELEASED") 
+		end, false) 
+		
+		RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
+	end 
+	Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,delayperpressed,type_) 
+		local type_ = type_ or 'keyboard'
+		local _groupedkeyname = returnGroupedKeyName(group,key)
+		RegisterCommand("+".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_PRESSED")
 			
-		end --]]
-		local isFullRegister = (v[3] and type(v[3]) == 'number')
-		if isFullRegister then 
-			Tasksync.RegisterKeyGroupFull(v[1],group,v[2],v[3],v[4],v[5])
-		else 
-			Tasksync.RegisterKeyGroup(v[1],group,v[2],v[3])
-		end 
-	end 
-	local cbs = regtable.cbs 
-	if cbs then 
-		for i,v in pairs(cbs) do 
-			local style = v[2]
-			local action = {}
-			action["JUST_PRESSED"] = Tasksync.RegisterGroupedKeyCallbackJustPressed
-			action["PRESSED"] = Tasksync.RegisterGroupedKeyCallbackPressed
-			action["JUST_HOLDED"] = Tasksync.RegisterGroupedKeyCallbackJustHolded
-			action["JUST_RELEASED"] = Tasksync.RegisterGroupedKeyCallbackJustReleased
-			if v[4] then 
-				local _cb = function(group,key)
-					local _atbl = {}
-					for i=4,#v do 
-						table.insert(_atbl,v[i])
+			local delaytime = GetGameTimer() + (presseddelay or 500)
+			local _TriggerGroupedKeyCallback = triggerGroupedKeyCallback
+			local loopduration = delayperpressed
+			if delayperpressed == -1 then loopduration = 150 end 
+			Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),loopduration or 300,function()
+				if GetGameTimer() > delaytime then 
+					if delayperpressed == - 1 then 
+						_TriggerGroupedKeyCallback(group,key,"_JUST_HOLDED")
+						Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
+					else 
+						_TriggerGroupedKeyCallback(group,key,"_PRESSED")
 					end 
-					return v[3](table.unpack(_atbl))
 				end 
-				action[style](group,v[1],_cb)
+			end)
+		end, false) 
+		RegisterCommand("-".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_RELEASED") 
+			Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
+		end, false) 
+		RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
+		 
+	end 
+	Tasksync.RegisterKeyTable = function(regtable)
+		local group = regtable.group 
+		local keys = regtable.keys 
+		for i,v in pairs(keys) do 
+			local isFullRegister = (v[3] and type(v[3]) == 'number')
+			if isFullRegister then 
+				Tasksync.RegisterKeyGroupFull(v[1],group,v[2],v[3],v[4],v[5])
 			else 
-				action[style](group,v[1],v[3])
-			end
+				Tasksync.RegisterKeyGroup(v[1],group,v[2],v[3])
+			end 
+		end 
+		local cbs = regtable.cbs 
+		if cbs then 
+			for i,v in pairs(cbs) do 
+				local style = v[2]
+				local action = {}
+				action["JUST_PRESSED"] = Tasksync.RegisterGroupedKeyCallbackJustPressed
+				action["PRESSED"] = Tasksync.RegisterGroupedKeyCallbackPressed
+				action["JUST_HOLDED"] = Tasksync.RegisterGroupedKeyCallbackJustHolded
+				action["JUST_RELEASED"] = Tasksync.RegisterGroupedKeyCallbackJustReleased
+				if v[4] then 
+					local _cb = function(group,key)
+						local _atbl = {}
+						for i=4,#v do 
+							table.insert(_atbl,v[i])
+						end 
+						return v[3](table.unpack(_atbl))
+					end 
+					action[style](group,v[1],_cb)
+				else 
+					action[style](group,v[1],v[3])
+				end
+			end 
 		end 
 	end 
-end 
-
+	end 
 end 

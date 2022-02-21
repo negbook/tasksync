@@ -1,175 +1,237 @@
-if not Tasksync then Tasksync = setmetatable({},{}) end 
+
+if not Tasksync then 
+	Tasksync = setmetatable({},{}) 
+end 
+local isdebug = false 
 if not Tasksync._initialized_tasksync then 
 Tasksync._initialized_tasksync = true 
 -- 👆important to avoid loaded multiple replace existed vars
-
-	local Loops = {}
-	local Fn = {}
-	local FnOnDelete = {}
-	local FnCustomDurations = {}
-	local GetDurationStringAndIndexFromLoopsIfFnNameExisted = function(_fnname)
-		for existeddurationStr,names in pairs(Loops) do 
-			for i=1,#names do 
-				local v = names[i]
-				if v == _fnname then 
-					return existeddurationStr,i
+	do 
+		
+		local Loops = {}
+		local Fn = {}
+		local FnOnDelete = {}
+		local FnCustomDurations = {}
+		setmetatable(Loops,{__mode = "k"})
+		setmetatable(Fn,{__mode = "k"})
+		setmetatable(FnOnDelete,{__mode = "k"})
+		setmetatable(FnCustomDurations,{__mode = "k"})
+		local GetDurationStringAndIndexFromLoopsIfFnNameExisted = function(_fnname)
+			for existeddurationStr,names in pairs(Loops) do 
+				for i=1,#names do 
+					local v = names[i]
+					if v == _fnname then 
+						return existeddurationStr,i
+					end 
 				end 
 			end 
 		end 
-	end 
-	
-	local GetIndexOfDurationIfThisFnNameExistedFromLoops = function(_fnname,_durationStr)
-		local existeddurationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
-		if existeddurationStr and _durationStr == existeddurationStr then 
-			return idx
-		end 
-	end 
-	
-	local IsDurationAndThisFnNameExistedFromLoops = function(_fnname,_durationStr)
-		return (not not GetIndexOfDurationIfThisFnNameExistedFromLoops(_fnname,_durationStr))
-	end 
-	
-	local DeleteExistedDurationStringIfThisFnNameAndDurationExistedFromLoops = function(_fnname,_durationStr)
-		local existeddurationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
-		if existeddurationStr and _durationStr ~= existeddurationStr then 
-			table.remove(Loops[existeddurationStr],idx)
-			if #Loops[existeddurationStr] == 0 then 
-				Loops[existeddurationStr] = nil
-			end 
-			--print('remove',existeddurationStr,idx)
-		end 
-	end 
-	
-	local removeIfFnNameAndDurationIsExistedFromLoops = function(_fnname,_durationStr)
-		local idx = GetIndexOfDurationIfThisFnNameExistedFromLoops(_fnname,_durationStr) 
-		local found = (not not idx)
-		if found then 
-			table.remove(Loops[_durationStr],idx)
+		
+		local removeFnNameFromDurationGroup = function(_durationStr,idx)
+			table.remove(Loops[_durationStr],idx) 
 			if #Loops[_durationStr] == 0 then 
 				Loops[_durationStr] = nil
 			end 
+			
 		end 
-	end 
-	Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup = function(_durationStr)
-		CreateThread(function()
-			local loop = Loops[_durationStr]
-			local _durationNum = tonumber(_durationStr)
-			local e = {}
-
-			repeat  
-				local fnList = (loop or e)
-				local isAnyJob = fnList[1]
-				if isAnyJob then 
-					local debugtext = {}
-					for i=1,#fnList do 
-						local _nowfnname = fnList[i]
-						local f = Fn[_nowfnname]
-						local fd = FnOnDelete[_nowfnname]
-						if f then 
-							local setgeter = {isset = false,currentvalue = nil, set= function(self,newduration) Tasksync.setloopcustomduration(_nowfnname,newduration);self.isset = true;self.currentvalue = newduration end,get= function(self) return Tasksync.getloopcustomduration(_nowfnname) end}
-							f(setgeter)
-							if setgeter.isset then 
-								Tasksync.updateloop(_nowfnname,_durationNum,setgeter.currentvalue)
+		
+		local DeleteExistedFnNameIfDurationBecomeDiff = function(_fnname,_durationStr)
+			local existeddurationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
+			if existeddurationStr and _durationStr ~= existeddurationStr then 
+				removeFnNameFromDurationGroup(existeddurationStr,idx)
+				return true 
+			end 
+		end 
+		
+		
+		local updateloop = function(_fnname,_newduration)
+			local _olddurationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
+			local _newdurationStr = tostring(_newduration)
+			if _olddurationStr ~= _newdurationStr then  
+				removeFnNameFromDurationGroup(_olddurationStr,idx)
+				if Loops[_newdurationStr] == nil then 
+					Loops[_newdurationStr] = {}; 
+					-- this is important to wait after just set a new duration  
+					Wait(tonumber(_olddurationStr))
+					-- Very Important to Wait because CreateThread newduration is diff from oldduration
+					Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup(_newdurationStr)
+				end 
+				table.insert(Loops[_newdurationStr],_fnname)
+				return 
+			end 
+		end 
+		
+		local function newObject(value)
+			
+			local haschange = false 
+			return function(action,v,onchange) 
+				if action == 'get' then 
+					return value 
+				elseif action == 'set' then 
+					if value ~= v then 
+						if onchange then onchange(value,v) end 
+						haschange = true
+						value = v 
+					else 
+						haschange = false 
+					end 
+				elseif action == 'has' then 
+					return value ~= nil
+				elseif action == 'haschange' then 
+					local r = haschange
+					haschange = false 
+					return r
+				else 
+					error "invalid action"
+				end 
+			end 
+		end 
+		
+		Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup = function(_durationStr)
+			CreateThread(function()
+				local loop = Loops[_durationStr]
+				local _durationNum = tonumber(_durationStr)
+				local e = {}
+				local setgeters = {}
+				setmetatable(setgeters,{__mode = "k"})
+				repeat  
+					local fnList = (loop or e)
+					local isAnyJob = fnList[1]
+					if isAnyJob then 
+						local debugtext = {}
+						for i=1,#fnList do 
+							local _nowfnname = fnList[i]
+							local f = Fn[_nowfnname]
+							if f then 
+								if setgeters[_nowfnname] == nil then 
+									setgeters[_nowfnname] = newObject(_durationNum) --{isset = false,currentvalue = nil, set= function(self,newduration) self.isset = true;self.currentvalue = newduration end,get= function(self) return Tasksync.getloopcustomduration(_nowfnname) end}
+									
+								end 
+								local duration_editor = setgeters[_nowfnname]
+								f(duration_editor)
+								if duration_editor('haschange') then 
+									setgeters[_nowfnname] = nil
+									Tasksync.setloopcustomduration(_nowfnname,duration_editor('get')) ;
+								end 
 							end 
 						end 
 					end 
+
+					Wait(_durationNum)
+					
+				until not isAnyJob 
+				setgeters = nil
+				--print("Deleted thread",_durationStr)
+				return 
+			end)
+		end 	
+
+		Tasksync.addloop = function(_fnname,_duration,_fn,_fnondelete,_dontreplace,isonce)
+			if isonce then _fnname = _fnname .. "_o_n_c_e_" end
+		
+			if Fn[_fnname] ~= nil  then 
+				if _dontreplace then return end 
+				--print ('Detected Same Name,Replaced loop fn: '.._fnname) ;
+				DeleteExistedFnNameIfDurationBecomeDiff(_fnname,nil)
+			end
+			
+			Fn[_fnname] = _fn  
+			
+			if _fnondelete then 
+				FnOnDelete[_fnname] = _fnondelete  
+			end 
+			
+			local _durationStr = tostring(_duration)
+			
+			if Loops[_durationStr] == nil then 
+				Loops[_durationStr] = {}; 
+				Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup(_durationStr)
+			end 
+			table.insert(Loops[_durationStr],_fnname)
+		end 
+		Tasksync.insertloop = Tasksync.addloop
+		
+		Tasksync.deleteloop = function(_fnname,isonce)
+			if isonce then _fnname = _fnname .. "_o_n_c_e_" end
+			local durationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
+			if durationStr then 
+				Fn[_fnname] = nil 
+				removeFnNameFromDurationGroup(durationStr,idx)
+				if FnOnDelete[_fnname] then 
+					FnOnDelete[_fnname]() 
+					FnOnDelete[_fnname] = nil 
 				end 
 
-				Wait(_durationNum)
+			end 
+		end 
+		
+		Tasksync.isloopalive = function(_fnname,isonce)
+			if isonce then _fnname = _fnname .. "_o_n_c_e_" end
+			
+			local durationStr,idx = GetDurationStringAndIndexFromLoopsIfFnNameExisted(_fnname)
+			if durationStr then 
+				return true 
+
+			end 
+			 
+			return false 
+		end 
+		
+		Tasksync.setloopcustomduration = function(_fnname,_duration)
+			
+			FnCustomDurations[_fnname] = _duration
+			
+			updateloop(_fnname,_duration)
+		end 
+		Tasksync.getloopcustomduration = function(_fnname)
+			return FnCustomDurations[_fnname]
+		end 
+		Tasksync.hasloopcustomduration = function(_fnname)
+			return FnCustomDurations[_fnname] ~= nil
+		end 
+		
+		Tasksync.Debug = function(skipnames)
+			local isingore = function(names)
 				
-			until not isAnyJob  
-			--print("Deleted thread",_durationStr)
-			return 
-		end)
-	end 	
-
-	Tasksync.addloop = function(_fnname,_duration,_fn,_fnondelete,_dontreplace,isonce)
-		if isonce then _fnname = _fnname .. "_o_n_c_e_" end
-	
-		if Fn[_fnname] ~= nil  then 
-			if _dontreplace then return end 
-			--print ('Detected Same Name,Replaced loop fn: '.._fnname) ;
-			DeleteExistedDurationStringIfThisFnNameAndDurationExistedFromLoops(_fnname)
-		end
-		
-		Fn[_fnname] = _fn  
-		
-		if _fnondelete then 
-			FnOnDelete[_fnname] = _fnondelete  
-		end 
-		
-		local _durationStr = tostring(_duration)
-		
-		if Loops[_durationStr] == nil then 
-			Loops[_durationStr] = {}; 
-			Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup(_durationStr)
-		end 
-		table.insert(Loops[_durationStr],_fnname)
-	end 
-	Tasksync.insertloop = Tasksync.addloop
-
-	Tasksync.updateloop = function(_fnname,_oldduration,_newduration)
-		local _olddurationStr = tostring(_oldduration)
-		local _newdurationStr = tostring(_newduration)
-		if _olddurationStr ~= _newdurationStr then 
-			
-			removeIfFnNameAndDurationIsExistedFromLoops(_fnname,_olddurationStr)
-			
-			if Loops[_newdurationStr] == nil then 
-				Loops[_newdurationStr] = {}; 
-				-- this is important to wait after just set a new duration  
-				Wait(_newduration)
-				-- Very Important to Wait because CreateThread newduration is diff from oldduration
-				Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup(_newdurationStr)
-			end 
-			table.insert(Loops[_newdurationStr],_fnname)
-			return 
-		end 
-	end 
-	
-	Tasksync.deleteloop = function(_fnname,isonce)
-		if isonce then _fnname = _fnname .. "_o_n_c_e_" end
-		
-		for duration,v in pairs(Loops) do 
-			for i=1,#Loops[duration] do 
-				if Loops[duration][i] == _fnname then 
-					
-					Fn[_fnname] = nil 
-					table.remove(Loops[duration],i)
-					
-					if FnOnDelete[_fnname] then 
-						FnOnDelete[_fnname]() 
-						FnOnDelete[_fnname] = nil 
+				if type(skipnames) == 'table' then 
+					for _=1,#names do 
+						local name = names[_]
+						for i,v in pairs(skipnames) do 
+							if v == name then 
+								return name 
+							end 
+						end 
 					end 
-					if #Loops[duration] == 0 then 
-						Loops[duration] = nil
+				else 
+					for _=1,#names do 
+						local name = names[_]
+						if skipnames == name then 
+							return name 
+						end 
 					end 
 				end 
 			end 
+			local ds = {{},{}}
+			for i,v in pairs(Loops) do 
+				if not isingore(v) then 
+					table.insert(ds[1],i)
+					ds[2][tostring(i)] = v
+				end 
+			end 
+			if ds[1] and ds[1][1] then 
+				print("Existed Durations: ",table.concat(ds[1],","))
+			end
+			for i,v in pairs(ds[2]) do 
+				print("duration:",i,"howmany:",#v,"names:",json.encode(v))
+			end 
+			return Loops
 		end 
-	end 
-	
-	Tasksync.setloopcustomduration = function(_fnname,_duration)
-		FnCustomDurations[_fnname] = _duration
-	end 
-	Tasksync.getloopcustomduration = function(_fnname)
-		return FnCustomDurations[_fnname]
-	end 
-	Tasksync.hasloopcustomduration = function(_fnname)
-		return FnCustomDurations[_fnname] ~= nil
-	end 
-	
-	Tasksync.Debug = function()
-		local ds = {{},{}}
-		for i,v in pairs(Loops) do 
-			table.insert(ds[1],i)
-			ds[2][tostring(i)] = v
-		end 
-		print("Existed Durations: ",table.concat(ds[1],","))
-		for i,v in pairs(ds[2]) do 
-			print("duration:",i,"howmany:",#v,"names:",json.encode(v))
-		end 
-		return Loops
-	end 
-
+	end 	
+end 
+if isdebug then 
+	CreateThread(function()
+		Tasksync.addloop("Tasksync:debug",1000,function()
+			Tasksync.Debug("Tasksync:debug")
+		end)
+	end)
 end 

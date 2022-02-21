@@ -2,131 +2,136 @@ load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_scaleform then 
 Tasksync._initialized_tasksync_with_scaleform = true 
-
-local scaleformsHandle = {}
-local scaleformsDrawingFunctions = {}
-local scaleformsIsDrawing = {}
-local scaleformsLifeRemain = {}
-Tasksync._loadscaleform = function(scaleformName,cb)
-	local handle = RequestScaleformMovie(scaleformName)
-	while not HasScaleformMovieLoaded(handle) do
-		Citizen.Wait(0)
-	end
-	scaleformsHandle[scaleformName] = handle
-	Tasksync._sendscaleformvalues = function (...)
-		local tb = {...}
-		PushScaleformMovieFunction(scaleformsHandle[scaleformName],tb[1])
-		for i=2,#tb do
-			if type(tb[i]) == "number" then 
-				if math.type(tb[i]) == "integer" then
-						ScaleformMovieMethodAddParamInt(tb[i])
-				else
-						ScaleformMovieMethodAddParamFloat(tb[i])
-				end
-			elseif type(tb[i]) == "string" then ScaleformMovieMethodAddParamTextureNameString(tb[i])
-			elseif type(tb[i]) == "boolean" then ScaleformMovieMethodAddParamBool(tb[i])
-			end
-		end 
-		PopScaleformMovieFunctionVoid()
-	end
-	if cb then 
-		cb(Tasksync._sendscaleformvalues,function(x) return Tasksync.ScaleformDrawDuration(scaleformName,x) end)
-	end 
-end
-Tasksync.ScaleformDrawingFunction = function(scaleformName,fn)
-	scaleformsDrawingFunctions[scaleformName] = fn
-end 
-Tasksync.ScaleformIsDrawing = function(scaleformName)
-	return scaleformsIsDrawing and  scaleformsIsDrawing[scaleformName]
-end 
-
-Tasksync.ScaleformDraw = function(scaleformName,cb, layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
-	if not scaleformsIsDrawing[scaleformName] then 
-		Tasksync._loadscaleform(scaleformName,cb)
-		if scaleformsHandle[scaleformName] then 
-			scaleformsIsDrawing[scaleformName] = true  
-			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
-				local handle = scaleformsHandle[scaleformName]
-				if handle then 
-					if layer then SetScriptGfxDrawOrder(layer) end 
-					if alignx and aligny then SetScriptGfxAlign(alignx, aligny) end 
-					if align_p1 and align_p2 and align_p3 and align_p4 then SetScriptGfxAlignParams(align_p1, align_p2, align_p3, align_p4) end 
-					if scaleformsDrawingFunctions[scaleformName] then scaleformsDrawingFunctions[scaleformName](handle) end 
-					DrawScaleformMovieFullscreen(handle)
-					if layer then ResetScriptGfxAlign() end
-				else 
-					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-				end 
-			end,function()
-				scaleformsIsDrawing[scaleformName] = false 
-			end)
-		end 
-	else 
-		error("Duplicated Drawing Scaleform",2)
-	end 
-end 
-Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk, cb,layer) 
-	if not scaleformsIsDrawing[scaleformName] then 
-		Tasksync._loadscaleform(scaleformName,cb)
-		if scaleformsHandle[scaleformName] then 
-			scaleformsIsDrawing[scaleformName] = true  
-			Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
-				local handle = scaleformsHandle[scaleformName]
-				if handle then 
-					if layer then SetScriptGfxDrawOrder(layer) end 
-					if scaleformsDrawingFunctions[scaleformName] then scaleformsDrawingFunctions[scaleformName](handle) end 
-					DrawScaleformMovie(handle ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
-					if layer then ResetScriptGfxAlign() end
-				else 
-					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-				end 
-			end,function()
-				scaleformsIsDrawing[scaleformName] = false 
-			end)
+	do 
+	local scaleformsHandle = {}
+	local scaleformsDrawingFunctions = {}
+	local scaleformsIsDrawing = {}
+	local scaleformsLifeRemain = {}
+	Tasksync._loadscaleform = function(scaleformName,cb)
+		local handle = RequestScaleformMovie(scaleformName)
+		while not HasScaleformMovieLoaded(handle) do
+			Citizen.Wait(0)
 		end
-	else 
-		error("Duplicated Drawing Scaleform",2)
+		scaleformsHandle[scaleformName] = handle
+		Tasksync._sendscaleformvalues = function (...)
+			local tb = {...}
+			PushScaleformMovieFunction(scaleformsHandle[scaleformName],tb[1])
+			for i=2,#tb do
+				if type(tb[i]) == "number" then 
+					if math.type(tb[i]) == "integer" then
+							ScaleformMovieMethodAddParamInt(tb[i])
+					else
+							ScaleformMovieMethodAddParamFloat(tb[i])
+					end
+				elseif type(tb[i]) == "string" then ScaleformMovieMethodAddParamTextureNameString(tb[i])
+				elseif type(tb[i]) == "boolean" then ScaleformMovieMethodAddParamBool(tb[i])
+				end
+			end 
+			PopScaleformMovieFunctionVoid()
+		end
+		if cb then 
+			cb(Tasksync._sendscaleformvalues,function(x) return Tasksync.ScaleformDrawDuration(scaleformName,x) end)
+		end 
+	end
+	Tasksync.ScaleformDrawingFunction = function(scaleformName,fn)
+		scaleformsDrawingFunctions[scaleformName] = fn
 	end 
-end 
-Tasksync.ScaleformDrawDuration = function (scaleformName,duration,onOpen,onClose)
-    CreateThread(function()
-        if not scaleformsIsDrawing[scaleformName] then 
+	Tasksync.ScaleformIsDrawing = function(scaleformName)
+		return scaleformsIsDrawing and  scaleformsIsDrawing[scaleformName]
+	end 
+
+	Tasksync.ScaleformDraw = function(scaleformName,cb, layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
+		if not scaleformsIsDrawing[scaleformName] then 
 			Tasksync._loadscaleform(scaleformName,cb)
 			if scaleformsHandle[scaleformName] then 
 				scaleformsIsDrawing[scaleformName] = true  
-				Tasksync.addlooponce('scaleforms:drawwithendduration:'..scaleformName,0,function()
+				Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
 					local handle = scaleformsHandle[scaleformName]
 					if handle then 
 						if layer then SetScriptGfxDrawOrder(layer) end 
+						if alignx and aligny then SetScriptGfxAlign(alignx, aligny) end 
+						if align_p1 and align_p2 and align_p3 and align_p4 then SetScriptGfxAlignParams(align_p1, align_p2, align_p3, align_p4) end 
+						if scaleformsDrawingFunctions[scaleformName] then scaleformsDrawingFunctions[scaleformName](handle) end 
 						DrawScaleformMovieFullscreen(handle)
 						if layer then ResetScriptGfxAlign() end
 					else 
-						Tasksync.deletelooponce('scaleforms:drawwithendduration:'..scaleformName)
+						Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
 					end 
 				end,function()
 					scaleformsIsDrawing[scaleformName] = false 
+					SetScaleformMovieAsNoLongerNeeded(scaleformsHandle[scaleformName])
 				end)
 			end 
+		else 
+			error("Duplicated Drawing Scaleform",2)
 		end 
-        scaleformsLifeRemain[scaleformName] = GetGameTimer() + duration
-        Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
-            if scaleformsLifeRemain[scaleformName] and GetGameTimer() >= scaleformsLifeRemain[scaleformName] then 
-                Tasksync.deletelooponce("ScaleformDuration"..scaleformName,333);
-            end 
-        end,function()
-			Tasksync.ScaleformEnd(scaleformName);
-            if onClose and type(onClose) == 'function' then 
-                onClose()
-            end 
+	end 
+	Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,green ,blue ,alpha ,unk, cb,layer) 
+		if not scaleformsIsDrawing[scaleformName] then 
+			Tasksync._loadscaleform(scaleformName,cb)
+			if scaleformsHandle[scaleformName] then 
+				scaleformsIsDrawing[scaleformName] = true  
+				Tasksync.addlooponce('scaleforms:draw:'..scaleformName,0,function()
+					local handle = scaleformsHandle[scaleformName]
+					if handle then 
+						if layer then SetScriptGfxDrawOrder(layer) end 
+						if scaleformsDrawingFunctions[scaleformName] then scaleformsDrawingFunctions[scaleformName](handle) end 
+						DrawScaleformMovie(handle ,x ,y ,width ,height ,red ,green ,blue ,alpha ,unk )
+						if layer then ResetScriptGfxAlign() end
+					else 
+						Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
+					end 
+				end,function()
+					scaleformsIsDrawing[scaleformName] = false 
+					SetScaleformMovieAsNoLongerNeeded(scaleformsHandle[scaleformName])
+				end)
+			end
+		else 
+			error("Duplicated Drawing Scaleform",2)
+		end 
+	end 
+	Tasksync.ScaleformDrawDuration = function (scaleformName,duration,onOpen,onClose)
+		CreateThread(function()
+			if not scaleformsIsDrawing[scaleformName] then 
+				Tasksync._loadscaleform(scaleformName,cb)
+				if scaleformsHandle[scaleformName] then 
+					scaleformsIsDrawing[scaleformName] = true  
+					Tasksync.addlooponce('scaleforms:drawwithendduration:'..scaleformName,0,function()
+						local handle = scaleformsHandle[scaleformName]
+						if handle then 
+							if layer then SetScriptGfxDrawOrder(layer) end 
+							DrawScaleformMovieFullscreen(handle)
+							if layer then ResetScriptGfxAlign() end
+						else 
+							Tasksync.deletelooponce('scaleforms:drawwithendduration:'..scaleformName)
+						end 
+					end,function()
+						scaleformsIsDrawing[scaleformName] = false 
+						SetScaleformMovieAsNoLongerNeeded(scaleformsHandle[scaleformName])
+					end)
+				end 
+			end 
+			scaleformsLifeRemain[scaleformName] = GetGameTimer() + duration
+			Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
+				if scaleformsLifeRemain[scaleformName] and GetGameTimer() >= scaleformsLifeRemain[scaleformName] then 
+					Tasksync.deletelooponce("ScaleformDuration"..scaleformName,333);
+				end 
+			end,function()
+				Tasksync.ScaleformEnd(scaleformName);
+				if onClose and type(onClose) == 'function' then 
+					onClose()
+				end 
+			end)
 		end)
-    end)
-end
-Tasksync.ScaleformCall = function(scaleformName,cb) 
-	if not cb then error("What is it you gonna call?",2) end 
-	Tasksync._loadscaleform(scaleformName,cb)
-end 
-Tasksync.ScaleformEnd = function(scaleformName,cb) 
-	SetScaleformMovieAsNoLongerNeeded(scaleformsHandle[scaleformName])
-	scaleformsHandle[scaleformName] = nil 
-end 
+	end
+	Tasksync.ScaleformCall = function(scaleformName,cb) 
+		if not cb then error("What is it you gonna call?",2) end 
+		Tasksync._loadscaleform(scaleformName,cb)
+	end 
+	Tasksync.ScaleformEnd = function(scaleformName,cb) 
+		SetScaleformMovieAsNoLongerNeeded(scaleformsHandle[scaleformName])
+		scaleformsHandle[scaleformName] = nil 
+	end 
+
+	end 
 end 
