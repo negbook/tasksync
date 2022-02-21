@@ -3,82 +3,9 @@ if not Tasksync then
 end
 if not Tasksync._initialized_tasksync_once then 
 Tasksync._initialized_tasksync_once = true 
-local LoopsGroup = {}
-local LoopsTodoFn = {}
-local LoopsTodoFnWhenBreak = {}
-
-local resourceName = GetCurrentResourceName()
-local _getAmountsOfLoopType = function()
-		local nowTable = (LoopsGroup)
-		local total = 0 
-		for i,v in pairs(nowTable) do 
-			local n = #v
-			total = total + n
-		end
-		return total 
-end 
-
-Tasksync.__createDepartmentGardenOnce = function(duration)
-	CreateThread(function()
-		local todo = LoopsTodoFn
-		local jobGroup_once = LoopsGroup[duration]
-		local duration = tonumber(duration)
-		local e = {}
-		
-		repeat 
-			local loc_jobgroup_once =  (jobGroup_once or e)
-			local isAnyJob = loc_jobgroup_once[1]
-			if isAnyJob then
-				local debugtext = {}
-				for i=1,#loc_jobgroup_once do 
-					local jobname = loc_jobgroup_once[i]
-					local fn = jobname and todo[jobname]
-					if fn then fn() end
-				end 
-			end 
-			Wait(duration)
-		until not isAnyJob
-		return 
-	end)
-end 	
-Tasksync.addlooponce = function(jobname,duration,fn_todo,fn_todoend) --jobname,duration,function
-	local duration = tostring(duration)
-	local JobExisted = false 
-	if LoopsGroup[duration] and #LoopsGroup[duration] > 0 then 
-		for i=1,#LoopsGroup[duration] do 
-			if LoopsGroup[duration][i] == jobname then 
-				JobExisted = true 
-			end 
-		end 
-	end 
-	if not JobExisted then 
-		LoopsTodoFn[jobname] = fn_todo
-		if fn_todoend then 
-			LoopsTodoFnWhenBreak[jobname] = fn_todoend
-		end 
-		if LoopsGroup[duration] == nil then  
-			LoopsGroup[duration] = {}; 
-			table.insert(LoopsGroup[duration],jobname)
-			Tasksync.__createDepartmentGardenOnce(duration)
-		else 
-			table.insert(LoopsGroup[duration],jobname)
-		end 
-	end 
-end 
-Tasksync.insertlooponce = Tasksync.addlooponce
-Tasksync.deletelooponce = function(jobname)
-	for duration,v in pairs(LoopsGroup) do 
-		for i=1,#LoopsGroup[duration] do 
-			if LoopsGroup[duration][i] == jobname then 
-				if LoopsTodoFnWhenBreak[jobname] then LoopsTodoFnWhenBreak[jobname]() end 
-				LoopsTodoFnWhenBreak[jobname] = nil 
-				LoopsTodoFn[jobname] = nil 
-				table.remove(LoopsGroup[duration],i)
-				if #LoopsGroup[duration] == 0 then 
-					LoopsGroup[duration] = nil
-				end 
-			end 
-		end 
-	end 
-end 
+-- 👆important to avoid loaded multiple replace existed vars
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+	Tasksync.addlooponce = function(_fnname,_duration,_fn,_fnondelete) return Tasksync.addloop(_fnname,_duration,_fn,_fnondelete,true,true) end 
+	Tasksync.insertlooponce = Tasksync.addlooponce
+	Tasksync.deletelooponce = function(_fnname) return Tasksync.deleteloop(_fnname,true) end
 end 

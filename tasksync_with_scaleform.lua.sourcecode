@@ -2,16 +2,11 @@ load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_scaleform then 
 Tasksync._initialized_tasksync_with_scaleform = true 
-Tasksync._Scaleforms = {{},{},{},{}}
-scaleformsHandle = {}
-scaleformsDrawingFunctions = {}
-scaleformsIsDrawing = {}
-scaleformsLifeRemain = {}
 
-local scaleformsHandle = Tasksync._Scaleforms[1]
-local scaleformsDrawingFunctions = Tasksync._Scaleforms[2]
-local scaleformsIsDrawing = Tasksync._Scaleforms[3]
-local scaleformsLifeRemain = Tasksync._Scaleforms[4]
+local scaleformsHandle = {}
+local scaleformsDrawingFunctions = {}
+local scaleformsIsDrawing = {}
+local scaleformsLifeRemain = {}
 Tasksync._loadscaleform = function(scaleformName,cb)
 	local handle = RequestScaleformMovie(scaleformName)
 	while not HasScaleformMovieLoaded(handle) do
@@ -35,7 +30,7 @@ Tasksync._loadscaleform = function(scaleformName,cb)
 		PopScaleformMovieFunctionVoid()
 	end
 	if cb then 
-		cb(Tasksync._sendscaleformvalues)
+		cb(Tasksync._sendscaleformvalues,function(x) return Tasksync.ScaleformDrawDuration(scaleformName,x) end)
 	end 
 end
 Tasksync.ScaleformDrawingFunction = function(scaleformName,fn)
@@ -45,7 +40,7 @@ Tasksync.ScaleformIsDrawing = function(scaleformName)
 	return scaleformsIsDrawing and  scaleformsIsDrawing[scaleformName]
 end 
 
-Tasksync.ScaleformDraw = function(scaleformName,cb,layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
+Tasksync.ScaleformDraw = function(scaleformName,cb, layer, alignx, aligny, align_p1, align_p2, align_p3, align_p4) 
 	if not scaleformsIsDrawing[scaleformName] then 
 		Tasksync._loadscaleform(scaleformName,cb)
 		if scaleformsHandle[scaleformName] then 
@@ -61,8 +56,9 @@ Tasksync.ScaleformDraw = function(scaleformName,cb,layer, alignx, aligny, align_
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-					scaleformsIsDrawing[scaleformName] = false 
 				end 
+			end,function()
+				scaleformsIsDrawing[scaleformName] = false 
 			end)
 		end 
 	else 
@@ -83,18 +79,16 @@ Tasksync.ScaleformDrawMini = function(scaleformName, x ,y ,width ,height ,red ,g
 					if layer then ResetScriptGfxAlign() end
 				else 
 					Tasksync.deletelooponce('scaleforms:draw:'..scaleformName)
-					scaleformsIsDrawing[scaleformName] = false 
 				end 
+			end,function()
+				scaleformsIsDrawing[scaleformName] = false 
 			end)
 		end
 	else 
 		error("Duplicated Drawing Scaleform",2)
 	end 
 end 
-Tasksync.ScaleformDrawDuration = function (scaleformName,duration,...)
-local ops = {...}
-    local cb = ops[#ops]
-    table.remove(ops,#ops)
+Tasksync.ScaleformDrawDuration = function (scaleformName,duration,onOpen,onClose)
     CreateThread(function()
         if not scaleformsIsDrawing[scaleformName] then 
 			Tasksync._loadscaleform(scaleformName,cb)
@@ -108,21 +102,23 @@ local ops = {...}
 						if layer then ResetScriptGfxAlign() end
 					else 
 						Tasksync.deletelooponce('scaleforms:drawwithendduration:'..scaleformName)
-						scaleformsIsDrawing[scaleformName] = false 
 					end 
+				end,function()
+					scaleformsIsDrawing[scaleformName] = false 
 				end)
 			end 
 		end 
         scaleformsLifeRemain[scaleformName] = GetGameTimer() + duration
         Tasksync.addlooponce("ScaleformDuration"..scaleformName,333,function()
             if scaleformsLifeRemain[scaleformName] and GetGameTimer() >= scaleformsLifeRemain[scaleformName] then 
-                Tasksync.ScaleformEnd(scaleformName);
-                if type(cb) == 'function' then 
-                    cb()
-                end 
-                Tasksync.deletelooponceonce("ScaleformDuration"..scaleformName,333);
+                Tasksync.deletelooponce("ScaleformDuration"..scaleformName,333);
             end 
-        end)
+        end,function()
+			Tasksync.ScaleformEnd(scaleformName);
+            if onClose and type(onClose) == 'function' then 
+                onClose()
+            end 
+		end)
     end)
 end
 Tasksync.ScaleformCall = function(scaleformName,cb) 

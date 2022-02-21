@@ -1,10 +1,53 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
-load(LoadResourceFile("tasksync", 'tasksync_custom.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_drawtext.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_keys.lua.sourcecode'))()
 CreateThread(function()
+	--[[
+	local rand = 2000
+	Tasksync.addlooponce("norma0",1000,function(setter)
+		print("norma0",0)
+		rand = math.floor(math.random(1,3)) * 100
+	end )
+	
+	Tasksync.addlooponce("norma0",200,function(setter)
+		print("normal",setter:get())
+		
+		setter:set(rand)
+	end )
+	
+	Tasksync.addloop("normal2",3000,function(setter)
+		print("normal2",setter:get())
+		setter:set(rand)
+	end )
+	
+	Tasksync.addloop("normal3",1500,function(setter)
+		print("normal3",setter:get())
+		setter:set(rand)
+	end )
+	Wait(3000)
+	print('delete')
+	
+	Tasksync.deletelooponce("norma0",1000)
+	--]]
+	--[[
+	if not Tasksync.ScaleformIsDrawing("SHOP_MENU_DLC") then 
+		local width = 220
+		local height = 250 
+
+		Tasksync.ScaleformDraw("SHOP_MENU_DLC",function(initialise,stopafter)
+			initialise("SET_TITLE","Title")
+			initialise("SET_DATA_SLOT",0,0,0,0,1000,"name")
+			initialise("SET_DATA_SLOT",1,0,0,0,1000,"name2")
+			initialise("SET_DESCRIPTION","SET_DESCRIPTION1","SET_DESCRIPTION2","SET_DESCRIPTION3")
+			initialise("SET_IMAGE","","")
+			initialise("DRAW_MENU_LIST")
+			stopafter(3000)
+		end) 
+	end 
+	--]]
+	
 	--[[
 	local handle = TextDrawCreate(0.4,0.4,"test")
 	TextDrawShow(handle)

@@ -32,7 +32,7 @@ Tasksync._TriggerGroupedKeyCallback = function(group,key)
 		local groupedkeycallback = _getGroupedKeyCallback(group,key)
 		if groupedkeycallback then 
 			for i=1,#groupedkeycallback do 
-				groupedkeycallback[i]()  
+				groupedkeycallback[i](group,key)  
 			end
 		end 		
 	end 
@@ -83,11 +83,12 @@ Tasksync.RegisterKeyGroupFull = function(key,group,description,presseddelay,dela
 	local _groupedkeyname = returnGroupedKeyName(group,key)
 	RegisterCommand("+".._groupedkeyname, function() 
 		Tasksync._TriggerGroupedKeyCallback(group,key.."_JUST_PRESSED")
+		
 		local delaytime = GetGameTimer() + (presseddelay or 500)
 		local _TriggerGroupedKeyCallback = Tasksync._TriggerGroupedKeyCallback
 		local loopduration = delayperpressed
 		if delayperpressed == -1 then loopduration = 50 end 
-		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),delayperpressed or 300,function()
+		Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),loopduration or 300,function()
 			if GetGameTimer() > delaytime then 
 				if delayperpressed == - 1 then 
 					_TriggerGroupedKeyCallback(group,key.."_JUST_HOLDED")
@@ -133,7 +134,7 @@ Tasksync.RegisterKeyTable = function(regtable)
 			action["JUST_HOLDED"] = Tasksync.RegisterGroupedKeyCallbackJustHolded
 			action["JUST_RELEASED"] = Tasksync.RegisterGroupedKeyCallbackJustReleased
 			if v[4] then 
-				local _cb = function()
+				local _cb = function(group,key)
 					local _atbl = {}
 					for i=4,#v do 
 						table.insert(_atbl,v[i])
