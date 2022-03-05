@@ -64,6 +64,7 @@ Tasksync._initialized_tasksync = true
 		local function newObject(value)
 			
 			local haschange = false 
+			local haskilled = false 
 			return function(action,v,onchange) 
 				if action == 'get' then 
 					return value 
@@ -80,6 +81,12 @@ Tasksync._initialized_tasksync = true
 				elseif action == 'haschange' then 
 					local r = haschange
 					haschange = false 
+					return r
+				elseif action == 'kill' or action == 'break' then 
+					haskilled = true 
+				elseif action == 'haskill' then 
+					local r = haskilled 
+					haskilled = false 
 					return r
 				else 
 					error "invalid action"
@@ -109,7 +116,10 @@ Tasksync._initialized_tasksync = true
 								end 
 								local duration_editor = setgeters[_nowfnname]
 								f(duration_editor)
-								if duration_editor('haschange') then 
+								if duration_editor('haskill') then 
+									setgeters[_nowfnname] = nil
+									Tasksync.deleteloop(_nowfnname)
+								elseif duration_editor('haschange') then 
 									setgeters[_nowfnname] = nil
 									Tasksync.setloopcustomduration(_nowfnname,duration_editor('get')) ;
 								end 
@@ -125,7 +135,15 @@ Tasksync._initialized_tasksync = true
 				return 
 			end)
 		end 	
-
+		local tasksync_index = function() 
+			local index = 0
+			return function() 
+				index = index + 1 
+				return index 
+			end 
+		end 
+		next_idx = tasksync_index() 
+		
 		Tasksync.addloop = function(_fnname,_duration,_fn,_fnondelete,_dontreplace,isonce)
 			if isonce then _fnname = _fnname .. "_o_n_c_e_" end
 		
@@ -148,6 +166,7 @@ Tasksync._initialized_tasksync = true
 				Tasksync.__createNewThreadForNewDurationLoopFunctionsGroup(_durationStr)
 			end 
 			table.insert(Loops[_durationStr],_fnname)
+			return _fnname
 		end 
 		Tasksync.insertloop = Tasksync.addloop
 		
