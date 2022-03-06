@@ -4,8 +4,7 @@ author 'negbook'
 
 lua54 'yes'
 escrow_ignore {
-	'example.lua',
-	'example-sv.lua'
+	'*.*'
 }
 
 files {

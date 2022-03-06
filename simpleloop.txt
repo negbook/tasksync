@@ -1,0 +1,28 @@
+simpleloop = function (duration,fn)
+    local duration = duration 
+    local loopend = false 
+    local fn = fn 
+    local newthread = function() end 
+    local localcb = function(action,value) 
+        if action == "break" or action == "kill" then 
+            loopend = true
+        elseif action == "set" then 
+            duration = value
+        elseif action == "get" then 
+            return duration
+        elseif action == "restart" then 
+            loopend = false
+            return newthread()
+        end 
+    end
+    newthread = function() 
+        CreateThread(function()
+            while not loopend do  Wait(duration)
+                fn(localcb)  
+            end 
+            return 
+        end) 
+        return localcb
+    end 
+    return newthread()
+end 
