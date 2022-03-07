@@ -12,7 +12,7 @@ files {
 	'tasksync_custom.lua.sourcecode',
 	'tasksync_once.lua.sourcecode',
 	'tasksync_with_scaleform.lua.sourcecode',
-	'tasksync_with_keys.lua.sourcecode',
+	'tasksync_with_keycontainer.lua.sourcecode',
 
 }
 client_scripts {

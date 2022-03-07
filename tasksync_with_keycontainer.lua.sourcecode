@@ -1,0 +1,372 @@
+load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
+if not Tasksync._initialized_tasksync_with_keys then 
+Tasksync._initialized_tasksync_with_keys = true 
+	do 
+    local upper = string.upper
+	local IsStringNullOrEmpty = function(str) return (str == nil or str == "" or type(str)~='string') end 
+	local KeyGroupEnable = {}
+	local GroupedKeys = {}
+	local GroupedKeyCallBacks = {}
+	local e = {}
+	local _clearGroupedKeyCallback = function(group,key,style)
+		if _getGroupedKeyCallback(group,key,style) then GroupedKeys[group][key][style] =  nil end 
+	end 
+	local _getGroupedKeyCallback = function(group,key,style,...)
+		local t = (((GroupedKeys or e)[group] or e)[key] or e)[style]
+		return t
+	end 
+	local registerGroupedKeyCallback = function(group,key,style,cb)
+		if not GroupedKeys[group] then GroupedKeys[group] = {} end 
+		if not GroupedKeys[group][key] then GroupedKeys[group][key] = {} end 
+        if not GroupedKeys[group][key][style] then GroupedKeys[group][key][style] = {} end 
+		table.insert(GroupedKeys[group][key][style] , cb)
+	end 
+	
+	local RegisterGroupedKeyCallbackJustPressed = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_PRESSED",cb)
+	end 
+	local RegisterGroupedKeyCallbackPressed = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_PRESSED",cb)
+	end 
+	local RegisterGroupedKeyCallbackJustHolded = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_HOLDED",cb)
+	end 
+	local RegisterGroupedKeyCallbackJustReleased = function(group,key,cb)
+		return registerGroupedKeyCallback(group,key,"_JUST_RELEASED",cb)
+	end 
+	local UnRegisterKeyEventCallback = function(group,key,style)
+		_clearGroupedKeyCallback(group,key,style)
+	end 
+	local SetKeyGroupActive = function(group,bool) 
+		KeyGroupEnable[group] = bool 
+	end 
+	local IsKeyGroupActive = function(group)
+		return not not KeyGroupEnable[group]
+	end 
+	local RemoveKeyGroup = function(group)
+		KeyGroupEnable[group] = nil
+	end 
+	local DeleteKeyGroup = RemoveKeyGroup
+	local returnGroupedKeyName = function(group,key)
+		return upper(group .. "_" .. key)
+	end 
+    local triggerGroupedKeyCallback = function(group,key,style)
+		if IsKeyGroupActive(group) then 
+			local callbacks = _getGroupedKeyCallback(group,key,style)
+			if callbacks then 
+                for i=1,#callbacks do 
+                 callbacks[i](group,key)  
+                end 
+            end 		
+		end 
+	end 
+	local RegisterKeyGroup = function(key,group,description,type_) 
+		local type_ = type_ or 'keyboard'
+		local _groupedkeyname = returnGroupedKeyName(group,key)
+		RegisterCommand("+".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_PRESSED") 
+		end, false) 
+		RegisterCommand("-".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_RELEASED") 
+		end, false) 
+		RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
+	end 
+	local RegisterKeyGroupFull = function(key,group,description,presseddelay,delayperpressed,type_) 
+		local type_ = type_ or 'keyboard'
+		local _groupedkeyname = returnGroupedKeyName(group,key)
+		RegisterCommand("+".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_PRESSED")
+			if presseddelay ~= -1 then 
+                local delaytime = GetGameTimer() + (presseddelay or 500)
+                local _TriggerGroupedKeyCallback = triggerGroupedKeyCallback
+                local loopduration = delayperpressed
+                if delayperpressed == -1 then loopduration = 150 end 
+                Tasksync.addlooponce("KEY_LOOP:"..returnGroupedKeyName(group,key),loopduration or 300,function()
+                    if GetGameTimer() > delaytime then 
+                        if delayperpressed == - 1 then 
+                            _TriggerGroupedKeyCallback(group,key,"_JUST_HOLDED")
+                            Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
+                        else 
+                            _TriggerGroupedKeyCallback(group,key,"_PRESSED")
+                        end 
+                    end 
+                end)
+            end 
+		end, false) 
+		RegisterCommand("-".._groupedkeyname, function() 
+			triggerGroupedKeyCallback(group,key,"_JUST_RELEASED") 
+			Tasksync.deletelooponce("KEY_LOOP:"..returnGroupedKeyName(group,key))
+		end, false) 
+		RegisterKeyMapping("+".._groupedkeyname, IsStringNullOrEmpty(description) and "+".._groupedkeyname or description , type_, key) 
+	end 
+	local RegisterKeyTable = function(regtable)
+		local group = regtable.group 
+		local keys = regtable.keys 
+		for i,v in pairs(keys) do 
+			local isFullRegister = (v[3] and type(v[3]) == 'number')
+			if isFullRegister then 
+				RegisterKeyGroupFull(v[1],group,v[2],v[3],v[4],v[5])
+			else 
+				RegisterKeyGroup(v[1],group,v[2],v[3])
+			end 
+		end 
+		local cbs = regtable.cbs 
+		if cbs then 
+			for i,v in pairs(cbs) do 
+				local style = v[2]
+				local action = {}
+				action["JUST_PRESSED"] = RegisterGroupedKeyCallbackJustPressed
+				action["PRESSED"] = RegisterGroupedKeyCallbackPressed
+				action["JUST_HOLDED"] = RegisterGroupedKeyCallbackJustHolded
+				action["JUST_RELEASED"] = RegisterGroupedKeyCallbackJustReleased
+				if v[4] then 
+					local _cb = function(group,key)
+						local _atbl = {}
+						for i=4,#v do 
+							table.insert(_atbl,v[i])
+						end 
+						return v[3](table.unpack(_atbl))
+					end 
+					action[style](group,v[1],_cb)
+				else 
+					action[style](group,v[1],v[3])
+				end
+			end 
+		end 
+	end
+    local Normals = {}
+    local Presss = {}
+    local Holds = {}
+    Tasksync.KeyContainer = {}
+        local KeyContainer = Tasksync.KeyContainer
+        local CreatedKeyContainers = {}
+        local RegisterEntrys = {}
+        KeyContainer.RegisterEntry = function(group, onjustpressed, onpressed, onholded, onjustreleased )
+            RegisterEntrys[group] = {
+                onjustpressed   = onjustpressed,
+                onpressed  = onpressed,
+                onholded   = onholded,
+                onjustreleased  = onjustreleased,
+            }
+        end
+        KeyContainer.Create = function(group, namespace, mapper, data) 
+            local container = {} 
+            local existedkey = KeyContainer.GetCreated(group, namespace)
+            if existedkey then 
+                -- take edit on the old menu instead create new one 
+                container = existedkey
+            else 
+                table.insert(CreatedKeyContainers, container)
+            end 
+            container.group      = group
+            container.namespace = namespace
+            container.mapper    = mapper
+            container.data      = data
+            container.onjustpressed   = function(key)
+                RegisterEntrys[group].onjustpressed(namespace,key) 
+            end 
+            container.onpressed   = function(key)
+                RegisterEntrys[group].onpressed(namespace,key) 
+            end 
+            container.onholded   = function(key)
+                RegisterEntrys[group].onholded(namespace,key) 
+            end 
+            container.onjustreleased   = function(key)
+                RegisterEntrys[group].onjustreleased(namespace,key) 
+            end 
+            if data.keys then 
+                local normal = {} 
+                local press = {} 
+                local hold = {} 
+                if data.keys then 
+                for i,v in pairs(data.keys) do 
+                    table.insert(normal,v)
+                end     
+                end 
+                if data.presshook then 
+                for i,v in pairs (data.presshook) do 
+                    for j,w in pairs(normal) do 
+                        if w == v then 
+                            table.remove(normal,j)
+                        else 
+                            table.insert(press,v)
+                        end 
+                    end 
+                end 
+                end 
+                if data.holdhook then 
+                for i,v in pairs (data.holdhook) do 
+                    for j,w in pairs(normal) do 
+                        if w == v then 
+                            table.remove(normal,j)
+                        else 
+                            table.insert(hold,v)
+                        end 
+                    end 
+                end 
+                end 
+                for i,v in pairs(normal) do 
+                    if Normals[v] == nil then 
+                        Normals[v] = true 
+                        RegisterKeyGroupFull( v, "KeyContainer"..GetCurrentResourceName(),v ,-1, -1, mapper)
+                        RegisterGroupedKeyCallbackJustPressed("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustpressed(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustpressed",key)
+                                            end 
+                                        end 
+                                    end
+                                end 
+                            end 
+                        end )
+                        RegisterGroupedKeyCallbackJustReleased("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustreleased(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustreleased",key)
+                                            end 
+                                        end 
+                                    end 
+                                end 
+                            end 
+                        end )
+                    end 
+                   --RegisterKeyGroupFull( v, -1, -1, mapper,container)
+                end 
+                for i,v in pairs(press) do 
+                    if Presss[v] == nil then 
+                        Presss[v] = true 
+                        RegisterKeyGroupFull( v,"KeyContainer"..GetCurrentResourceName(),v, 500, 150, mapper)
+                        RegisterGroupedKeyCallbackJustPressed("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustpressed(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustpressed",key)
+                                            end 
+                                        end 
+                                    end
+                                end 
+                            end 
+                        end )
+                        RegisterGroupedKeyCallbackPressed("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.presshook then
+                                    for k,p in pairs(c.data.presshook) do 
+                                        if p == key then 
+                                            c.onpressed(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onpressed",key)
+                                            end 
+                                        end 
+                                    end 
+                                end 
+                            end 
+                        end )
+                        RegisterGroupedKeyCallbackJustReleased("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustreleased(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustreleased",key)
+                                            end 
+                                        end 
+                                    end 
+                                end 
+                            end 
+                        end )
+                    end 
+                    --RegisterKeyGroupFull( v, 500, 150, mapper,container)
+                end 
+                for i,v in pairs(hold) do 
+                    if Holds[v] == nil then 
+                        Holds[v] = true 
+                        RegisterKeyGroupFull( v,"KeyContainer"..GetCurrentResourceName(),v, 500, -1, mapper)
+                        RegisterGroupedKeyCallbackJustPressed("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustpressed(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustpressed",key)
+                                            end 
+                                        end 
+                                    end
+                                end 
+                            end 
+                        end )
+                        RegisterGroupedKeyCallbackJustHolded("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.holdhook then
+                                    for k,p in pairs(c.data.holdhook) do 
+                                        if p == key then 
+                                            c.onholded(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onholded",key)
+                                            end 
+                                        end 
+                                    end 
+                                end 
+                            end 
+                        end )
+                        RegisterGroupedKeyCallbackJustReleased("KeyContainer"..GetCurrentResourceName(),v,function(_,key)
+                            for _,c in pairs(CreatedKeyContainers) do 
+                                if c.data.keys then
+                                    for k,p in pairs(c.data.keys) do 
+                                        if p == key then 
+                                            c.onjustreleased(key)
+                                            if c.data.cb then 
+                                                c.data.cb("onjustreleased",key)
+                                            end 
+                                        end 
+                                    end 
+                                end 
+                            end 
+                        end )
+                    end 
+                    --RegisterKeyGroupFull( v, 500, -1, mapper,container)
+                end 
+                SetKeyGroupActive ("KeyContainer"..GetCurrentResourceName(), true)
+            end 
+        end 
+        KeyContainer.GetCreated = function(group, namespace) 
+            for i=1, #CreatedKeyContainers do 
+                if CreatedKeyContainers[i].group == group and CreatedKeyContainers[i].namespace == namespace then 
+                    return CreatedKeyContainers[i]
+                end 
+            end 
+        end 
+        --[=[
+            load(LoadResourceFile("tasksync", 'tasksync_with_keycontainer.lua.sourcecode'))()
+            Tasksync.KeyContainer.RegisterEntry("runcodegroup",function(...)
+                print("onjustpressed",...)
+            end,function(...)
+                print("onpressed",...)
+            end,function(...)
+                print("onholded",...)
+            end,function(...)
+                print("onjustreleased",...)
+            end)
+
+            Tasksync.KeyContainer.Create("runcodegroup","nativemenu","keyboard",{
+                keys = {"BACK","UP"},
+                presshook = {"UP"},
+                holdhook = {"DOWN"}
+            })
+                        
+        --]=]
+	end 
+end 
