@@ -28,3 +28,19 @@ Tasksync.KeyContainer.Create("test2","test2_keys",{
         {"DOWN","JUST_RELEASED",function(...) print('cb2:',...) end , "fuck"}
     }
 })
+local a = function(duration)
+    print(duration("get"))
+    if duration("get") > 1000 then 
+        duration("break")
+    end 
+    duration("set",math.random(0,2000))
+end 
+local b = function()
+    print("break")
+end 
+CreateThread(function() while true do Wait(1000)
+    local c = Tasksync.looponcenewthread("a",1000,a,b)
+
+    local d = Tasksync.looponcenewthread("a",500,a,b)
+
+end end )

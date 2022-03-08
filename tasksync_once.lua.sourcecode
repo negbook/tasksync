@@ -5,8 +5,46 @@ end
 if not Tasksync._initialized_tasksync_once then 
 Tasksync._initialized_tasksync_once = true 
 -- 👆important to avoid loaded multiple replace existed vars
+    load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 	do 
-	load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
+        local running = {}
+        Tasksync.looponcenewthread = function (name,duration,fn,fnclose)
+            
+            if not running[name] then
+                local duration = duration 
+                local loopend = false 
+                local fn = fn 
+                local fnclose = fnclose
+                local newthread = function() end 
+         
+                local localcb = function(action,value) 
+                    if action == "break" or action == "kill" then 
+                        loopend = true
+                    elseif action == "set" then 
+                        duration = value
+                    elseif action == "get" then 
+                        return duration
+                    elseif action == "restart" then 
+                        loopend = false
+                        return newthread()
+                    end 
+                end
+                running[name] = localcb 
+                    newthread = function() 
+                        CreateThread(function()
+                            while not loopend do  Wait(duration)
+                                fn(running[name])  
+                            end 
+                            if fnclose then fnclose() end
+                            running[name] = nil
+                            return 
+                        end) 
+                        return localcb
+                    end 
+                    return newthread()
+                 
+            end 
+        end 
 		Tasksync.addlooponce = function(_fnname,_duration,_fn,_fnondelete) return Tasksync.addloop(_fnname,_duration,_fn,_fnondelete,true,true) end 
 		Tasksync.insertlooponce = Tasksync.addlooponce
 		Tasksync.deletelooponce = function(_fnname) return Tasksync.deleteloop(_fnname,true) end

@@ -3,14 +3,10 @@ load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_keys then 
 Tasksync._initialized_tasksync_with_keys = true 
 	do 
-    local RegisterKeyActionCallback = function(KEY_ACTION_NAME,cb) 
-        
-    end 
 	local RegisterKeyFull = function(KEY,KEY_ACTION_NAME,description,presseddelay,delayperpressed,MAPPER,cb) 
 		local type_ = type_ or 'keyboard'
         local thisduration
-       
-        
+
 		RegisterCommand("+"..KEY_ACTION_NAME, function() 
             if cb then cb("JUST_PRESSED") end 
 			if presseddelay ~= -1 then 
@@ -18,14 +14,13 @@ Tasksync._initialized_tasksync_with_keys = true
                 local loopduration = delayperpressed
                 
                 if delayperpressed == -1 then loopduration = 150 end 
+                --thisduration = Tasksync.looponcenewthread("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
                 Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
-                    
-                    thisduration = duration 
                     if GetGameTimer() > delaytime then 
                         if delayperpressed == - 1 then 
                             if cb then cb("JUST_HOLDED") end 
                             Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
-                            
+                            --if thisduration then  thisduration("break") end 
                         else 
                             if cb then cb("PRESSED") end 
                         end 
@@ -40,6 +35,7 @@ Tasksync._initialized_tasksync_with_keys = true
                 if cb then cb("JUST_RELEASED") end 
             end 
             Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
+            --if thisduration then thisduration("break") print('break') end 
 		end, false) 
 		RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
 	end 

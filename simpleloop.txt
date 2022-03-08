@@ -1,7 +1,8 @@
-simpleloop = function (duration,fn)
+loop_newthread = function (duration,fn,fnclose)
     local duration = duration 
     local loopend = false 
     local fn = fn 
+    local fnclose = fnclose
     local newthread = function() end 
     local localcb = function(action,value) 
         if action == "break" or action == "kill" then 
@@ -20,9 +21,49 @@ simpleloop = function (duration,fn)
             while not loopend do  Wait(duration)
                 fn(localcb)  
             end 
+            if fnclose then fnclose() end
             return 
         end) 
         return localcb
     end 
     return newthread()
+end 
+local running = {} 
+
+looponce_newthread = function (name,duration,fn,fnclose)
+    
+    if not running[name] then
+        local duration = duration 
+        local loopend = false 
+        local fn = fn 
+        local fnclose = fnclose
+        local newthread = function() end 
+ 
+        local localcb = function(action,value) 
+            if action == "break" or action == "kill" then 
+                loopend = true
+            elseif action == "set" then 
+                duration = value
+            elseif action == "get" then 
+                return duration
+            elseif action == "restart" then 
+                loopend = false
+                return newthread()
+            end 
+        end
+        running[name] = localcb 
+        newthread = function() 
+            CreateThread(function()
+                while not loopend do  Wait(duration)
+                    fn(running[name])  
+                end 
+                if fnclose then fnclose() end
+                running[name] = nil
+                return 
+            end) 
+            return localcb
+        end 
+        return newthread()
+         
+    end 
 end 

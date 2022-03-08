@@ -8,10 +8,11 @@ Tasksync._initialized_tasksync = true
 -- 👆important to avoid loaded multiple replace existed vars
     do 
     
-        Tasksync.loopnewthread = function (duration,fn)
+        Tasksync.loopnewthread = function (duration,fn,fnclose)
             local duration = duration 
             local loopend = false 
             local fn = fn 
+            local fnclose = fnclose
             local newthread = function() end 
             local localcb = function(action,value) 
                 if action == "break" or action == "kill" then 
@@ -30,6 +31,7 @@ Tasksync._initialized_tasksync = true
                     while not loopend do  Wait(duration)
                         fn(localcb)  
                     end 
+                    if fnclose then fnclose() end
                     return 
                 end) 
                 return localcb
