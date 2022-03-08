@@ -3,17 +3,25 @@ load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_keycontainer.lua.sourcecode'))()
 
-
+Tasksync.KeyContainer.RegisterEntry("test")
 Tasksync.KeyContainer.Create("test","test_keys",{
     keys = {
         {"UP","keyboard"},
-        {"DOWN"}
+        {"RIGHT"},
+        {"DOWN"},
+        {{"Q","E","W"}},
     },
     cbs = {
         {"UP","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {"UP","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {"RIGHT","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","PRESSED",function(...) print('cb:',...) end , "fuck"},
-        {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"}
+        {"RIGHT","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","E","W"},"JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","E","W"},"JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","E","W"},"PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","E","W"},"JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
     }
 })
 Tasksync.KeyContainer.RegisterEntry("test2")
@@ -28,6 +36,9 @@ Tasksync.KeyContainer.Create("test2","test2_keys",{
         {"DOWN","JUST_RELEASED",function(...) print('cb2:',...) end , "fuck"}
     }
 })
+Tasksync.KeyContainer.SetGroupNamespaceActive("test","test_keys",true)
+Tasksync.KeyContainer.SetGroupNamespaceActive("test2","test2_keys",true)
+--[[
 local a = function(duration)
     print(duration("get"))
     if duration("get") > 1000 then 
@@ -44,3 +55,4 @@ CreateThread(function() while true do Wait(1000)
     local d = Tasksync.looponcenewthread("a",500,a,b)
 
 end end )
+--]]
