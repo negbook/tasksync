@@ -17,7 +17,7 @@ Tasksync.KeyContainer.Create("test","test_keys",{
         {"RIGHT","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
         
         {"RIGHT","JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
-        {"RIGHT","PRESSED",function(...) print('cb:',...) end , "fuck"},
+        --{"RIGHT","PRESSED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {{"Q","E","W"},"JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
