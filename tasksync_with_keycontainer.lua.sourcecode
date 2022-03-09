@@ -2,8 +2,9 @@ load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 if not Tasksync._initialized_tasksync_with_keys then 
 Tasksync._initialized_tasksync_with_keys = true 
-	do 
-	local RegisterKeyFull = function(KEY,KEY_ACTION_NAME,description,presseddelay,delayperpressed,MAPPER,cb) 
+	local e = {} ; setmetatable(e,{__call = function(self) return end})
+    do 
+	local RegisterKeyFull = function(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata) 
 		local type_ = type_ or 'keyboard'
         local thisduration
 
@@ -12,68 +13,127 @@ Tasksync._initialized_tasksync_with_keys = true
             local combined = {"NULL","NULL"}
             local canhold = true 
             local KEY_ACTION_NAME2 = KEY_ACTION_NAME .. (table.concat(combinedkeys)) 
-            for i,C_KEY in pairs(combinedkeys) do 
-                local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
-                
-                
-                RegisterCommand("+"..KEY_ACTION_NAME, function() 
-                    if not (table.concat(combined) == table.concat(combinedkeys)) then 
-                        combined[i] = C_KEY
+            local getduration = function()
+                local duration1,duration2 = -1, -1
+                for i,v in pairs(cbdata) do 
+                    if v.duration1 ~= -1 then 
+                        duration1 = v.duration1
                     end 
-                    if table.concat(combined) == table.concat(combinedkeys) then 
-                        if cb then cb("JUST_PRESSED") end 
-                        local delaytime = GetGameTimer() + 500
-                        
-                        Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2,150,function(duration)
-                            if table.concat(combined) == table.concat(combinedkeys) then 
-                                if GetGameTimer() > delaytime and canhold then 
-                                    if cb then cb("JUST_HOLDED") end 
-                                    canhold = false 
-                                end 
-                                if cb then cb("PRESSED") end 
-                            else 
-                                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2)
+                    if v.duration2 ~= -1 then 
+                        duration2 = v.duration2
+                    end 
+                end 
+                return duration1,duration2 
+            end 
+            local presseddelay,delayperpressed = getduration()
+            if presseddelay ~= -1 then 
+                for i,C_KEY in pairs(combinedkeys) do 
+                    local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
+                    RegisterCommand("+"..KEY_ACTION_NAME, function() 
+                        if not (table.concat(combined) == table.concat(combinedkeys)) then 
+                            combined[i] = C_KEY
+                        end 
+                        if table.concat(combined) == table.concat(combinedkeys) then
+                            if (cbdata["JUST_PRESSED"] or e).cb then 
+                                cbdata["JUST_PRESSED"].cb("JUST_PRESSED")
                             end 
-                        end, function()
-                            if cb then cb("JUST_RELEASED") end
-                            canhold = true 
-                        end )
-                    end 
-                end, false) 
-                RegisterCommand("-"..KEY_ACTION_NAME, function() 
-                    combined[i] = "NULL"
+                            local delaytime = GetGameTimer() + 500
+                            local loopduration = tonumber(delayperpressed)
                     
-                    --if thisduration then thisduration("break") print('break') end 
-                end, false) 
-                RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
+                            if delayperpressed == -1 then loopduration = 150 end 
+                            Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2,loopduration or 300,function(duration)
+                                
+                                if table.concat(combined) == table.concat(combinedkeys) then 
+                                    if GetGameTimer() > delaytime and canhold then 
+                                        if delayperpressed == - 1 then 
+                                            if (cbdata["JUST_HOLDED"] or e).cb then 
+                                                cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
+                                            end 
+                                            canhold = false 
+                                        else 
+                                            if (cbdata["PRESSED"] or e).cb then 
+                                                cbdata["PRESSED"].cb("PRESSED")
+                                            end 
+                                        end 
+                                    end 
+                                    
+                                else 
+                                    Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2)
+                                end 
+                            end, function()
+                                if (cbdata["JUST_RELEASED"] or e).cb then 
+                                    cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
+                                end 
+                                canhold = true 
+                            end )
+                        end 
+                    end, false) 
+                    RegisterCommand("-"..KEY_ACTION_NAME, function() 
+                        
+                        combined[i] = "NULL"
+                        
+                        --if thisduration then thisduration("break") print('break') end 
+                    end, false) 
+                    RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
+                end 
             end 
         else 
+            local getduration = function()
+                local duration1,duration2 = -1, -1
+                for i,v in pairs(cbdata) do 
+                    if v.duration1 ~= -1 then 
+                        duration1 = v.duration1
+                    end 
+                    if v.duration2 ~= -1 then 
+                        duration2 = v.duration2
+                    end 
+                end 
+                return duration1,duration2 
+            end 
+            local presseddelay,delayperpressed = getduration()
             RegisterCommand("+"..KEY_ACTION_NAME, function() 
-                if cb then cb("JUST_PRESSED") end 
+                if (cbdata["JUST_PRESSED"] or e).cb then 
+                    cbdata["JUST_PRESSED"].cb("JUST_PRESSED")
+                end 
+                
                 if presseddelay ~= -1 then 
                     local delaytime = GetGameTimer() + (presseddelay or 500)
-                    local loopduration = delayperpressed
+                    
+                    local loopduration = tonumber(delayperpressed)
                     
                     if delayperpressed == -1 then loopduration = 150 end 
+                    
                     --thisduration = Tasksync.looponcenewthread("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
                     Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
+                         
                         if GetGameTimer() > delaytime then 
+
                             if delayperpressed == - 1 then 
-                                if cb then cb("JUST_HOLDED") end 
+                                
+                                if (cbdata["JUST_HOLDED"] or e).cb then 
+                                    cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
+                                end 
                                 Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
                                 --if thisduration then  thisduration("break") end 
                             else 
-                                if cb then cb("PRESSED") end 
+                                
+                                if (cbdata["PRESSED"] or e).cb then 
+                                    cbdata["PRESSED"].cb("PRESSED")
+                                end 
                             end 
                         end 
                     end, function()
-                        if cb then cb("JUST_RELEASED") end 
+                        if (cbdata["JUST_RELEASED"] or e).cb then 
+                            cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
+                        end 
                     end)
                 end 
             end, false) 
             RegisterCommand("-"..KEY_ACTION_NAME, function() 
                 if presseddelay == -1 then
-                    if cb then cb("JUST_RELEASED") end 
+                    if (cbdata["JUST_RELEASED"] or e).cb then 
+                        cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
+                    end 
                 end 
                 Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
                 --if thisduration then thisduration("break") print('break') end 
@@ -81,71 +141,34 @@ Tasksync._initialized_tasksync_with_keys = true
             RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
         end 
 	end 
-    local KEYS_CBS = {}
-	local _RegisterKeyNormal = function(KEY,KEY_ACTION_NAME,description,MAPPER,cb,duration1,duration2) 
-        local isNewKey = false 
-        if not KEYS_CBS[KEY] then 
-            KEYS_CBS[KEY] = {} 
-            isNewKey = true 
-        end 
-        table.insert(KEYS_CBS[KEY],cb)
-        cb = function(...)
-            for i,v in pairs(KEYS_CBS[KEY]) do 
-                v(...)
-            end 
-        end 
-        
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,duration1,duration2,MAPPER,cb)
+	local _RegisterKeyNormal = function(KEY,KEY_ACTION_NAME,description,MAPPER, cbdata) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata)
 	end 
-    local _RegisterKeyPress = function(KEY,KEY_ACTION_NAME,description,MAPPER,cb,duration1,duration2) 
-        local isNewKey = false 
-        if not KEYS_CBS[KEY] then 
-            KEYS_CBS[KEY] = {} 
-            isNewKey = true 
-        end 
-        table.insert(KEYS_CBS[KEY],cb)
-        cb = function(...)
-            for i,v in pairs(KEYS_CBS[KEY]) do 
-                v(...)
-            end 
-        end 
-        
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,duration1,duration2,MAPPER,cb)
+    local _RegisterKeyPress = function(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata)
 	end 
-    local _RegisterKeyHold = function(KEY,KEY_ACTION_NAME,description,MAPPER,cb,duration1,duration2) 
-        local isNewKey = false 
-        if not KEYS_CBS[KEY] then 
-            KEYS_CBS[KEY] = {} 
-            isNewKey = true 
-        end 
-        table.insert(KEYS_CBS[KEY],cb)
-        cb = function(...)
-            for i,v in pairs(KEYS_CBS[KEY]) do 
-                v(...)
-            end 
-        end 
-        
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,duration1,duration2,MAPPER,cb)
+    local _RegisterKeyHold = function(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,cbdata)
 	end 
-    RegisterKeyNormal = function(key,cb,mapper)
+    RegisterKeyNormal = function(key,mapper, cbdata)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(type(key) == 'table' and table.concat(key) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyNormal(key,keyaction,key,mapper,cb, -1, -1) 
+        return _RegisterKeyNormal(key,keyaction,key,mapper, cbdata) 
     end 
-    RegisterKeyPress = function(key,cb,mapper, duration1, duration2)
+    RegisterKeyPress = function(key,mapper, cbdata)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(type(key) == 'table' and table.concat(key) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyPress(key,keyaction,key,mapper,cb , duration1 or 500, duration2 or 150) 
+        return _RegisterKeyPress(key,keyaction,key,mapper , cbdata) 
     end 
-    RegisterKeyHold = function(key,cb,mapper, duration)
+    RegisterKeyHold = function(key,mapper, cbdata)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(type(key) == 'table' and table.concat(key) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyHold(key,keyaction,key,mapper,cb, duration or 500, -1) 
+        return _RegisterKeyHold(key,keyaction,key,mapper, cbdata) 
     end 
     local RegisteredKeyCallbacks = {} 
 
     local tasks ={}
-    local e = {} ; setmetatable(e,{__call = function(self) return end})
+    
     local RegisterEntrys = {}
     local Containers = {} 
     local RegisterEntry = function(group,onjustpressed,onpressed,onjustholded,onjustreleased)
@@ -179,14 +202,15 @@ Tasksync._initialized_tasksync_with_keys = true
             end 
             return  
         end 
-        local getdurationofcbtype = function(cbtype)
-            if cbtype == "JUST_PRESSED" then 
+        local getdefaultdurationofcbtype = function(cbtype)
+            if cbtype == "JUST_PRESSED" or cbtype == "JUST_RELEASED" then 
                 return -1,-1
             elseif cbtype == "PRESSED" then 
                 return 500,150
             elseif cbtype == "JUST_HOLDED" then 
                 return 500,-1
             end 
+            return error("wtf",2)
         end 
         
         for i,v in pairs(cbs) do
@@ -195,11 +219,10 @@ Tasksync._initialized_tasksync_with_keys = true
             
             if key then 
                 local inputkey = key
-                
                 local cbtype = v[2]
-                local cb = v[3] 
-                local outputlinked = (v[4] or inputkey):lower()
-                local durationa, durationb = getdurationofcbtype(cbtype)
+                local _cb = v[3] 
+                local outputlinked = (v[4] or (type(inputkey)=='table' and table.concat(inputkey) or inputkey) ):lower()
+                local durationa, durationb = getdefaultdurationofcbtype(cbtype)
                 local duration1, duration2 = v[5] or durationa, v[6] or durationb
                 local isNew = false 
                 if not RegisteredKeyCallbacks[group] then isNew = true; RegisteredKeyCallbacks[group] = {} end 
@@ -224,7 +247,7 @@ Tasksync._initialized_tasksync_with_keys = true
                             if actions[outputcbtype] then 
                                 actions[outputcbtype](namespace,inputkey,outputcbtype,outputlinked)
                             end 
-                            cb(inputkey,outputcbtype,outputlinked,namespace) 
+                            _cb(inputkey,outputcbtype,outputlinked,namespace) 
                             
                         end 
                     end ,
@@ -235,15 +258,15 @@ Tasksync._initialized_tasksync_with_keys = true
                 else error ("callback existed",2)
                 end
                 if isNew then 
-                    
+                    local k = RegisteredKeyCallbacks[group][namespace][mapper][key]
                     if cbtype == "PRESSED" then  
-                        RegisterKeyPress(key,RegisteredKeyCallbacks[group][namespace][mapper][key][cbtype].cb ,mapper, duration1, duration2)
+                        RegisterKeyPress(key,mapper,k)
                     elseif cbtype == "JUST_HOLDED" then 
-                    
-                        RegisterKeyHold(key,RegisteredKeyCallbacks[group][namespace][mapper][key][cbtype].cb,mapper, duration1)
+                        
+                        RegisterKeyHold(key,mapper,k)
                     elseif cbtype == "JUST_PRESSED" or cbtype == "JUST_RELEASED" then 
                     
-                        RegisterKeyNormal(key,RegisteredKeyCallbacks[group][namespace][mapper][key][cbtype].cb,mapper)
+                        RegisterKeyNormal(key,mapper,k)
                     end 
                 end 
             end 
