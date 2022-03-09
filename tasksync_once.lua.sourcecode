@@ -32,8 +32,9 @@ Tasksync._initialized_tasksync_once = true
                 running[name] = localcb 
                     newthread = function() 
                         CreateThread(function()
+                            local _cb_ = running[name]
                             while not loopend do  Wait(duration)
-                                fn(running[name])  
+                                fn(_cb_)  
                             end 
                             if fnclose then fnclose() end
                             running[name] = nil

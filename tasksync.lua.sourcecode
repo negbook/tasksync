@@ -28,8 +28,9 @@ Tasksync._initialized_tasksync = true
             end
             newthread = function() 
                 CreateThread(function()
+                    local _cb_ = localcb
                     while not loopend do  Wait(duration)
-                        fn(localcb)  
+                        fn(_cb_)  
                     end 
                     if fnclose then fnclose() end
                     return 
