@@ -12,159 +12,114 @@ Tasksync._initialized_tasksync_with_keys = true
     local Containers = {} 
     
     do 
-	local RegisterKeyFull = function(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey) 
+	local RegisterKeyFull = function(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey) 
 		local type_ = type_ or 'keyboard'
         local thisduration
-        local getcbdata = function(_namespace) 
-            
-            return (((((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)[cbtype] or e)[_namespace] or e) or e
-        end
-        
         local full = {} 
-        
-            local OnPress = function(key)
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["JUST_PRESSED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               for i,v in pairs(cbs) do 
-                                   v("JUST_PRESSED",namespace);
-                               end 
-                            end 
-                        end 
+        local getcbs = function(key,mapper,cbtype,fn)
+            local t = (((RegisteredKeyCallbacks or e)[key] or e)[mapper] or e)[cbtype]
+            if t then 
+                for group,namespaces in pairs(t) do 
+                    for namespace,cbs in pairs(namespaces) do 
+                       fn(group,namespace,cbs.cb,cbs.duration1 or 500,cbs.duration2 or 150)
                     end 
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["JUST_HOLDED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               for i,v in pairs(cbs) do 
-                                   local delaytime = GetGameTimer() + 500
-                                   Tasksync.addlooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" ,150,function(duration)
-                                        if GetGameTimer() > delaytime then 
-                                            v("JUST_HOLDED",namespace);
-                                            Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" )
-                                        end 
-                                    end)
-                                   
-                               end 
-                            end 
-                        end 
-                    end 
-                    
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["PRESSED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               for i,v in pairs(cbs) do 
-                                   local delaytime = GetGameTimer() + 500
-                                   Tasksync.addlooponce("KEY_LOOP:"..group..namespace.."PRESSED" ,150,function(duration)
-                                        if GetGameTimer() > delaytime then 
-                                            v("PRESSED",namespace);
-                                            --Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."PRESSED" )
-                                        end 
-                                    end,function()
-                                        v("JUST_RELEASED",namespace);
-                                    end)
-                                   
-                               end 
-                            end 
-                        end 
-                    end 
-                
-            end 
-            local OnRelease = function(key)
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["JUST_RELEASED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               for i,v in pairs(cbs) do 
-                                   v("JUST_RELEASED",namespace);
-                               end 
-                            end 
-                        end 
-                    end 
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["PRESSED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."PRESSED" )
-                            end 
-                        end 
-                        
-                    end 
-                    local t = (((RegisteredKeyCallbacks or e)[KEY] or e)[MAPPER] or e)["JUST_HOLDED"]
-                    if t then 
-                        for group,namespaces in pairs(t) do 
-                            for namespace,cbs in pairs(namespaces) do 
-                               Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" )
-                            end 
-                        end 
-                        
-                    end 
-                    
-                 
-            end 
-            if istablekey then 
-                
-                
-                local combinedkeys = json.decode(KEY)
-                
-                local combined = {}
-                for i,v in pairs(combinedkeys) do combined[i] = "NULL" end 
-                for i,C_KEY in pairs(combinedkeys) do 
-                    local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
-                    local _OnPress = function()
-                        if not full[KEY] then 
-                            if not (json.tableequal(combined,combinedkeys)) then 
-                                combined[i] = C_KEY
-                            end 
-                            if (json.tableequal(combined,combinedkeys)) then
-                                OnPress(KEY)
-                                full[KEY] = true 
-                            end 
-                        end 
-                    end 
-                    local _OnRelease = function() 
-                        combined[i] = "NULL"
-                        if not (json.tableequal(combined,combinedkeys)) and full[KEY] then 
-                            OnRelease(KEY)
-                            full[KEY] = false 
-                        end 
-                    end 
-                    RegisterCommand("+"..KEY_ACTION_NAME, _OnPress , false) 
-                    RegisterCommand("-"..KEY_ACTION_NAME, _OnRelease, false) 
-                    RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
                 end 
-            else 
-                RegisterCommand("+"..KEY_ACTION_NAME, function() OnPress(KEY) end , false) 
-                RegisterCommand("-"..KEY_ACTION_NAME, function() OnRelease(KEY) end, false) 
-                RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
             end 
-         
+        end 
+        local OnPress = function(key,mapper)
+            getcbs(key,mapper,"JUST_PRESSED",function(group,namespace,cb)
+                 cb("JUST_PRESSED",group,namespace);
+            end)
+            getcbs(key,mapper,"JUST_HOLDED",function(group,namespace,cb,duration1,duration2)
+                 local delaytime = GetGameTimer() + duration1 
+                 Tasksync.addlooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" ,duration2 ,function(duration)
+                      if GetGameTimer() > delaytime then 
+                          cb("JUST_HOLDED",group,namespace);
+                          Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" )
+                      end 
+                 end)
+            end)
+            getcbs(key,mapper,"PRESSED",function(group,namespace,cb,duration1,duration2)
+                 local delaytime = GetGameTimer() + duration1 
+                 Tasksync.addlooponce("KEY_LOOP:"..group..namespace.."PRESSED" ,duration2 ,function(duration)
+                     if GetGameTimer() > delaytime then 
+                         cb("PRESSED",group,namespace);
+                         --Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."PRESSED" )
+                     end 
+                 end,function()
+                     cb("JUST_RELEASED",group,namespace);
+                 end)
+            end)  
+        end 
+        local OnRelease = function(key,mapper)
+            getcbs(key,mapper,"JUST_RELEASED",function(group,namespace,cb)
+                 cb("JUST_RELEASED",group,namespace);
+            end)
+            getcbs(key,mapper,"PRESSED",function(group,namespace,cb)
+                 Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."PRESSED" )
+            end)
+            getcbs(key,mapper,"JUST_HOLDED",function(group,namespace,cb)
+                 Tasksync.deletelooponce("KEY_LOOP:"..group..namespace.."JUST_HOLDED" )
+            end)
+        end 
+        if istablekey then 
+            local combinedkeys = json.decode(KEY)
+            local combined = {}
+            for i,v in pairs(combinedkeys) do combined[i] = "NULL" end 
+            for i,C_KEY in pairs(combinedkeys) do 
+                local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
+                local _OnPress = function()
+                    if not full[KEY] then 
+                        if not (json.tableequal(combined,combinedkeys)) then 
+                            combined[i] = C_KEY
+                        end 
+                        if (json.tableequal(combined,combinedkeys)) then
+                            OnPress(KEY,MAPPER)
+                            full[KEY] = true 
+                        end 
+                    end 
+                end 
+                local _OnRelease = function() 
+                    combined[i] = "NULL"
+                    if not (json.tableequal(combined,combinedkeys)) and full[KEY] then 
+                        OnRelease(KEY,MAPPER)
+                        full[KEY] = false 
+                    end 
+                end 
+                RegisterCommand("+"..KEY_ACTION_NAME, _OnPress , false) 
+                RegisterCommand("-"..KEY_ACTION_NAME, _OnRelease, false) 
+                RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
+            end 
+        else 
+            RegisterCommand("+"..KEY_ACTION_NAME, function() OnPress(KEY,MAPPER) end , false) 
+            RegisterCommand("-"..KEY_ACTION_NAME, function() OnRelease(KEY,MAPPER) end, false) 
+            RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
+        end 
+       
 	end 
-	local _RegisterKeyNormal = function(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey) 
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey)
+	local _RegisterKeyNormal = function(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey)
 	end 
-    local _RegisterKeyPress = function(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey) 
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey)
+    local _RegisterKeyPress = function(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey)
 	end 
-    local _RegisterKeyHold = function(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey) 
-        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,namespace,group,istablekey)
+    local _RegisterKeyHold = function(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey) 
+        return RegisterKeyFull(KEY,KEY_ACTION_NAME,description,MAPPER,istablekey)
 	end 
-    RegisterKeyNormal = function(key,mapper,namespace,group,istablekey)
+    RegisterKeyNormal = function(key,mapper,istablekey)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(istablekey and table.concat(json.decode(key)) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyNormal(key,keyaction,key,mapper,namespace,group,istablekey) 
+        return _RegisterKeyNormal(key,keyaction,key,mapper,istablekey) 
     end 
-    RegisterKeyPress = function(key,mapper,namespace,group,istablekey)
+    RegisterKeyPress = function(key,mapper,istablekey)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(istablekey and table.concat(json.decode(key)) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyPress(key,keyaction,key,mapper ,namespace,group,istablekey) 
+        return _RegisterKeyPress(key,keyaction,key,mapper ,istablekey) 
     end 
-    RegisterKeyHold = function(key,mapper,namespace,group,istablekey)
+    RegisterKeyHold = function(key,mapper,istablekey)
         local keyaction = "Keycontainer_"..GetCurrentResourceName()..(istablekey and table.concat(json.decode(key)) or key)
         local mapper = mapper or "keyboard"
-        return _RegisterKeyHold(key,keyaction,key,mapper,namespace,group,istablekey) 
+        return _RegisterKeyHold(key,keyaction,key,mapper,istablekey) 
     end 
     
     local RegisterEntry = function(group,onjustpressed,onpressed,onjustholded,onjustreleased)
@@ -199,7 +154,7 @@ Tasksync._initialized_tasksync_with_keys = true
                 local cbtype = v[2]
                 local _cb = v[3] 
                 local outputlinked = (v[4] or (type(inputkey)=='table' and table.concat(inputkey) or inputkey) ):lower()
-                
+                local duration1, duration2 = v[5], v[6]
                 local isNew = false 
                 if not RegisteredKeyCallbacks[inputkey] then isNew = true; RegisteredKeyCallbacks[inputkey] = {} end 
                 if not RegisteredKeyCallbacks[inputkey][mapper] then isNew = true; RegisteredKeyCallbacks[inputkey][mapper] = {} end 
@@ -221,20 +176,22 @@ Tasksync._initialized_tasksync_with_keys = true
                             _cb(inputkey,outputcbtype,outputlinked,namespace) 
                             
                         end 
-                    end 
+                    end ,
+                    duration1 = duration1,
+                    duration2 = duration2 
                 }
 
                 else error ("callback existed",2)
                 end
                 if isNew then 
                     if cbtype == "PRESSED" then  
-                        RegisterKeyPress(inputkey,mapper,namespace,group,istablekey)
+                        RegisterKeyPress(inputkey,mapper,istablekey)
                     elseif cbtype == "JUST_HOLDED" then 
                         
-                        RegisterKeyHold(inputkey,mapper,namespace,group,istablekey)
+                        RegisterKeyHold(inputkey,mapper,istablekey)
                     elseif cbtype == "JUST_PRESSED" or cbtype == "JUST_RELEASED" then 
                     
-                        RegisterKeyNormal(inputkey,mapper,namespace,group,istablekey)
+                        RegisterKeyNormal(inputkey,mapper,istablekey)
                     end 
                 end 
             end 
