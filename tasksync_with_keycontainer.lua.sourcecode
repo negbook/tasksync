@@ -13,20 +13,8 @@ Tasksync._initialized_tasksync_with_keys = true
             local combined = {"NULL","NULL"}
             local canhold = true 
             local KEY_ACTION_NAME2 = KEY_ACTION_NAME .. (table.concat(combinedkeys)) 
-            local getduration = function()
-                local duration1,duration2 = -1, -1
-                for i,v in pairs(cbdata) do 
-                    if v.duration1 ~= -1 then 
-                        duration1 = v.duration1
-                    end 
-                    if v.duration2 ~= -1 then 
-                        duration2 = v.duration2
-                    end 
-                end 
-                return duration1,duration2 
-            end 
-            local presseddelay,delayperpressed = getduration()
-            if presseddelay ~= -1 then 
+            
+            if (cbdata["JUST_HOLDED"] or e) or (cbdata["PRESSED"] or e) then 
                 for i,C_KEY in pairs(combinedkeys) do 
                     local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
                     RegisterCommand("+"..KEY_ACTION_NAME, function() 
@@ -37,35 +25,45 @@ Tasksync._initialized_tasksync_with_keys = true
                             if (cbdata["JUST_PRESSED"] or e).cb then 
                                 cbdata["JUST_PRESSED"].cb("JUST_PRESSED")
                             end 
-                            local delaytime = GetGameTimer() + 500
-                            local loopduration = tonumber(delayperpressed)
-                    
-                            if delayperpressed == -1 then loopduration = 150 end 
-                            Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2,loopduration or 300,function(duration)
-                                
-                                if table.concat(combined) == table.concat(combinedkeys) then 
-                                    if GetGameTimer() > delaytime and canhold then 
-                                        if delayperpressed == - 1 then 
+                            
+                            if (cbdata["JUST_HOLDED"] or e) then 
+                                local delaytime = GetGameTimer() + ((cbdata["JUST_HOLDED"] or e).duration1 or 500)
+                                Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED",150,function(duration)
+                                    
+                                    if table.concat(combined) == table.concat(combinedkeys) then 
+                                        if GetGameTimer() > delaytime  then 
                                             if (cbdata["JUST_HOLDED"] or e).cb then 
                                                 cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
                                             end 
-                                            canhold = false 
-                                        else 
-                                            if (cbdata["PRESSED"] or e).cb then 
-                                                cbdata["PRESSED"].cb("PRESSED")
-                                            end 
+                                            Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED")
+                                        end 
+                                        
+                                    else 
+                                        Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED")
+                                    end 
+                                end)
+                                
+                            end 
+                            if (cbdata["PRESSED"] or e) then 
+                            local delaytime = GetGameTimer() + ((cbdata["PRESSED"] or e).duration1 or 500)
+                            Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED",loopduration or 300,function(duration)
+                                
+                                if table.concat(combined) == table.concat(combinedkeys) then 
+                                    if GetGameTimer() > delaytime  then 
+                                        if (cbdata["PRESSED"] or e).cb then 
+                                            cbdata["PRESSED"].cb("PRESSED")
                                         end 
                                     end 
                                     
                                 else 
-                                    Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2)
+                                    Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED")
                                 end 
                             end, function()
                                 if (cbdata["JUST_RELEASED"] or e).cb then 
                                     cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
                                 end 
-                                canhold = true 
                             end )
+                            end 
                         end 
                     end, false) 
                     RegisterCommand("-"..KEY_ACTION_NAME, function() 
@@ -78,48 +76,33 @@ Tasksync._initialized_tasksync_with_keys = true
                 end 
             end 
         else 
-            local getduration = function()
-                local duration1,duration2 = -1, -1
-                for i,v in pairs(cbdata) do 
-                    if v.duration1 ~= -1 then 
-                        duration1 = v.duration1
-                    end 
-                    if v.duration2 ~= -1 then 
-                        duration2 = v.duration2
-                    end 
-                end 
-                return duration1,duration2 
-            end 
-            local presseddelay,delayperpressed = getduration()
             RegisterCommand("+"..KEY_ACTION_NAME, function() 
                 if (cbdata["JUST_PRESSED"] or e).cb then 
                     cbdata["JUST_PRESSED"].cb("JUST_PRESSED")
                 end 
                 
-                if presseddelay ~= -1 then 
-                    local delaytime = GetGameTimer() + (presseddelay or 500)
-                    
-                    local loopduration = tonumber(delayperpressed)
-                    
-                    if delayperpressed == -1 then loopduration = 150 end 
+                if (cbdata["JUST_HOLDED"] or e) then 
+                    local delaytime = GetGameTimer() + ((cbdata["JUST_HOLDED"] or e).duration1 or 500)
                     
                     --thisduration = Tasksync.looponcenewthread("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
-                    Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME,loopduration or 300,function(duration)
-                         
-                        if GetGameTimer() > delaytime then 
+                    if (cbdata["JUST_HOLDED"] or e) then 
+                        Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME.."JUST_HOLDED",150,function(duration)
+                            if GetGameTimer() > delaytime then 
 
-                            if delayperpressed == - 1 then 
-                                
                                 if (cbdata["JUST_HOLDED"] or e).cb then 
                                     cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
                                 end 
-                                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
-                                --if thisduration then  thisduration("break") end 
-                            else 
-                                
-                                if (cbdata["PRESSED"] or e).cb then 
-                                    cbdata["PRESSED"].cb("PRESSED")
-                                end 
+                                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME.."JUST_HOLDED")
+                            end 
+                        end)
+                    end 
+                end 
+                if (cbdata["PRESSED"] or e) then 
+                    local delaytime = GetGameTimer() + ((cbdata["PRESSED"] or e).duration1 or 500)
+                    Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME.."PRESSED",(cbdata["PRESSED"] or e).duration2 or 300,function(duration)
+                        if GetGameTimer() > delaytime then 
+                            if (cbdata["PRESSED"] or e).cb then 
+                               cbdata["PRESSED"].cb("PRESSED")
                             end 
                         end 
                     end, function()
@@ -130,12 +113,13 @@ Tasksync._initialized_tasksync_with_keys = true
                 end 
             end, false) 
             RegisterCommand("-"..KEY_ACTION_NAME, function() 
-                if presseddelay == -1 then
+                if not ((cbdata["JUST_HOLDED"] or e) or (cbdata["PRESSED"] or e)) then
                     if (cbdata["JUST_RELEASED"] or e).cb then 
                         cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
                     end 
                 end 
-                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME)
+                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME.."PRESSED")
+                Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME.."JUST_HOLDED")
                 --if thisduration then thisduration("break") print('break') end 
             end, false) 
             RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
@@ -214,9 +198,7 @@ Tasksync._initialized_tasksync_with_keys = true
         end 
         
         for i,v in pairs(cbs) do
-            
             local key, mapper = iskeycanberegisteredthismoment(v[1])
-            
             if key then 
                 local inputkey = key
                 local cbtype = v[2]
@@ -224,6 +206,7 @@ Tasksync._initialized_tasksync_with_keys = true
                 local outputlinked = (v[4] or (type(inputkey)=='table' and table.concat(inputkey) or inputkey) ):lower()
                 local durationa, durationb = getdefaultdurationofcbtype(cbtype)
                 local duration1, duration2 = v[5] or durationa, v[6] or durationb
+                
                 local isNew = false 
                 if not RegisteredKeyCallbacks[group] then isNew = true; RegisteredKeyCallbacks[group] = {} end 
                 if not RegisteredKeyCallbacks[group][namespace] then isNew = true; RegisteredKeyCallbacks[group][namespace] = {} end 
