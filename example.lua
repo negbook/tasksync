@@ -20,16 +20,36 @@ Tasksync.KeyContainer.Create("test","test_keys",{
         {"RIGHT","PRESSED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
-        {{"Q","E","W"},"JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
-        {{"Q","E","W"},"JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
-        {{"Q","E","W"},"PRESSED",function(...) print('cb:',...) end , "fuck"},
-        {{"Q","E","W"},"JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","E","W"},"JUST_PRESSED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","E","W"},"JUST_HOLDED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","E","W"},"PRESSED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","E","W"},"JUST_RELEASED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
     }
 })
 Tasksync.KeyContainer.RegisterEntry("test2")
-
+Tasksync.KeyContainer.Create("test2","test_keys2",{
+    keys = {
+        {"UP","keyboard"},
+        {"LEFT"},
+        {"DOWN"},
+        {{"Q","W","R"}},
+    },
+    cbs = {
+        {"UP","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {"UP","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {"LEFT","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {"LEFT","JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
+        {"LEFT","PRESSED",function(...) print('cb:',...) end , "fuck"},
+        {"LEFT","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
+        {{"Q","W","R"},"JUST_PRESSED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","W","R"},"JUST_HOLDED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","W","R"},"PRESSED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+        {{"Q","W","R"},"JUST_RELEASED",function(k,...) print('cb:',json.encode(k),...) end , "fuck"},
+    }
+})
 Tasksync.KeyContainer.SetGroupNamespaceActive("test","test_keys",true)
-
+Tasksync.KeyContainer.SetGroupNamespaceActive("test2","test_keys2",true)
 --[[
 local a = function(duration)
     print(duration("get"))

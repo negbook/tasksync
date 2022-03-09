@@ -10,67 +10,66 @@ Tasksync._initialized_tasksync_with_keys = true
 
         if type(KEY) == 'table' then 
             local combinedkeys = KEY
-            local combined = {"NULL","NULL"}
-            local canhold = true 
+            local combined = {}
+            for i,v in pairs(combinedkeys) do combined[i] = "NULL" end 
             local KEY_ACTION_NAME2 = KEY_ACTION_NAME .. (table.concat(combinedkeys)) 
-            
+           
             if (cbdata["JUST_HOLDED"] or e) or (cbdata["PRESSED"] or e) then 
                 for i,C_KEY in pairs(combinedkeys) do 
                     local KEY_ACTION_NAME = KEY_ACTION_NAME .. C_KEY 
+                    
+                    local full = nil 
                     RegisterCommand("+"..KEY_ACTION_NAME, function() 
                         if not (table.concat(combined) == table.concat(combinedkeys)) then 
                             combined[i] = C_KEY
                         end 
-                        if table.concat(combined) == table.concat(combinedkeys) then
+                        if (table.concat(combined) == table.concat(combinedkeys)) then 
                             if (cbdata["JUST_PRESSED"] or e).cb then 
                                 cbdata["JUST_PRESSED"].cb("JUST_PRESSED")
                             end 
-                            
                             if (cbdata["JUST_HOLDED"] or e) then 
                                 local delaytime = GetGameTimer() + ((cbdata["JUST_HOLDED"] or e).duration1 or 500)
                                 Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED",150,function(duration)
-                                    
-                                    if table.concat(combined) == table.concat(combinedkeys) then 
-                                        if GetGameTimer() > delaytime  then 
-                                            if (cbdata["JUST_HOLDED"] or e).cb then 
-                                                cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
-                                            end 
-                                            Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED")
+                                    if (table.concat(combined) == table.concat(combinedkeys)) then 
+                                    if GetGameTimer() > delaytime then 
+                                        if (cbdata["JUST_HOLDED"] or e).cb then 
+                                            cbdata["JUST_HOLDED"].cb("JUST_HOLDED")
                                         end 
-                                        
+                                        Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED")
+                                    end 
                                     else 
                                         Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."JUST_HOLDED")
                                     end 
                                 end)
-                                
                             end 
                             if (cbdata["PRESSED"] or e) then 
-                            local delaytime = GetGameTimer() + ((cbdata["PRESSED"] or e).duration1 or 500)
-                            Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED",loopduration or 300,function(duration)
-                                
-                                if table.concat(combined) == table.concat(combinedkeys) then 
-                                    if GetGameTimer() > delaytime  then 
+                                local delaytime = GetGameTimer() + ((cbdata["PRESSED"] or e).duration1 or 500)
+                                Tasksync.addlooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED",(cbdata["PRESSED"] or e).duration2 or 300,function(duration) 
+                                    if (table.concat(combined) == table.concat(combinedkeys)) then 
+                                    if GetGameTimer() > delaytime then 
                                         if (cbdata["PRESSED"] or e).cb then 
-                                            cbdata["PRESSED"].cb("PRESSED")
+                                           cbdata["PRESSED"].cb("PRESSED")
                                         end 
                                     end 
-                                    
-                                else 
-                                    Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED")
-                                end 
-                            end, function()
-                                if (cbdata["JUST_RELEASED"] or e).cb then 
-                                    cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
-                                end 
-                            end )
+                                    else 
+                                        Tasksync.deletelooponce("KEY_LOOP:"..KEY_ACTION_NAME2.."PRESSED")
+                                    end 
+                                end, function()
+                                    if (cbdata["JUST_RELEASED"] or e).cb then 
+                                        cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
+                                    end 
+                                end)
                             end 
                         end 
+                         
                     end, false) 
                     RegisterCommand("-"..KEY_ACTION_NAME, function() 
+                        --combined[i] = "NULL"
+                        --if (table.concat(combined) == table.concat(combinedkeys)) then 
+                            combined[i] = "NULL"
+                        --end 
+                        --print(json.encode(combined))
                         
-                        combined[i] = "NULL"
-                        
-                        --if thisduration then thisduration("break") print('break') end 
                     end, false) 
                     RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
                 end 
@@ -113,7 +112,7 @@ Tasksync._initialized_tasksync_with_keys = true
                 end 
             end, false) 
             RegisterCommand("-"..KEY_ACTION_NAME, function() 
-                if not ((cbdata["JUST_HOLDED"] or e) or (cbdata["PRESSED"] or e)) then
+                if not ((cbdata["JUST_HOLDED"] or e).cb or (cbdata["PRESSED"] or e)).cb then
                     if (cbdata["JUST_RELEASED"] or e).cb then 
                         cbdata["JUST_RELEASED"].cb("JUST_RELEASED")
                     end 
