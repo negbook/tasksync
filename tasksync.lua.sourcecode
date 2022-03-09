@@ -13,10 +13,20 @@ Tasksync._initialized_tasksync = true
             local loopend = false 
             local fn = fn 
             local fnclose = fnclose
+            local fns = nil
             local newthread = function() end 
             local localcb = function(action,value) 
                 if action == "break" or action == "kill" then 
                     loopend = true
+                elseif action == "inserttask" then 
+                    local insertfn = value
+                    if fns == nil then 
+                        fns = {fn}
+                    end 
+                    table.insert(fns,insertfn)
+                elseif action == "removetask" then 
+                    local idx = value
+                    table.remove(fns,idx)
                 elseif action == "set" then 
                     duration = value
                 elseif action == "get" then 
@@ -28,9 +38,14 @@ Tasksync._initialized_tasksync = true
             end
             newthread = function() 
                 CreateThread(function()
-                    local _cb_ = localcb
                     while not loopend do  Wait(duration)
-                        fn(_cb_)  
+                        if fns then 
+                            for i=1,#fns do 
+                                fns[i](localcb,i)
+                            end 
+                        else 
+                            fn(localcb)
+                        end 
                     end 
                     if fnclose then fnclose() end
                     return 

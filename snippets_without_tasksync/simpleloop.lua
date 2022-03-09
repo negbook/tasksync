@@ -682,10 +682,20 @@ loop_newthread = function (duration,fn,fnclose)
     local loopend = false 
     local fn = fn 
     local fnclose = fnclose
+    local fns = nil
     local newthread = function() end 
     local localcb = function(action,value) 
         if action == "break" or action == "kill" then 
             loopend = true
+        elseif action == "inserttask" then 
+            local insertfn = value
+            if fns == nil then 
+                fns = {fn}
+            end 
+            table.insert(fns,insertfn)
+        elseif action == "removetask" then 
+            local idx = value
+            table.remove(fns,idx)
         elseif action == "set" then 
             duration = value
         elseif action == "get" then 
@@ -698,7 +708,13 @@ loop_newthread = function (duration,fn,fnclose)
     newthread = function() 
         CreateThread(function()
             while not loopend do  Wait(duration)
-                fn(localcb)  
+                if fns then 
+                    for i=1,#fns do 
+                        fns[i](localcb,i)
+                    end 
+                else 
+                    fn(localcb)
+                end 
             end 
             if fnclose then fnclose() end
             return 
@@ -715,11 +731,21 @@ looponce_newthread = function (name,duration,fn,fnclose)
         local loopend = false 
         local fn = fn 
         local fnclose = fnclose
+        local fns = nil
         local newthread = function() end 
 
         local localcb = function(action,value) 
             if action == "break" or action == "kill" then 
                 loopend = true
+            elseif action == "inserttask" then 
+                local insertfn = value
+                if fns == nil then 
+                    fns = {fn}
+                end 
+                table.insert(fns,insertfn)
+            elseif action == "removetask" then 
+                local idx = value
+                table.remove(fns,idx)
             elseif action == "set" then 
                 duration = value
             elseif action == "get" then 
@@ -734,7 +760,13 @@ looponce_newthread = function (name,duration,fn,fnclose)
                 CreateThread(function()
                     local _cb_ = running[name]
                     while not loopend do  Wait(duration)
-                        fn(_cb_)  
+                        if fns then 
+                            for i=1,#fns do 
+                                fns[i](_cb_,i)
+                            end 
+                        else 
+                            fn(_cb_) 
+                        end 
                     end 
                     if fnclose then fnclose() end
                     running[name] = nil
@@ -746,3 +778,36 @@ looponce_newthread = function (name,duration,fn,fnclose)
          
     end 
 end 
+
+
+--[=[
+local a = function(duration)
+    print(duration("get"))
+    if duration("get") > 1000 then 
+        --duration("break")
+        
+    end 
+    duration("set",math.random(0,2000))
+end 
+local b = function()
+    print("break")
+end 
+local c
+CreateThread(function() while true do Wait(1000)
+    c = looponce_newthread("a",1000,a,b)
+    
+    local d = looponce_newthread("a",500,a,b)
+
+end end )
+CreateThread(function()
+    Wait(5000)
+    local thisduration,thisidx
+    c("inserttask",function(duration,idx)
+        thisduration,thisidx = duration,idx
+        print('cao',duration,idx)
+    end)
+    Wait(3000)
+    if thisduration then thisduration("removetask",thisidx) end
+    
+end)
+--]=]

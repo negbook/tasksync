@@ -960,4 +960,66 @@ Public License instead of this License.  But first, please read
     KeyContainer.SetGroupNamespaceActive = SetGroupNamespaceActive
     KeyContainer.GetGroupNamespaceActive = GetGroupNamespaceActive
     
-     
+--[==[
+KeyContainer.RegisterEntry("test")
+KeyContainer.Create("test","test_keys",{
+    keys = {
+        {"UP","keyboard"},
+        {"RIGHT"},
+        {"DOWN"},
+        {{"Q","E","W"}},
+        {{"E","R","D","F"}},
+    },
+    cbs = {
+        {"UP","JUST_RELEASED",function(...) print('cb:',...) end , "wtf"},
+        {"UP","PRESSED",function(...) print('cb:',...) end , "wtf"},
+        {"UP","JUST_PRESSED",function(...) print('cb:',...) end , "wtf"},
+        {"RIGHT","JUST_PRESSED",function(...) print('cb:',...) end , "wtf"},
+        
+        {"RIGHT","JUST_HOLDED",function(...) print('cb:',...) end , "wtf"},
+        {"RIGHT","PRESSED",function(...) print('cb:',...) end , "wtf"},
+        {"RIGHT","JUST_RELEASED",function(...) print('cb:',...) end , "wtf"},
+        {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "wtf"},
+        {{"E","W"},"JUST_PRESSED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","W"},"JUST_HOLDED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","W"},"PRESSED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","W"},"JUST_RELEASED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_PRESSED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_HOLDED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"PRESSED",function(k,...) print('cb:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_RELEASED",function(k,...) print('cb:',k,...) end , "wtf"},
+    }
+})
+KeyContainer.RegisterEntry("test2")
+KeyContainer.Create("test2","test_keys2",{
+    keys = {
+        {"UP","keyboard"},
+        {"RIGHT"},
+        {"DOWN"},
+        {{"E","R"}},
+        {{"E","W"}},
+        {{"E","R","D","F"}},
+    },
+    cbs = {
+        {"UP","JUST_RELEASED",function(...) print('cb2:',...) end , "wtf"},
+        {"UP","JUST_HOLDED",function(...) print('cb2:',...) end , "wtf"},
+        {"UP","JUST_PRESSED",function(...) print('cb2:',...) end , "wtf"},
+        {"RIGHT","JUST_PRESSED",function(...) print('cb2:',...) end , "wtf"},
+        {"RIGHT","JUST_HOLDED",function(...) print('cb2:',...) end , "wtf"},
+        {"RIGHT","PRESSED",function(...) print('cb2:',...) end , "wtf"},
+        {"RIGHT","JUST_RELEASED",function(...) print('cb2:',...) end , "wtf"},
+        {"DOWN","JUST_RELEASED",function(...) print('cb2:',...) end , "wtf"},
+        {{"E","W"},"JUST_PRESSED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","W"},"JUST_HOLDED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","W"},"PRESSED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","W"},"JUST_RELEASED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_PRESSED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_HOLDED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"PRESSED",function(k,...) print('cb2:',k,...) end , "wtf"},
+        {{"E","R","D","F"},"JUST_RELEASED",function(k,...) print('cb2:',k,...) end , "wtf"},
+    }
+})
+KeyContainer.SetGroupNamespaceActive("test","test_keys",true)
+KeyContainer.SetGroupNamespaceActive("test2","test_keys2",true)
+
+--]==]

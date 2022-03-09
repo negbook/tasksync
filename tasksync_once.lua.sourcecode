@@ -9,17 +9,26 @@ Tasksync._initialized_tasksync_once = true
 	do 
         local running = {}
         Tasksync.looponcenewthread = function (name,duration,fn,fnclose)
-            
             if not running[name] then
                 local duration = duration 
                 local loopend = false 
                 local fn = fn 
                 local fnclose = fnclose
+                local fns = nil
                 local newthread = function() end 
-         
+
                 local localcb = function(action,value) 
                     if action == "break" or action == "kill" then 
                         loopend = true
+                    elseif action == "inserttask" then 
+                        local insertfn = value
+                        if fns == nil then 
+                            fns = {fn}
+                        end 
+                        table.insert(fns,insertfn)
+                    elseif action == "removetask" then 
+                        local idx = value
+                        table.remove(fns,idx)
                     elseif action == "set" then 
                         duration = value
                     elseif action == "get" then 
@@ -34,7 +43,13 @@ Tasksync._initialized_tasksync_once = true
                         CreateThread(function()
                             local _cb_ = running[name]
                             while not loopend do  Wait(duration)
-                                fn(_cb_)  
+                                if fns then 
+                                    for i=1,#fns do 
+                                        fns[i](_cb_,i)
+                                    end 
+                                else 
+                                    fn(_cb_) 
+                                end 
                             end 
                             if fnclose then fnclose() end
                             running[name] = nil
@@ -43,7 +58,8 @@ Tasksync._initialized_tasksync_once = true
                         return localcb
                     end 
                     return newthread()
-                 
+            else 
+                return running[name]
             end 
         end 
 		Tasksync.addlooponce = function(_fnname,_duration,_fn,_fnondelete) return Tasksync.addloop(_fnname,_duration,_fn,_fnondelete,true,true) end 
