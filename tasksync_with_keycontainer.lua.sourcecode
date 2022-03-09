@@ -239,7 +239,6 @@ Tasksync._initialized_tasksync_with_keys = true
     Tasksync.KeyContainer = {}
     Tasksync.KeyContainer.RegisterEntry = RegisterEntry
     Tasksync.KeyContainer.Create = Create
-    Tasksync.KeyContainer.RegisterEntry("test")
     Tasksync.KeyContainer.SetGroupNamespaceActive = SetGroupNamespaceActive
     Tasksync.KeyContainer.GetGroupNamespaceActive = GetGroupNamespaceActive
     
