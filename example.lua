@@ -15,29 +15,21 @@ Tasksync.KeyContainer.Create("test","test_keys",{
         {"UP","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {"UP","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
+        
+        {"RIGHT","JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","PRESSED",function(...) print('cb:',...) end , "fuck"},
         {"RIGHT","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {"DOWN","JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
         {{"Q","E","W"},"JUST_PRESSED",function(...) print('cb:',...) end , "fuck"},
         {{"Q","E","W"},"JUST_HOLDED",function(...) print('cb:',...) end , "fuck"},
-        {{"Q","E","W"},"PRESSED",function(...) print('cb:',...) end , "fuck"},
+        --{{"Q","E","W"},"PRESSED",function(...) print('cb:',...) end , "fuck"},
         {{"Q","E","W"},"JUST_RELEASED",function(...) print('cb:',...) end , "fuck"},
     }
 })
 Tasksync.KeyContainer.RegisterEntry("test2")
-Tasksync.KeyContainer.Create("test2","test2_keys",{
-    keys = {
-        {"RIGHT","keyboard"},
-        {"DOWN"}
-    },
-    cbs = {
-        {"RIGHT","JUST_RELEASED",function(...) print('cb2:',...) end , "fuck"},
-        {"RIGHT","PRESSED",function(...) print('cb2:',...) end , "fuck"},
-        {"DOWN","JUST_RELEASED",function(...) print('cb2:',...) end , "fuck"}
-    }
-})
+
 Tasksync.KeyContainer.SetGroupNamespaceActive("test","test_keys",true)
-Tasksync.KeyContainer.SetGroupNamespaceActive("test2","test2_keys",true)
+
 --[[
 local a = function(duration)
     print(duration("get"))
