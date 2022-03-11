@@ -21,7 +21,7 @@ Tasksync._initialized_tasksync_with_keys = true
             if t then 
                 for group,namespaces in pairs(t) do 
                     for namespace,cbs in pairs(namespaces) do 
-                       fn(group,namespace,cbs.cb,cbs.duration1 or 500,cbs.duration2 or 150)
+                       fn(group,namespace,cbs.cb,cbs.duration1 or 500,cbs.duration2 or 250)
                     end 
                 end 
             end 

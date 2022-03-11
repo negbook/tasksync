@@ -1,8 +1,9 @@
+
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_scaleform.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_with_keycontainer.lua.sourcecode'))()
-
+--[[
 Tasksync.KeyContainer.RegisterEntry("test")
 Tasksync.KeyContainer.Create("test","test_keys",{
     keys = {
@@ -63,6 +64,7 @@ Tasksync.KeyContainer.Create("test2","test_keys2",{
 })
 Tasksync.KeyContainer.SetGroupNamespaceActive("test","test_keys",true)
 Tasksync.KeyContainer.SetGroupNamespaceActive("test2","test_keys2",true)
+--]]
 --[[
 local a = function(duration)
     print(duration("get"))

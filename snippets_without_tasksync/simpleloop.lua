@@ -778,7 +778,9 @@ looponce_newthread = function (name,duration,fn,fnclose)
          
     end 
 end 
-
+looponce_newthread_delete = function(name)
+   if running[name] then running[name]("break") end 
+end 
 
 --[=[
 local a = function(duration)
