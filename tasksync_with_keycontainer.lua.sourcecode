@@ -16,12 +16,17 @@ Tasksync._initialized_tasksync_with_keys = true
 		local type_ = type_ or 'keyboard'
         local thisduration
         local full = {} 
+        local cache = {}
         local getcbs = function(key,mapper,cbtype,fn)
+            if cache [fn] then return cache[fn]() end 
             local t = (((RegisteredKeyCallbacks or e)[key] or e)[mapper] or e)[cbtype]
             if t then 
                 for group,namespaces in pairs(t) do 
                     for namespace,cbs in pairs(namespaces) do 
-                       fn(group,namespace,cbs.cb,cbs.duration1 or 500,cbs.duration2 or 250)
+                       cache[fn] = function() 
+                           fn(group,namespace,cbs.cb,cbs.duration1 or 500,cbs.duration2 or 250)
+                       end 
+                       cache[fn]()
                     end 
                 end 
             end 
@@ -88,12 +93,12 @@ Tasksync._initialized_tasksync_with_keys = true
                 end 
                 RegisterCommand("+"..KEY_ACTION_NAME, _OnPress , false) 
                 RegisterCommand("-"..KEY_ACTION_NAME, _OnRelease, false) 
-                RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, C_KEY) 
+                RegisterKeyMapping("+"..KEY_ACTION_NAME, (description or KEY_ACTION_NAME) , MAPPER, C_KEY) 
             end 
         else 
             RegisterCommand("+"..KEY_ACTION_NAME, function() OnPress(KEY,MAPPER) end , false) 
             RegisterCommand("-"..KEY_ACTION_NAME, function() OnRelease(KEY,MAPPER) end, false) 
-            RegisterKeyMapping("+"..KEY_ACTION_NAME, description or KEY_ACTION_NAME , MAPPER, KEY) 
+            RegisterKeyMapping("+"..KEY_ACTION_NAME, (description or KEY_ACTION_NAME) , MAPPER, KEY) 
         end 
        
 	end 

@@ -112,12 +112,11 @@ Tasksync._initialized_tasksync = true
             
             local haschange = false 
             local haskilled = false 
-            return function(action,v,onchange) 
+            return function(action,v) 
                 if action == 'get' then 
                     return value 
                 elseif action == 'set' then 
                     if value ~= v then 
-                        if onchange then onchange(value,v) end 
                         haschange = true
                         value = v 
                     else 
@@ -152,7 +151,6 @@ Tasksync._initialized_tasksync = true
                     local fnList = (loop or e)
                     local isAnyJob = fnList[1]
                     if isAnyJob then 
-                        local debugtext = {}
                         for i=1,#fnList do 
                             local _nowfnname = fnList[i]
                             local f = Fn[_nowfnname]
