@@ -108,13 +108,21 @@ Tasksync._initialized_tasksync = true
             end 
         end 
         
-        local function newObject(value)
-            
+        local function newObject(default)
+            local value = default or 0
             local haschange = false 
             local haskilled = false 
             return function(action,v) 
                 if action == 'get' then 
-                    return value 
+                    if v then 
+                        local temphaschange = haschange
+                        local temphaskilled = haskilled
+                        haschange = false
+                        haskilled = false
+                        return value , temphaschange, temphaskilled
+                    else
+                        return value  
+                    end 
                 elseif action == 'set' then 
                     if value ~= v then 
                         haschange = true
@@ -122,20 +130,8 @@ Tasksync._initialized_tasksync = true
                     else 
                         haschange = false 
                     end 
-                elseif action == 'has' then 
-                    return value ~= nil
-                elseif action == 'haschange' then 
-                    local r = haschange
-                    haschange = false 
-                    return r
                 elseif action == 'kill' or action == 'break' then 
                     haskilled = true 
-                elseif action == 'haskill' then 
-                    local r = haskilled 
-                    haskilled = false 
-                    return r
-                else 
-                    error "invalid action"
                 end 
             end 
         end 
@@ -161,12 +157,13 @@ Tasksync._initialized_tasksync = true
                                 end 
                                 local duration_editor = setgeters[_nowfnname]
                                 f(duration_editor)
-                                if duration_editor('haskill') then 
+                                local durationset,haschange,haskilled = duration_editor('get',true)
+                                if haskilled then 
                                     setgeters[_nowfnname] = nil
                                     Tasksync.deleteloop(_nowfnname)
-                                elseif duration_editor('haschange') then 
+                                elseif haschange then 
                                     setgeters[_nowfnname] = nil
-                                    Tasksync.setloopcustomduration(_nowfnname,duration_editor('get')) ;
+                                    Tasksync.setloopcustomduration(_nowfnname,durationset) ;
                                 end 
                             end 
                         end 
