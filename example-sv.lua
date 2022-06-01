@@ -1,5 +1,4 @@
 load(LoadResourceFile("tasksync", 'tasksync.lua.sourcecode'))()
-load(LoadResourceFile("tasksync", 'tasksync_custom.lua.sourcecode'))()
 load(LoadResourceFile("tasksync", 'tasksync_once.lua.sourcecode'))()
 
 
